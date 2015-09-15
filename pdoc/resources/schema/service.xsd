@@ -1,0 +1,464 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/xml.xsd" />
+  
+  <xsd:element name="service" type="ServiceType">
+  </xsd:element>
+  
+  <xsd:complexType name="ServiceType">
+    <xsd:sequence minOccurs="0" maxOccurs="unbounded">
+      <xsd:choice>
+        <xsd:element name="failureCodes" type="FailureCodesType" />
+        <xsd:element name="enumerations" type="EnumerationsType" />
+        <xsd:element name="parameters" type="GlobalParametersType" />
+        <xsd:element name="telemetries" type="TelemetriesType" />
+        <xsd:element name="telecommands" type="TelecommandsType" />
+      </xsd:choice>
+    </xsd:sequence>
+    <xsd:attribute name="name" type="xsd:string" use="optional" />
+    <xsd:attribute ref="xml:base" use="optional" />
+  </xsd:complexType>
+
+  <xsd:complexType name="FailureCodesType">
+    <xsd:sequence>
+      <xsd:element name="failureCode" type="FailureCodeType" minOccurs="1" maxOccurs="unbounded" />
+    </xsd:sequence>
+    <xsd:attribute ref="xml:base" use="optional" />
+  </xsd:complexType>
+
+  <xsd:complexType name="FailureCodeType">
+    <xsd:sequence>
+      <xsd:element name="description" type="xsd:string" minOccurs="0" maxOccurs="1" />
+    </xsd:sequence>
+    <xsd:attribute name="name" type="xsd:string" use="required" />
+    <xsd:attribute name="uid" type="xsd:string" use="required" />
+    <xsd:attribute name="code" type="xsd:nonNegativeInteger" use="required" />
+  </xsd:complexType>
+
+  <xsd:complexType name="EnumerationsType">
+    <xsd:sequence>
+      <xsd:element name="enumeration" type="EnumerationType" minOccurs="0" maxOccurs="unbounded" />
+    </xsd:sequence>
+    <xsd:attribute ref="xml:base" use="optional" />
+  </xsd:complexType>
+
+  <xsd:complexType name="EnumerationType">
+    <xsd:sequence>
+      <xsd:element name="description" type="xsd:string" minOccurs="0" maxOccurs="1" />
+      <xsd:element name="entry" type="EnumerationEntryType" minOccurs="0" maxOccurs="unbounded" />
+    </xsd:sequence>
+    <xsd:attribute name="name" type="xsd:string" use="required" />
+    <xsd:attribute name="uid" type="xsd:string" use="required" />
+    <xsd:attribute name="width" type="xsd:integer" use="required">
+      <xsd:annotation>
+        <xsd:documentation>Width of the enumeration in bits.</xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+  </xsd:complexType>
+
+  <xsd:complexType name="EnumerationEntryType">
+    <xsd:sequence>
+      <xsd:element name="description" type="xsd:string" minOccurs="0" maxOccurs="1" />
+    </xsd:sequence>
+    <xsd:attribute name="name" use="required">
+      <xsd:simpleType>
+        <xsd:restriction base="xsd:string">
+          <xsd:minLength value="1"/>
+          <xsd:maxLength value="14"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+    </xsd:attribute>
+    <xsd:attribute name="value" use="required">
+      <xsd:simpleType>
+        <xsd:restriction base="xsd:string">
+          <xsd:minLength value="1"/>
+          <xsd:maxLength value="14"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+    </xsd:attribute>
+  </xsd:complexType>
+  
+  <xsd:complexType name="GlobalParametersType">
+    <xsd:sequence minOccurs="0" maxOccurs="unbounded">
+      <xsd:choice>
+        <xsd:element name="parameter" type="StandardParameterType" />
+        <xsd:element name="enumerationParameter" type="EnumerationParameterType" />
+        <xsd:element name="group" type="GroupParameterType" />
+        <xsd:element name="list" type="ListParameterType" />
+      </xsd:choice>
+    </xsd:sequence>
+    <xsd:attribute ref="xml:base" use="optional" />
+  </xsd:complexType>
+
+  <xsd:complexType name="TelemetriesType">
+    <xsd:sequence>
+      <xsd:element name="telemetry" type="TelemetryType" minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation>
+            Description of the structure of a telemetry packet.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+    <xsd:attribute ref="xml:base" use="optional" />
+  </xsd:complexType>
+  
+  <xsd:complexType name="TelemetryType">
+    <xsd:all>
+      <xsd:element name="designators" type="DesignatorsType" minOccurs="0" />
+      <xsd:element name="description" type="xsd:string" minOccurs="0" />
+      <xsd:element name="shortName" minOccurs="0">
+        <xsd:simpleType>
+          <xsd:restriction base="xsd:string">
+            <xsd:minLength value="1"/>
+            <xsd:maxLength value="12"/>
+          </xsd:restriction>
+        </xsd:simpleType>
+      </xsd:element>
+      
+      <xsd:element name="serviceType" type="xsd:unsignedByte" />
+      <xsd:element name="serviceSubtype" type="xsd:unsignedByte" />
+      
+      <xsd:element name="parameters" type="ParametersType" />
+      <xsd:element name="packetIdentification" type="PacketIdentificationType" minOccurs="0" />
+      <xsd:element name="note" type="AdditionalType" minOccurs="0" />
+      <xsd:element name="recommendation" type="AdditionalType" minOccurs="0" />
+      <xsd:element name="seeAlso" type="AdditionalType" minOccurs="0" />
+    </xsd:all>
+    <xsd:attribute name="name" use="required">
+      <xsd:simpleType>
+        <xsd:restriction base="xsd:string">
+          <xsd:minLength value="1"/>
+          <xsd:maxLength value="64"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+    </xsd:attribute>
+    <xsd:attribute name="uid" type="xsd:string" use="required" />
+  </xsd:complexType>
+
+  <xsd:complexType name="TelecommandsType">
+    <xsd:sequence>
+      <xsd:element name="telecommand" type="TelecommandType" minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation>
+            Description of the structure of a telecommand packet.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+    <xsd:attribute ref="xml:base" use="optional" />
+  </xsd:complexType>
+
+  <xsd:complexType name="TelecommandType">
+    <xsd:all>
+      <xsd:element name="designators" type="DesignatorsType" minOccurs="0" />
+      <xsd:element name="description" type="xsd:string" minOccurs="0" />
+      
+      <xsd:element name="shortName" minOccurs="0">
+        <xsd:simpleType>
+          <xsd:restriction base="xsd:string">
+            <xsd:minLength value="1"/>
+            <xsd:maxLength value="24"/>
+          </xsd:restriction>
+        </xsd:simpleType>
+      </xsd:element>
+      
+      <xsd:element name="serviceType" type="xsd:unsignedByte" />
+      <xsd:element name="serviceSubtype" type="xsd:unsignedByte" />
+      
+      <xsd:element name="parameters" type="ParametersType" />
+      <xsd:element name="parameterValues" type="ParameterValuesType" minOccurs="0" />
+      <xsd:element name="critical" type="CriticalityType" minOccurs="0" />
+
+      <xsd:element name="failureIdentification" type="FailureIdentificationType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>
+            Used to specify which failure codes are generated (through PUS
+            service 1) by the telecommand to indicate a failure in executing the
+            telecommand.
+
+            Must match a previous definition of a failure code. Use the
+            description tag for a general description of the failure
+            handling that does not refer to a specify failure code.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="relevantTelemetry" type="RelevantTelemetryType" minOccurs="0" />
+
+      <xsd:element name="purpose" type="AdditionalType" minOccurs="0" />
+      <xsd:element name="note" type="AdditionalType" minOccurs="0" />
+      <xsd:element name="effects" type="AdditionalType" minOccurs="0" />
+      <xsd:element name="recommendation" type="AdditionalType" minOccurs="0" />
+      <xsd:element name="seeAlso" type="AdditionalType" minOccurs="0" />
+    </xsd:all>
+    <xsd:attribute name="name" use="required">
+      <xsd:simpleType>
+        <xsd:restriction base="xsd:string">
+          <xsd:minLength value="1"/>
+          <xsd:maxLength value="64"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+    </xsd:attribute>
+    <xsd:attribute name="uid" type="xsd:string" use="required" />
+  </xsd:complexType>
+  
+  <xsd:complexType name="PacketIdentificationType">
+  <xsd:sequence>
+    <xsd:element name="identificationParameter" minOccurs="0" maxOccurs="2">
+      <xsd:complexType>
+        <xsd:attribute name="uid" type="xsd:string" use="required" />
+        <xsd:attribute name="value" type="xsd:string" use="required" />
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:sequence>
+  </xsd:complexType>
+  
+  <xsd:complexType name="AdditionalType">
+    <xsd:simpleContent>
+      <xsd:extension base="xsd:string">
+        <xsd:attribute name="heading" type="xsd:string" use="optional" />
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  
+  <xsd:complexType name="FailureIdentificationType">
+  <xsd:sequence>
+    <xsd:element name="description" type="xsd:string" minOccurs="0" maxOccurs="1" />
+    <xsd:element name="failureCodeRef" minOccurs="1" maxOccurs="unbounded">
+      <xsd:complexType>
+        <xsd:sequence>
+          <xsd:element name="description" type="xsd:string" minOccurs="0" maxOccurs="1" />
+        </xsd:sequence>
+        <xsd:attribute name="uid" type="xsd:string" use="required" />
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:sequence>
+  </xsd:complexType>
+  
+  <xsd:complexType name="RelevantTelemetryType">
+  <xsd:sequence>
+    <xsd:element name="telemetryRef" minOccurs="1" maxOccurs="unbounded">
+      <xsd:complexType>
+        <xsd:sequence>
+          <xsd:element name="description" type="xsd:string" minOccurs="0" maxOccurs="1" />
+        </xsd:sequence>
+        <xsd:attribute name="uid" type="xsd:string" use="required" />
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="DesignatorsType">
+    <xsd:sequence>
+      <xsd:choice minOccurs="0" maxOccurs="unbounded">
+        <xsd:element name="designator">
+          <xsd:complexType>
+            <xsd:attribute name="name" type="xsd:string" use="required" />
+            <xsd:attribute name="value" type="xsd:string" use="required" />
+          </xsd:complexType>
+        </xsd:element>
+      </xsd:choice>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:simpleType name="CriticalityType">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="No" />
+      <xsd:enumeration value="Yes" />
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <xsd:group name="Parameters">
+    <xsd:annotation>
+      <xsd:documentation>
+        Groups all the parameters which may appear in a parameters tag of
+        a TM/TC packet or in a group within these parameters.
+      </xsd:documentation>
+    </xsd:annotation>
+    
+    <xsd:sequence>
+      <xsd:choice minOccurs="0" maxOccurs="unbounded">
+        <xsd:element name="group" type="GroupParameterType" />
+        <xsd:element name="parameter" type="StandardParameterType" />
+        <xsd:element name="enumerationParameter" type="EnumerationParameterType" />
+        
+        <xsd:element name="parameterRef" type="ParameterRefType" />
+      </xsd:choice>
+    </xsd:sequence>
+  </xsd:group>
+
+  <xsd:complexType name="ParametersType">
+    <xsd:sequence>
+      <xsd:group ref="Parameters" />
+    </xsd:sequence>
+  </xsd:complexType>
+  
+  <xsd:complexType name="ParameterType">
+    <xsd:sequence>
+      <xsd:element name="shortName" minOccurs="0">
+        <xsd:simpleType>
+          <xsd:restriction base="xsd:string">
+            <xsd:minLength value="1"/>
+            <xsd:maxLength value="16"/>
+          </xsd:restriction>
+        </xsd:simpleType>
+      </xsd:element>
+      <xsd:element name="description" type="xsd:string" minOccurs="0" maxOccurs="1" />
+      
+      <xsd:choice minOccurs="0">
+        <xsd:element name="fixed" type="FixedValueType" />
+        <xsd:element name="range" type="RangeValueType" />
+        <xsd:element name="default" type="DefaultValueType" />
+      </xsd:choice>
+    </xsd:sequence>
+    <xsd:attribute name="name" type="xsd:string" use="required" />
+    <xsd:attribute name="uid" type="xsd:string" use="required" />
+  </xsd:complexType>
+
+  <xsd:complexType name="GroupParameterType">
+    <xsd:complexContent>
+      <xsd:extension base="ParameterType">
+        <xsd:group ref="Parameters" />
+        
+        <xsd:attribute name="type" type="TypeType" use="required" />
+        <xsd:attribute name="width" type="xsd:integer" use="optional" />
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:complexType name="StandardParameterType">
+    <xsd:complexContent>
+      <xsd:extension base="ParameterType">
+        <xsd:attribute name="type" type="TypeType" use="required" />
+        <xsd:attribute name="width" type="xsd:integer" use="optional">
+          <xsd:annotation>
+            <xsd:documentation>
+              Only used in combination with type "octet" or "ascii" to define a
+              fixed length byte array. The width is given in bytes (octets).
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="unit" use="optional">
+          <xsd:simpleType>
+            <xsd:restriction base="xsd:string">
+              <xsd:minLength value="1"/>
+              <xsd:maxLength value="4"/>
+            </xsd:restriction>
+          </xsd:simpleType>
+        </xsd:attribute>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  
+  <xsd:complexType name="EnumerationParameterType">
+    <xsd:complexContent>
+      <xsd:extension base="ParameterType">
+        <xsd:attribute name="enumeration" type="xsd:string" use="required" />
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  
+  <xsd:complexType name="ListParameterType">
+    <xsd:annotation>
+      <xsd:documentation>
+        A list allows to group multiple parameters and access using a single
+        UID. The list is not a SCOS construct and is only used within the
+        XML file to simplify the creation of the structure definition.
+        
+        After parsing the structure the list is removed and replaced with the
+        parameters contained within.
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="description" type="xsd:string" minOccurs="0" maxOccurs="1" />
+      
+      <xsd:group ref="Parameters" />
+    </xsd:sequence>
+    <xsd:attribute name="name" type="xsd:string" use="required" />
+    <xsd:attribute name="uid" type="xsd:string" use="required" />
+  </xsd:complexType>
+  
+  <xsd:complexType name="ParameterRefType">
+    <xsd:attribute name="uid" type="xsd:string" use="required" />
+  </xsd:complexType>
+  
+  <xsd:complexType name="ParameterValuesType">
+    <xsd:sequence>
+      <xsd:element name="parameterValue" type="ParameterRefValueType" minOccurs="0" maxOccurs="unbounded" />
+    </xsd:sequence>
+  </xsd:complexType>
+  
+   <xsd:complexType name="ParameterRefValueType">
+     <xsd:choice>
+      <xsd:element name="fixed" type="FixedValueType" />
+      <xsd:element name="range" type="RangeValueType" />
+      <xsd:element name="default" type="DefaultValueType" />
+    </xsd:choice>
+    <xsd:attribute name="uid" type="xsd:string" use="required" />
+  </xsd:complexType>
+  
+  <xsd:complexType name="FixedValueType">
+    <xsd:attribute name="value" type="xsd:string" use="required" />
+  </xsd:complexType>
+
+  <xsd:complexType name="RangeValueType">
+    <xsd:attribute name="min" type="xsd:string" use="required" />
+    <xsd:attribute name="max" type="xsd:string" use="required" />
+    <xsd:attribute name="default" type="xsd:string" use="optional" />
+  </xsd:complexType>
+  
+  <xsd:complexType name="DefaultValueType">
+    <xsd:attribute name="value" type="xsd:string" use="required" />
+  </xsd:complexType>
+
+  <xsd:simpleType name="TypeType">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="uint1" />
+      <xsd:enumeration value="uint2" />
+      <xsd:enumeration value="int2" />
+      <xsd:enumeration value="uint3" />
+      <xsd:enumeration value="int3" />
+      <xsd:enumeration value="uint4" />
+      <xsd:enumeration value="int4" />
+      <xsd:enumeration value="uint5" />
+      <xsd:enumeration value="int5" />
+      <xsd:enumeration value="uint6" />
+      <xsd:enumeration value="int6" />
+      <xsd:enumeration value="uint7" />
+      <xsd:enumeration value="int7" />
+      <xsd:enumeration value="uint8" />
+      <xsd:enumeration value="int8" />
+      
+      <xsd:enumeration value="uint9" />
+      <xsd:enumeration value="int9" />
+      <xsd:enumeration value="uint10" />
+      <xsd:enumeration value="int10" />
+      <xsd:enumeration value="uint11" />
+      <xsd:enumeration value="int11" />
+      <xsd:enumeration value="uint12" />
+      <xsd:enumeration value="int12" />
+      <xsd:enumeration value="uint13" />
+      <xsd:enumeration value="int13" />
+      <xsd:enumeration value="uint14" />
+      <xsd:enumeration value="int14" />
+      <xsd:enumeration value="uint15" />
+      <xsd:enumeration value="int15" />
+      <xsd:enumeration value="uint16" />
+      <xsd:enumeration value="int16" />
+      
+      <xsd:enumeration value="uint24" />
+      <xsd:enumeration value="int24" />
+      
+      <xsd:enumeration value="uint32" />
+      <xsd:enumeration value="int32" />
+      <xsd:enumeration value="float32" />
+      <xsd:enumeration value="float64" />
+
+      <xsd:enumeration value="octet" />
+      <xsd:enumeration value="ascii" />
+      <xsd:enumeration value="time4" />
+      <xsd:enumeration value="time4.2" />
+    </xsd:restriction>
+  </xsd:simpleType>
+</xsd:schema>
+  

@@ -1,0 +1,69 @@
+\begin{longtable}{p{.97\textwidth}}
+%\caption{}
+\label{tab:<< identifier >>}\\
+\toprule
+\textbf{Name:} << packet.name >> \\
+\endfirsthead
+\multicolumn{1}{r}{continued from previous page} \\
+\midrule
+\endhead
+\multicolumn{1}{r}{continued on next page} \\
+\endfoot
+\endlastfoot
+
+<% if packet.critical %>
+\midrule
+\textbf{Critical command:} << packet.critical >> \\
+<% endif %>
+
+<% if packet.designators %>
+	\midrule
+	\textbf{Designators:}\newline
+	\begin{tabular}{@{\hskip .3cm}ll@{}}
+	<% for designator in packet.designators %>
+		\emph{<< designator.name >>} & << designator.value >> \\
+	<% endfor %>
+	\end{tabular}\\
+<% endif %>
+
+\midrule
+\textbf{Parameter:}<% if not parameters %> No parameters<% else %>\setlength{\parskip}{6pt}
+
+	<% if image %>
+		\includegraphics[width=150mm]{<< image >>}
+
+		\textbf{Parameter Description:}
+	<% endif %>
+
+	<% if useMinMax %>
+		\begin{tabular}{@{\hskip .3cm}lllllll@{}}
+		\textbf{Name} & \textbf{Type} & \textbf{Width} & \textbf{Unit} & \textbf{Min} & \textbf{Max} & \textbf{Description} \\
+		<% for parameter in parameters %>
+			\emph{<< parameter.name >>} & << parameter.type >> & <% if parameter.width == 0 %>variable<% else %><< parameter.width >> Bit<% endif %> & << parameter.unit >> & <<parameter.min >> & << parameter.max >> & << parameter.description >> \\
+		<% endfor %>
+		\end{tabular}
+	<% else %>
+		\begin{tabular}{@{\hskip .3cm}llll@{}}
+		\textbf{Name} & \textbf{Type} & \textbf{Width} & \textbf{Description} \\
+		<% for parameter in parameters %>
+			\emph{<< parameter.name >>} & << parameter.type >> & <% if parameter.width == 0 %>variable<% else %><< parameter.width >> Bit<% endif %> & << parameter.description >> \\
+		<% endfor %>
+		\end{tabular}
+	<% endif %>
+<% endif %> \\
+<% if packet.relevantTelemetry|length > 0 %>
+\midrule
+\textbf{Expected Response:}\setlength{\parskip}{6pt}
+
+<% for tm in packet.relevantTelemetry %>
+~~~\llap{\textbullet}~~<< tm.name >> \\
+<% endfor %><% endif %>
+<% for additional in packet.additional %><% if additional.text %>
+	\midrule
+	\textbf{<< additional.heading >>:}\setlength{\parskip}{6pt}
+
+	<< additional.text >>\\<% endif %>
+<% endfor %>
+
+\bottomrule
+\end{longtable}

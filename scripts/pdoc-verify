@@ -1,0 +1,107 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import os
+import sys
+import logging
+import argparse
+
+rootpath = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..")
+sys.path.append(rootpath)
+
+import pdoc
+
+logger = logging.getLogger('pdoc.model')
+
+def _printUnmappedParameters(packet, unresolved, additional):
+	for parameter in unresolved:
+		logger.error("Packet '%s': parameter '%s' not found in mapping" % (packet.uid, parameter))
+	for parameter in additional:
+		logger.error("Packet '%s': unexpected parameter '%s' found in mapping" % (packet.uid, parameter))
+
+arg = argparse.ArgumentParser(description='p.doc Mapping Verification')
+arg.add_argument('-i', '--input', dest='input', required=True, help='XML packet description ')
+arg.add_argument('-d', '--detailed',
+				dest='detailed',
+				default=False, action='store_true', required=False,
+				help='Detailed analysis about all unused (without mapping) TM/TC packets and parameters.')
+args = arg.parse_args()
+
+parser = pdoc.parser.Parser()
+
+try:
+	model = parser.parse(args.input)
+	
+	# Verify that all telecommands and telemetry packets in the
+	# mapping section define all the parameters defined in the structure.
+	success = True
+	
+	# Check telecommand parameters
+	for p in model.getUnmappedTelecommandParameters():
+		success = False
+		logger.error("Parameter '%s' not found in mapping" % (p.uid))
+	
+	# Find parameters that are used in TC parameter mapping but not
+	# referenced in any TC packet
+	for p in model.getMappedButUnreferencedTelecommandParameter():
+		success = False
+		logger.error("Parameter '%s' found in mapping but not in any TC packet" % (p.uid))
+	
+	# Check telemetry parameters
+	for p in model.getUnmappedTelemetryParameters():
+		success = False
+		_printUnmappedParameters(p[0], p[1], p[2])
+	
+	# Check that for all enumerations a corresponding mapping is available
+	# and that all mapped enumerations are defined somewhere in the XML file.
+	atc, utc, atm, utm = model.getUnmappedEnumerations()
+	for unresolved in utm:
+		logger.error("No telemetry enumeration mapping found for uid '%s'" % (unresolved))
+		success = False
+	for unresolved in utc:
+		logger.error("No telecommand enumeration mapping found for uid '%s'" % (unresolved))
+		success = False
+	for additional in atm:
+		logger.error("Telemetry enumeration mapping '%s' for uid '%s' not used!" % (additional.sid, additional.enumeration.uid))
+		success = False
+	for additional in atc:
+		logger.error("Telecommand enumeration mapping '%s' for uid '%s' not used!" % (additional.sid, additional.enumeration.uid))
+		success = False
+	
+	# Verify that the combination of APID, STYPE, SSTYPE and the two
+	# identification fields is unique.
+	for packet in model.getAmbiguousTelemetryPackets():
+		logger.error("TM packet '%s' and '%s' are ambiguous" % (packet[0].uid, packet[1].uid))
+		success = False
+	
+	for packet in model.getAmbiguousPacketMappings():
+		logger.error("packet SID '%s' is used for '%s' and '%s'" % (packet[0], packet[1].uid, packet[2].uid))
+		success = False
+	
+	if not success:
+		raise pdoc.parser.ParserException("Incomplete mapping. Please add/remove the requested elements!")
+	else:
+		if args.detailed:
+			parameters = model.getUnusedParameters()
+			if len(parameters) > 0:
+				print("\nUnused parameters:")
+				for parameter in parameters:
+					print("-", parameter)
+			
+			telemetries = model.getUnusedTelemetries()
+			if len(telemetries) > 0:
+				print("\nUnused telemetry packets:")
+				for telemetry in telemetries:
+					print("-", telemetry)
+			
+			telecommands = model.getUnusedTelecommands()
+			if len(telecommands) > 0:
+				print("\nUnused telecommand packets:")
+				for telecommand in telecommands:
+					print("-", telecommand)
+		else:
+			print("Verify Ok!")
+except pdoc.parser.ParserException as e:
+	print("\nError: %s" % e)
+	exit(1)
+

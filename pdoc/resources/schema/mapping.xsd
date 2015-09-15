@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/xml.xsd" />
+
+  <xsd:element name="mapping" type="MappingType">
+    <xsd:annotation>
+      <xsd:documentation>
+        Creates a mapping between the structure definition of TM/TC packets done
+        in the service tags and the information stored in the MIB. The MIB has
+        some limitations which are addressed in this mapping:
+        
+        - A telemetry parameter in the MIB must uniquely identify an APID and
+          telemetry packet.
+        
+        - For telecommands only the telecommand packets must identify an APID
+          but the telecommand parameter can be shared between multiple packets.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <!-- Check that APID is unique -->
+    <xsd:unique name="mappingApidUnique">
+      <xsd:selector xpath="application" />
+      <xsd:field xpath="@apid" />
+    </xsd:unique>
+  </xsd:element>
+
+  <xsd:complexType name="MappingType">
+  <xsd:sequence>
+    <xsd:element name="description" type="xsd:string" minOccurs="0" maxOccurs="1" />
+    <xsd:element name="enumerations" type="EnumerationsMappingType" minOccurs="0" maxOccurs="1" />
+    <xsd:element name="telecommandParameters" type="TelecommandParametersMappingType" minOccurs="0" maxOccurs="1" />
+    <xsd:element name="application" type="ApplicationType" minOccurs="0" maxOccurs="unbounded" />
+  </xsd:sequence>
+  <xsd:attribute name="subsystem" use="required">
+    <xsd:simpleType>
+      <xsd:restriction base="xsd:integer">
+         <xsd:minInclusive value="0"/>
+         <xsd:maxInclusive value="255"/>
+      </xsd:restriction>
+   </xsd:simpleType>
+  </xsd:attribute>
+  <xsd:attribute ref="xml:base" use="optional" />
+  </xsd:complexType>
+  
+  <xsd:complexType name="EnumerationsMappingType">
+  <xsd:sequence minOccurs="0" maxOccurs="unbounded">
+    <xsd:choice>
+      <xsd:element name="telemetryEnumerationMapping" type="MappingElementType" />
+      <xsd:element name="telecommandEnumerationMapping" type="MappingElementType" />
+    </xsd:choice>
+  </xsd:sequence>
+  </xsd:complexType>
+  
+  <xsd:complexType name="TelecommandParametersMappingType">
+  <xsd:annotation>
+    <xsd:documentation>
+      Provides a mapping between the uid of parameters of a TC packet and their
+      corresponding SCOS id (CCF_NAME). The mapping between the packet
+      itself and SCOS is done in the applications. This is due to the fact
+      that every TC packet must uniquely identify its application, but a
+      parameter can be used in multiple packets.
+    </xsd:documentation>
+  </xsd:annotation>
+  <xsd:sequence>
+    <xsd:element name="description" type="xsd:string" minOccurs="0" maxOccurs="1" />
+    <xsd:element name="parameterMapping" type="MappingElementType" minOccurs="0" maxOccurs="unbounded" />
+  </xsd:sequence>
+  </xsd:complexType>
+  
+  <xsd:complexType name="ApplicationType">
+    <xsd:sequence>
+      <xsd:element name="description" type="xsd:string" minOccurs="0" maxOccurs="1" />
+      <xsd:element name="telemetries" type="TelemetriesMappingType" minOccurs="0" maxOccurs="1" />
+      <xsd:element name="telecommands" type="TelecommandsMappingReferenceType" minOccurs="0" maxOccurs="1" />
+    </xsd:sequence>
+    <xsd:attribute name="name" type="xsd:string" use="required" />
+    <xsd:attribute name="apid" type="HexadecimalNumberType" use="required" />
+  </xsd:complexType>
+  
+  <xsd:simpleType name="HexadecimalNumberType">
+    <xsd:restriction base="xsd:token">
+      <xsd:pattern value="0x[\dA-F]{1,3}" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  
+  <xsd:complexType name="TelemetriesMappingType">
+  <xsd:annotation>
+    <xsd:documentation>
+      Mapping between TM packet and SCOS. The TM packets need to be defined
+      here down to their parameters, as a TM parameter in SCOS needs to define
+      the source of the data and not only the structure and therefore must
+      identify the packet and application id.
+    </xsd:documentation>
+  </xsd:annotation>
+  <xsd:sequence>
+    <xsd:element name="telemetry" type="TelemetryMappingType" minOccurs="0" maxOccurs="unbounded" />
+  </xsd:sequence>
+  </xsd:complexType>
+  
+  <xsd:complexType name="TelecommandsMappingReferenceType">
+  <xsd:sequence>
+    <xsd:element name="telecommandMappingRef" type="MappingElementType" minOccurs="0" maxOccurs="unbounded" />
+  </xsd:sequence>
+  </xsd:complexType>
+  
+  <xsd:complexType name="TelemetryMappingType">
+    <xsd:complexContent>
+      <xsd:extension base="MappingElementType">
+        <xsd:sequence>
+         <xsd:element name="description" type="xsd:string" minOccurs="0" maxOccurs="1" />
+         <xsd:element name="parameterMapping" type="MappingElementType" minOccurs="0" maxOccurs="unbounded" />
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  
+  <xsd:complexType name="MappingElementType">
+    <xsd:attribute name="uid" type="xsd:string" use="required" />
+    <xsd:attribute name="sid" type="xsd:string" use="required" />
+  </xsd:complexType>
+</xsd:schema>

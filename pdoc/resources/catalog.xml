@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
+  <uri name="http://www.dlr.de/irs/schema/telecommunication.xsd" uri="schema/telecommunication.xsd" />
+  <uri name="http://www.dlr.de/irs/schema/service.xsd" uri="schema/service.xsd" />
+  <uri name="http://www.dlr.de/irs/schema/mapping.xsd" uri="schema/mapping.xsd" />
+  <uri name="http://www.w3.org/2001/XInclude" uri="schema/xinclude.xsd" />
+  <uri name="http://www.w3.org/2001/xml.xsd" uri="schema/xml.xsd" />
+</catalog>

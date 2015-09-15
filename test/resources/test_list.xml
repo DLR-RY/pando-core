@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<telecommunication
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance"
+  xsd:noNamespaceSchemaLocation="http://www.dlr.de/irs/schema/telecommunication.xsd">
+
+  <service>
+    <parameters>
+      <list name="A List of Parameters" uid="list">
+        <parameter name="Parameter 1" uid="p1" type="uint8" />
+        <parameter name="Parameter 2" uid="p2" type="uint16" />
+        <parameter name="Parameter 3" uid="p3" type="uint32" />
+      </list>
+    </parameters>
+    
+    <telecommands>
+      <telecommand name="Test" uid="test">
+        <serviceType>0</serviceType>
+        <serviceSubtype>0</serviceSubtype>
+        
+        <parameters>
+          <parameterRef uid="list" />
+        </parameters>
+      </telecommand>
+    </telecommands>
+  </service>
+</telecommunication>

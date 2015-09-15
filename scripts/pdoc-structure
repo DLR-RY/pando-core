@@ -1,0 +1,46 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import os
+import sys
+import logging
+import argparse
+
+rootpath = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..")
+sys.path.append(rootpath)
+
+import pdoc
+
+logger = logging.getLogger('pdoc.model')
+
+arg = argparse.ArgumentParser(description='p.doc Mapping Verification')
+arg.add_argument('-i', '--input', dest='input', required=True, help='XML packet description ')
+arg.add_argument('-u', '--uid', dest='uid', required=True, help='Packet UID to be analyzed')
+
+args = arg.parse_args()
+
+parser = pdoc.parser.Parser()
+
+try:
+	model = parser.parse(args.input)
+	
+	try:
+		packet = model.telecommands[args.uid]
+	except KeyError:
+		try:
+			packet = model.telemetries[args.uid]
+		except KeyError:
+			raise pdoc.parser.ParserException("Packet '%s' not found!" % args.uid)
+	
+	print(packet.name)
+	bitposition = 0
+	for parameter in packet.getParametersAsFlattenedList():
+		width = parameter.type.width
+		print(bitposition, width, parameter.name)
+		bitposition += width
+		if bitposition % 8 == 0:
+			print(int(bitposition / 8), '-----------------')
+except pdoc.parser.ParserException as e:
+	print("\nError: %s" % e)
+	exit(1)
+

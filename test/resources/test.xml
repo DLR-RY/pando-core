@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<telecommunication
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance"
+  xsd:noNamespaceSchemaLocation="http://www.dlr.de/irs/schema/telecommunication.xsd">
+
+  <service>
+    <enumerations>
+      <enumeration name="Large Data Unit Id" uid="E0" width="8">
+        <entry name="Unit1" value="0" />
+        <entry name="Unit3" value="1" />
+        <entry name="Unit17" value="2" />
+      </enumeration>
+    </enumerations>
+
+    <parameters>
+      <parameter name="Parameter ID" uid="P7" type="uint16">
+        <default value="123456" />
+      </parameter>
+      
+      <enumerationParameter name="Range" uid="P21" enumeration="E0">
+        <fixed value="Unit1" />
+      </enumerationParameter>
+      
+      <group name="NPAR" uid="G1" type="uint16">
+        <description>
+          Number of parameters. The description can be longer
+          and stretch over multiple lines.
+          
+          The indentation is removed when parsing the text.
+        </description>
+        <range min="1" max="10" />
+        
+        <parameterRef uid="P7" />
+      </group>
+    </parameters>
+
+    <telemetries>
+      <telemetry name="Diagnostic Parameter Report Definitions Report (3, 12)" uid="service_3_12">
+        <serviceType>3</serviceType>
+        <serviceSubtype>12</serviceSubtype>
+        
+        <parameters>
+          <group name="NSID" uid="G0" type="uint16">
+            <default value="2" />
+            
+            <parameter name="SID" uid="P9" type="uint16">
+              <description></description>
+            </parameter>
+            <parameter name="Collection Interval" uid="P6" type="uint32" />
+            <parameterRef uid="G1" />
+            <parameter name="NFA" uid="P8" type="uint16">
+              <description>Number of Fixed Array parameters. Not used here and must be set to zero.</description>
+            </parameter>
+          </group>
+          <parameterRef uid="P21"/>
+        </parameters>
+      </telemetry>
+      
+      <telemetry name="Other" uid="other">
+        <serviceType>0</serviceType>
+        <serviceSubtype>0</serviceSubtype>
+        
+        <parameters>
+          <parameter name="SID" uid="P100" type="uint16" />
+          <parameterRef uid="P21" />
+        </parameters>
+      </telemetry>
+    </telemetries>
+
+    <telecommands>
+      <telecommand name="Time Synchronization" uid="time_sync">
+        <serviceType>9</serviceType>
+        <serviceSubtype>128</serviceSubtype>
+
+        <parameters>
+          <parameter name="Time" uid="P1" type="time4.2" unit="sec" />
+        </parameters>
+        <purpose>
+		Set a new absolute time. The time is relative
+		to the GPS epoch (1980-01-06T00:00:00Z).
+	    </purpose>
+
+        <recommendation>
+		The time should be syncronized at least every day. During the normal
+		operations this is done automatically by the OBC.
+		
+		Can also be executed from ground.
+	</recommendation>
+      </telecommand>
+
+      <telecommand name="Selecting diagnostic parameter report generation mode" uid="TEST01">
+        <serviceType>0</serviceType>
+        <serviceSubtype>0</serviceSubtype>
+        
+        <parameters>
+          <parameter name="SID" uid="P2" type="uint16" />
+        </parameters>
+      </telecommand>
+
+      <telecommand name="Enable diagnostic parameter report generation" uid="TEST02">
+        <critical>Yes</critical>
+        
+        <serviceType>0</serviceType>
+        <serviceSubtype>0</serviceSubtype>
+        
+        <parameters>
+          <parameter name="SID" uid="P3" type="uint32" />
+          <parameterRef uid="P21" />
+        </parameters>
+        
+        <parameterValues>
+          <parameterValue uid="P21">
+            <default value="Unit17" />
+          </parameterValue>
+        </parameterValues>
+        
+        <relevantTelemetry>
+          <telemetryRef uid="service_3_12" />
+        </relevantTelemetry>
+      </telecommand>
+    </telecommands>
+  </service>
+
+  <service name="test">
+    <enumerations>
+      <enumeration name="Some Enumeration" uid="E1" width="16">
+        <entry name="Key0" value="10" />
+        <entry name="Key1" value="213" />
+      </enumeration>
+    </enumerations>
+    
+    <telecommands>
+      <telecommand name="Test Packet" uid="TEST03">
+        <serviceType>8</serviceType>
+        <serviceSubtype>100</serviceSubtype>
+        
+        <parameters>
+          <enumerationParameter name="Large Data Unit Id" uid="P4" enumeration="E0" />
+          <group name="NSID" uid="G3" type="uint8">
+            <parameter name="Sequence Number" uid="P10" type="uint32" />
+            <group name="N" uid="G4" type="uint16">
+              <parameter name="Service Data Unit Part" uid="P5" type="octet" />
+            </group>
+          </group>
+        </parameters>
+        
+        <parameterValues>
+          <parameterValue uid="P10">
+            <fixed value="20" />
+          </parameterValue>
+        </parameterValues>
+      </telecommand>
+    </telecommands>
+  </service>
+  
+  <mapping subsystem="0">
+    <enumerations>
+      <enumerationMapping sid="0000" uid="E0" />
+      <enumerationMapping sid="0001" uid="E1" />
+    </enumerations>
+    
+    <telecommandParameters>
+      <parameterMapping sid="DHSP0000" uid="P4" />
+      <parameterMapping sid="DHSP0001" uid="G3" />
+      <parameterMapping sid="DHSP0002" uid="P10" />
+      <parameterMapping sid="DHSP0004" uid="P5" />
+      <parameterMapping sid="DHSP0003" uid="G4" />
+    </telecommandParameters>
+    
+    <application name="Test Application" apid="0x123">
+      <telemetries>
+        <telemetry sid="51234" uid="service_3_12">
+          <parameterMapping sid="DHST0001" uid="G0" />
+          <parameterMapping sid="DHST0002" uid="P9" />
+          <parameterMapping sid="DHST0003" uid="P6" />
+          <parameterMapping sid="DHST0004" uid="G1" />
+          <parameterMapping sid="DHST0005" uid="P7" />
+          <parameterMapping sid="DHST0006" uid="P8" />
+          <parameterMapping sid="DHST0007" uid="P21" />
+        </telemetry>
+        
+        <telemetry uid="other" sid="51235">
+          <parameterMapping sid="DHST0008" uid="P100" />
+          <parameterMapping sid="DHST0009" uid="P21" />
+        </telemetry>
+      </telemetries>
+      
+      <telecommands>
+        <telecommandMappingRef sid="DHSC0001" uid="TEST03" /> 
+      </telecommands>
+    </application>
+  </mapping>
+</telecommunication>

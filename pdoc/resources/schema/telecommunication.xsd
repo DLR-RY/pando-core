@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <xsd:include schemaLocation="service.xsd" />
+  <xsd:include schemaLocation="mapping.xsd" />
+  
+  <xsd:import namespace="http://www.w3.org/XML/1998/namespace"
+              schemaLocation="http://www.w3.org/2001/xml.xsd" />
+
+  <xsd:element name="telecommunication" type="RootType">
+    <!-- check uniqueness of failure codes -->
+    <xsd:unique name="failureCodeUnique">
+      <xsd:selector xpath="service/failureCodes/failureCode" />
+      <xsd:field xpath="@code" />
+    </xsd:unique>
+    
+    <xsd:unique name="failureCodeUidUnique">
+      <xsd:selector xpath="service/failureCodes/failureCode" />
+      <xsd:field xpath="@uid" />
+    </xsd:unique>
+    
+    <xsd:key name="failureCodeUidKey">
+      <xsd:selector xpath="service/failureCodes/failureCode" />
+      <xsd:field xpath="@uid" />
+    </xsd:key>
+
+    <xsd:keyref name="failureCodeUidRef" refer="failureCodeUidKey">
+      <xsd:selector xpath="service/telecommands/telecommand/failureIdentification/failureCodeRef" />
+      <xsd:field xpath="@uid" />
+    </xsd:keyref>
+    
+    <!-- check uniqueness of enumerations codes -->
+    <xsd:unique name="enumerationUidUnique">
+      <xsd:selector xpath=".//enumeration" />
+      <xsd:field xpath="@uid" />
+    </xsd:unique>
+
+    <xsd:key name="enumerationUidKey">
+      <xsd:selector xpath=".//enumeration" />
+      <xsd:field xpath="@uid" />
+    </xsd:key>
+
+    <xsd:keyref name="enumerationUidRef" refer="enumerationUidKey">
+      <xsd:selector xpath=".//enumerationParameter" />
+      <xsd:field xpath="@enumeration" />
+    </xsd:keyref>
+    
+    <!-- check uniqueness of parameter identification -->
+    <xsd:unique name="parameterUidUnique">
+      <xsd:selector xpath=".//parameter | .//enumerationParameter | .//group | .//list" />
+      <xsd:field xpath="@uid" />
+    </xsd:unique>
+
+    <xsd:key name="parameterUidKey">
+      <xsd:selector xpath="service/parameters/parameter | service/parameters/enumerationParameter | service/parameters/group | service/parameters/list" />
+      <xsd:field xpath="@uid" />
+    </xsd:key>
+
+    <xsd:keyref name="parameterUidRef" refer="parameterUidKey">
+      <xsd:selector xpath=".//parameterRef | .//identificationParameter" />
+      <xsd:field xpath="@uid" />
+    </xsd:keyref>
+    
+    <xsd:key name="parameterValueUidKey">
+      <xsd:selector xpath=".//parameter | .//enumerationParameter | .//group" />
+      <xsd:field xpath="@uid" />
+    </xsd:key>
+
+    <xsd:keyref name="parameterValueUidRef" refer="parameterValueUidKey">
+      <xsd:selector xpath=".//parameterValue" />
+      <xsd:field xpath="@uid" />
+    </xsd:keyref>
+
+    <!-- check uniqueness of telemetry and telecommand identification -->
+    <xsd:unique name="telemetryUidUnique">
+      <xsd:selector xpath="service/telemetries/telemetry | service/telecommands/telecommand" />
+      <xsd:field xpath="@uid" />
+    </xsd:unique>
+    
+    <xsd:key name="telemetryUidKey">
+      <xsd:selector xpath="service/telemetries/telemetry" />
+      <xsd:field xpath="@uid" />
+    </xsd:key>
+
+    <xsd:keyref name="telemetryUidRef" refer="telemetryUidKey">
+      <xsd:selector xpath="service/telecommands/telecommand/relevantTelemetry/telemetryRef" />
+      <xsd:field xpath="@uid" />
+    </xsd:keyref>
+    
+    <xsd:key name="telecommandUidKey">
+      <xsd:selector xpath="service/telecommands/telecommand" />
+      <xsd:field xpath="@uid" />
+    </xsd:key>
+    
+    <!-- ##################### Mapping ##################### -->
+    <!-- check uniqueness of APIDs -->
+    <xsd:unique name="apidUnique">
+      <xsd:selector xpath="mapping/application" />
+      <xsd:field xpath="@apid" />
+    </xsd:unique>
+    
+    <!-- Check that only previously defined enumerations are used
+         within the enumeration mapping -->
+    <xsd:keyref name="enumerationMappingUidRef" refer="enumerationUidKey">
+      <xsd:selector xpath="mapping/enumerations/telecommandEnumerationMapping | mapping/enumerations/telemetryEnumerationMapping" />
+      <xsd:field xpath="@uid" />
+    </xsd:keyref>
+    
+    <!-- Check that the enumeration SID are unqiue within the project -->
+    <xsd:unique name="enumerationMappingSidUnique">
+      <xsd:selector xpath="mapping/enumerations/telecommandEnumerationMapping | mapping/enumerations/telemetryEnumerationMapping" />
+      <xsd:field xpath="@sid" />
+    </xsd:unique>
+    
+    <xsd:key name="parameterOnlyUidKey">
+      <xsd:selector xpath=".//parameter | .//enumerationParameter | .//group" />
+      <xsd:field xpath="@uid" />
+    </xsd:key>
+    
+    <xsd:keyref name="parameterMappingUidRef" refer="parameterOnlyUidKey">
+      <xsd:selector xpath="mapping/telecommandParameters/parameterMapping | mapping/application/telemetries/telemetry/parameterMappping" />
+      <xsd:field xpath="@uid" />
+    </xsd:keyref>
+    
+    <xsd:unique name="telecommandParameterMappingSidUnique">
+      <xsd:selector xpath="mapping/telecommandParameters/parameterMapping" />
+      <xsd:field xpath="@sid" />
+    </xsd:unique>
+    
+    <xsd:unique name="telemetryMappingSidUnique">
+      <xsd:selector xpath="mapping/application/telemetries/telemetry" />
+      <xsd:field xpath="@sid" />
+    </xsd:unique>
+    
+    <xsd:keyref name="telemetryMappingUidRef" refer="telemetryUidKey">
+      <xsd:selector xpath="mapping/application/telemetries/telemetry" />
+      <xsd:field xpath="@uid" />
+    </xsd:keyref>
+    
+    <xsd:keyref name="telecommandMappingUidRef" refer="telecommandUidKey">
+      <xsd:selector xpath="mapping/application/telecommands/telecommandMappingRef" />
+      <xsd:field xpath="@uid" />
+    </xsd:keyref>
+  </xsd:element>
+  
+  <xsd:complexType name="RootType">
+  <xsd:sequence>
+    <xsd:element name="service" type="ServiceType" minOccurs="1" maxOccurs="unbounded" />
+    <xsd:element name="mapping" type="MappingType" minOccurs="0" maxOccurs="unbounded" />
+  </xsd:sequence>
+  </xsd:complexType>
+</xsd:schema>
