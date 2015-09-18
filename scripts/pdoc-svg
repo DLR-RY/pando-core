@@ -28,7 +28,7 @@ try:
 	                                        args.svgtemplate,
 	                                        args.svgalign)
 	builder.generate(args.svgpath)
-except pdoc.parser.ParserException as e:
+except (pdoc.parser.ParserException, pdoc.model.ModelException) as e:
 	print(e)
 	exit(1)
 

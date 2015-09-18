@@ -45,7 +45,7 @@ try:
 		builder = pdoc.builder.latex.OverviewBuilder(model,
 			                                         args.latex_overview_template)
 		builder.generate(args.latexpath, args.latex_overview_target)
-except pdoc.parser.ParserException as e:
+except (pdoc.parser.ParserException, pdoc.model.ModelException) as e:
 	print(e)
 	exit(1)
 

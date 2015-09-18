@@ -27,6 +27,6 @@ try:
 	assistant.printSuggestions()
 	if args.detailed:
 		assistant.printSuggestionsForUnusedPackets()
-except pdoc.parser.ParserException as e:
+except (pdoc.parser.ParserException, pdoc.model.ModelException) as e:
 	print("\nError: %s" % e)
 	exit(1)

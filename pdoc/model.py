@@ -49,7 +49,7 @@ class Model:
 			except KeyError:
 				pass
 		else:
-			raise ModelException("Could not found mapping for telecommand enumeration '%s'" % uid)
+			raise ModelException("Could not find mapping for telecommand enumeration '%s'" % uid)
 	
 	def getTelemetryEnumerationMapping(self, uid):
 		for subsystem in self.subsystems.values():
@@ -58,7 +58,7 @@ class Model:
 			except KeyError:
 				pass
 		else:
-			raise ModelException("Could not found mapping for telemetry enumeration '%s'" % uid)
+			raise ModelException("Could not find mapping for telemetry enumeration '%s'" % uid)
 	
 	def getUnmappedTelecommandParameters(self):
 		"""

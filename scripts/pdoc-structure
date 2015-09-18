@@ -40,7 +40,7 @@ try:
 		bitposition += width
 		if bitposition % 8 == 0:
 			print(int(bitposition / 8), '-----------------')
-except pdoc.parser.ParserException as e:
+except (pdoc.parser.ParserException, pdoc.model.ModelException) as e:
 	print("\nError: %s" % e)
 	exit(1)
 

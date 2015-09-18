@@ -101,7 +101,7 @@ try:
 					print("-", telecommand)
 		else:
 			print("Verify Ok!")
-except pdoc.parser.ParserException as e:
+except (pdoc.parser.ParserException, pdoc.model.ModelException) as e:
 	print("\nError: %s" % e)
 	exit(1)
 
