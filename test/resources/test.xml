@@ -151,13 +151,39 @@
           </parameterValue>
         </parameterValues>
       </telecommand>
+      
+      <telecommand name="Test Packet 2" uid="TEST04">
+        <serviceType>8</serviceType>
+        <serviceSubtype>1</serviceSubtype>
+        
+        <verification>
+          <acceptance>true</acceptance>
+          <start>true</start>
+          <progress>false</progress>
+          <completion>true</completion>
+        </verification>
+        
+        <parameters></parameters>
+      </telecommand>
+      
+      <telecommand name="Test Packet 3" uid="TEST05">
+        <serviceType>8</serviceType>
+        <serviceSubtype>1</serviceSubtype>
+        
+        <verification>
+          <acceptance>false</acceptance>
+          <progress>true</progress>
+        </verification>
+        
+        <parameters></parameters>
+      </telecommand>
     </telecommands>
   </service>
   
   <mapping subsystem="0">
     <enumerations>
-      <enumerationMapping sid="0000" uid="E0" />
-      <enumerationMapping sid="0001" uid="E1" />
+      <telecommandEnumerationMapping sid="0000" uid="E0" />
+      <telemetryEnumerationMapping sid="0100" uid="E0" />
     </enumerations>
     
     <telecommandParameters>

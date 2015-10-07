@@ -17,7 +17,8 @@ class ParserMappingTest(unittest.TestCase):
 		self.assertTrue(0 in self.model.subsystems)
 		self.assertGreater(len(self.model.subsystems[0].applications), 0)
 		self.assertGreater(len(self.model.subsystems[0].telecommandParameters), 0)
-		self.assertGreater(len(self.model.subsystems[0].enumerations), 0)
+		self.assertGreater(len(self.model.subsystems[0].telecommandEnumerations), 0)
+		self.assertGreater(len(self.model.subsystems[0].telemetryEnumerations), 0)
 
 	def test_shouldContainTelemetryForApplication(self):
 		app = self.model.subsystems[0].applications[0x123]
@@ -50,11 +51,16 @@ class ParserMappingTest(unittest.TestCase):
 	def test_shouldContainACompleteMapping(self):
 		self.assertEqual(len(self.model.getUnmappedTelecommandParameters()), 0)
 		self.assertEqual(len(self.model.getUnmappedTelemetryParameters()), 0)
-		self.assertEqual(len(self.model.getUnmappedEnumerations()), 0)
-	
+		
+		additionalTc, unresolvedTc, additionalTm, unresolvedTm = self.model.getUnmappedEnumerations()
+		self.assertEqual(len(additionalTc), 0)
+		self.assertEqual(len(unresolvedTc), 0)
+		self.assertEqual(len(additionalTm), 0)
+		self.assertEqual(len(unresolvedTm), 0)
+
 	def test_shouldHaveUnusedParameters(self):
-		self.assertEqual(len(self.model.getUnusedParameters()), 8)
-		self.assertEqual(len(self.model.getUnusedTelecommands()), 3)
+		self.assertEqual(len(self.model.getUnusedParameters()), 3)
+		self.assertEqual(len(self.model.getUnusedTelecommands()), 5)
 		self.assertEqual(len(self.model.getUnusedTelemetries()), 0)
 
 if __name__ == '__main__':

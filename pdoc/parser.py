@@ -196,6 +196,8 @@ class Parser:
 			telemetry = telemetries[uid]
 			p.relevantTelemetry.append(telemetry)
 		
+		self._parseVerification(p, node)
+		
 		critical = self._parseText(node, "critical", "No")
 		p.critical = {"Yes": True, "No": False}[critical]
 		
@@ -221,6 +223,15 @@ class Parser:
 		
 		if packet.shortName == "":
 			packet.shortName = packet.name
+
+	def _parseVerification(self, packet, node):
+		v = node.find("verification")
+		
+		if v is not None:
+			packet.verification.acceptance = True if (v.findtext("acceptance") == "true") else False
+			packet.verification.start = True if (v.findtext("start") == "true") else False
+			packet.verification.progress = True if (v.findtext("progress") == "true") else False
+			packet.verification.completion = True if (v.findtext("completion") == "true") else False
 
 	def _parseIdentificationParameter(self, packet, node, parameters):
 		for parameterNode in node.iterfind("packetIdentification/identificationParameter"):

@@ -461,11 +461,26 @@ class Packet:
 	def __repr__(self):
 		return self.uid
 
+class Verification:
+	"""
+	Verification of the execution stages of the telecommand.
+	
+	Used service 1 (telecommand verification service) telemetry reports.
+	A 'True' means that the corresponding telemetry report is
+	generated on board of the spacecraft
+	"""
+	def __init__(self):
+		self.acceptance = True
+		self.start = False
+		self.progress = False
+		self.completion = True
 
 class Telecommand(Packet):
 	
 	def __init__(self, name, uid, description):
 		Packet.__init__(self, name, uid, description)
+		
+		self.verification = Verification()
 		
 		self.relevantTelemetry = []
 		

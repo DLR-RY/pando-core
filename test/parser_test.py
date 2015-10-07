@@ -118,6 +118,30 @@ class ParserTest(unittest.TestCase):
 		
 		self.assertEqual(p.unit, "sec")
 	
+	def test_telecommandShouldContainDefaultVerificationInformationIfNotSpecified(self):
+		tc = self.model.telecommands["TEST03"]
+		
+		self.assertEqual(True, tc.verification.acceptance)
+		self.assertEqual(False, tc.verification.start)
+		self.assertEqual(False, tc.verification.progress)
+		self.assertEqual(True, tc.verification.completion)
+
+	def test_telecommandShouldHaveSetableVerificationInformation(self):
+		tc = self.model.telecommands["TEST04"]
+		
+		self.assertEqual(True, tc.verification.acceptance)
+		self.assertEqual(True, tc.verification.start)
+		self.assertEqual(False, tc.verification.progress)
+		self.assertEqual(True, tc.verification.completion)
+	
+	def test_telecommandShouldHaveSetableVerificationInformationWithGaps(self):
+		tc = self.model.telecommands["TEST05"]
+		
+		self.assertEqual(False, tc.verification.acceptance)
+		self.assertEqual(False, tc.verification.start)
+		self.assertEqual(True, tc.verification.progress)
+		self.assertEqual(False, tc.verification.completion)
+	
 	def test_shouldSupportLists(self):
 		model = self.parseFile("resources/test_list.xml")
 		
