@@ -2,6 +2,7 @@
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <xsd:include schemaLocation="service.xsd" />
   <xsd:include schemaLocation="mapping.xsd" />
+  <xsd:include schemaLocation="calibration.xsd" />
   
   <xsd:import namespace="http://www.w3.org/XML/1998/namespace"
               schemaLocation="http://www.w3.org/2001/xml.xsd" />
@@ -91,6 +92,22 @@
       <xsd:field xpath="@uid" />
     </xsd:key>
     
+    <!-- Check uniqueness of calibration curves -->
+    <xsd:unique name="calibrationUidUnique">
+      <xsd:selector xpath=".//interpolation | .//polynom" />
+      <xsd:field xpath="@uid" />
+    </xsd:unique>
+
+    <xsd:key name="calibrationUidKey">
+      <xsd:selector xpath="service/calibrations/telemetryInterpolation | service/calibrations/telecommandInterpolation | service/calibrations/polynom" />
+      <xsd:field xpath="@uid" />
+    </xsd:key>
+    
+    <xsd:keyref name="calibrationUidRef" refer="calibrationUidKey">
+      <xsd:selector xpath=".//calibrationRef" />
+      <xsd:field xpath="@uid" />
+    </xsd:keyref>
+    
     <!-- ##################### Mapping ##################### -->
     <!-- check uniqueness of APIDs -->
     <xsd:unique name="apidUnique">
@@ -101,13 +118,13 @@
     <!-- Check that only previously defined enumerations are used
          within the enumeration mapping -->
     <xsd:keyref name="enumerationMappingUidRef" refer="enumerationUidKey">
-      <xsd:selector xpath="mapping/enumerations/telecommandEnumerationMapping | mapping/enumerations/telemetryEnumerationMapping" />
+      <xsd:selector xpath="mapping/enumerations/telecommand/enumerationMapping | mapping/enumerations/telemetry/enumerationMapping" />
       <xsd:field xpath="@uid" />
     </xsd:keyref>
     
-    <!-- Check that the enumeration SID are unqiue within the project -->
-    <xsd:unique name="enumerationMappingSidUnique">
-      <xsd:selector xpath="mapping/enumerations/telecommandEnumerationMapping | mapping/enumerations/telemetryEnumerationMapping" />
+    <!-- Check that the enumeration and calibration SID are unique within the project -->
+    <xsd:unique name="calibrationMappingSidUnique">
+      <xsd:selector xpath="mapping/enumerations/telecommand/enumerationMapping | mapping/enumerations/telemetry/enumerationMapping | mapping/calibrations/telecommand/calibrationMapping | mapping/calibrations/telemetry/calibrationMapping" />
       <xsd:field xpath="@sid" />
     </xsd:unique>
     

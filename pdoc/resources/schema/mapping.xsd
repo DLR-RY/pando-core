@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/xml.xsd" />
+  <xsd:import namespace="http://www.w3.org/XML/1998/namespace"
+              schemaLocation="http://www.w3.org/2001/xml.xsd" />
 
   <xsd:element name="mapping" type="MappingType">
     <xsd:annotation>
@@ -27,7 +28,8 @@
   <xsd:complexType name="MappingType">
   <xsd:sequence>
     <xsd:element name="description" type="xsd:string" minOccurs="0" maxOccurs="1" />
-    <xsd:element name="enumerations" type="EnumerationsMappingType" minOccurs="0" maxOccurs="1" />
+    <xsd:element name="enumerations" type="EnumerationsMappingTmTcType" minOccurs="0" maxOccurs="1" />
+    <xsd:element name="calibrations" type="CalibrationsMappingTmTcType" minOccurs="0" maxOccurs="1" />
     <xsd:element name="telecommandParameters" type="TelecommandParametersMappingType" minOccurs="0" maxOccurs="1" />
     <xsd:element name="application" type="ApplicationType" minOccurs="0" maxOccurs="unbounded" />
   </xsd:sequence>
@@ -42,12 +44,29 @@
   <xsd:attribute ref="xml:base" use="optional" />
   </xsd:complexType>
   
+  <xsd:complexType name="EnumerationsMappingTmTcType">
+    <xsd:sequence>
+      <xsd:element name="telemetry" type="EnumerationsMappingType" minOccurs="0" maxOccurs="1" />
+      <xsd:element name="telecommand" type="EnumerationsMappingType" minOccurs="0" maxOccurs="1" />
+    </xsd:sequence>
+  </xsd:complexType>
+  
   <xsd:complexType name="EnumerationsMappingType">
-  <xsd:sequence minOccurs="0" maxOccurs="unbounded">
-    <xsd:choice>
-      <xsd:element name="telemetryEnumerationMapping" type="MappingElementType" />
-      <xsd:element name="telecommandEnumerationMapping" type="MappingElementType" />
-    </xsd:choice>
+  <xsd:sequence>
+    <xsd:element name="enumerationMapping" type="MappingElementType" maxOccurs="unbounded" />
+  </xsd:sequence>
+  </xsd:complexType>
+  
+  <xsd:complexType name="CalibrationsMappingTmTcType">
+    <xsd:sequence>
+      <xsd:element name="telemetry" type="CalibrationsMappingType" minOccurs="0" maxOccurs="1" />
+      <xsd:element name="telecommand" type="CalibrationsMappingType" minOccurs="0" maxOccurs="1" />
+    </xsd:sequence>
+  </xsd:complexType>
+  
+  <xsd:complexType name="CalibrationsMappingType">
+  <xsd:sequence>
+    <xsd:element name="calibrationMapping" type="MappingElementType" maxOccurs="unbounded" />
   </xsd:sequence>
   </xsd:complexType>
   

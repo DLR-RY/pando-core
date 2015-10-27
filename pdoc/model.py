@@ -15,14 +15,21 @@ class Model:
 		
 		# uid -> Enumeration
 		self.enumerations = {}
+		# uid -> Calibration
+		self.calibrations = {}
 		# uid -> Parameter
 		self.parameters = {}
 		
 		# id -> Subsystem
 		self.subsystems = {}
 		
+		# uid -> Enumeration
 		self.telecommandEnumerations = {}
 		self.telemetryEnumerations = {}
+		
+		# uid -> Calibration
+		self.telecommandCalibrations = {}
+		self.telemetryCalibrations = {}
 	
 	def appendTelemetryPacket(self, packet):
 		self.telemetries[packet.uid] = packet
@@ -177,6 +184,31 @@ class Model:
 		
 		return (additionalTc, unresolvedTc, additionalTm, unresolvedTm)
 	
+	def getUnmappedCalibrations(self):
+		unresolvedTc = self.telecommandCalibrations.copy()
+		additionalTc = []
+		for subsystem in self.subsystems.values():
+			for m in subsystem.telecommandCalibrations.values():
+				uid = m.calibration.uid
+				if uid not in self.telecommandCalibrations:
+					additionalTc.append(m)
+					
+				if uid in unresolvedTc:
+					unresolvedTc.pop(uid)
+		
+		unresolvedTm = self.telemetryCalibrations.copy()
+		additionalTm = []
+		for subsystem in self.subsystems.values():
+			for m in subsystem.telemetryCalibrations.values():
+				uid = m.calibration.uid
+				if uid not in self.telemetryCalibrations:
+					additionalTm.append(m)
+					
+				if uid in unresolvedTm:
+					unresolvedTm.pop(uid)
+		
+		return (additionalTc, unresolvedTc, additionalTm, unresolvedTm)
+	
 	def getUnusedParameters(self):
 		"""
 		Get all parameters which are not used in an TM or TC packet referenced
@@ -308,8 +340,8 @@ class ParameterType:
 	def __init__(self, identifier, width):
 		self.identifier = identifier
 		self.width = width
-
-	def __str__(self):
+	
+	def typeToString(identifier):
 		return {
 			1: "Boolean",
 			2: "Enumeration",
@@ -319,7 +351,10 @@ class ParameterType:
 			7: "Octet String",
 			8: "ASCII String",
 			9: "CUC",
-		}[self.identifier]
+		}[identifier]
+	
+	def __str__(self):
+		return typeToString(self.identifier)
 
 class EnumerationType(ParameterType):
 
@@ -366,6 +401,9 @@ class Parameter:
 		
 		# str[4]
 		self.unit = ""
+		
+		# -> Calibration object
+		self.calibration = None
 
 
 class Group(Parameter):
@@ -525,6 +563,63 @@ class Enumeration:
 				return entry
 		return None
 
+class Calibration:
+	
+	INTERPOLATION_TELECOMMAND = 0
+	INTERPOLATION_TELEMETRY = 1
+	POLYNOM = 2
+	
+	def __init__(self, type, name, uid, description):
+		self.type = type
+		self.name = name
+		self.uid = uid
+		self.description = description
+
+class Interpolation(Calibration):
+	
+	UNSIGNED_INTEGER = ParameterType.UNSIGNED_INTEGER
+	SIGNED_INTEGER = ParameterType.SIGNED_INTEGER
+	REAL = ParameterType.REAL
+	
+	class Point:
+		
+		def __init__(self, x, y):
+			self.x = x
+			self.y = y
+	
+	def __init__(self, type, name, uid, description):
+		Calibration.__init__(self, type, name, uid, description)
+		
+		self.inputType = None
+		self.outputType = None
+		self.extrapolate = True
+		self.points = []
+		
+	def appendPoint(self, point):
+		self.points.append(point)
+	
+	def typeFromParameterType(self, parameterType):
+		if parameterType.identifier == ParameterType.UNSIGNED_INTEGER:
+			t = self.UNSIGNED_INTEGER
+		elif parameterType.identifier == ParameterType.SIGNED_INTEGER:
+			t = self.SIGNED_INTEGER
+		elif parameterType.identifier == ParameterType.REAL:
+			t = self.REAL
+		else:
+			raise ParserException("Invalid input type '%' for telemetry parameter " \
+								  "interpolation '%s'" % (parameterType, self.uid))
+		return t
+
+class Polynom(Calibration):
+	
+	def __init__(self, name, uid, description):
+		Calibration.__init__(self, Calibration.POLYNOM, name, uid, description)
+		
+		self.a0 = 0.0
+		self.a1 = 0.0
+		self.a2 = 0.0
+		self.a3 = 0.0
+		self.a4 = 0.0
 
 class EnumerationEntry:
 
@@ -540,9 +635,14 @@ class Subsystem:
 		
 		# apid -> ApplicationMapping
 		self.applications = {}
+		
 		# uid -> EnumerationMapping
 		self.telecommandEnumerations = {}
 		self.telemetryEnumerations = {}
+		
+		# uid -> CalibrationMappping
+		self.telecommandCalibrations = {}
+		self.telemetryCalibrations = {}
 		
 		# uid -> ParameterMapping
 		self.telecommandParameters = {}
@@ -591,6 +691,10 @@ class EnumerationMapping:
 		self.sid = sid
 		self.enumeration = enumeration
 
+class CalibrationMapping:
+	def __init__(self, sid, calibration):
+		self.sid = sid
+		self.calibration = calibration
 
 class TelemetryMapping:
 	def __init__(self, sid, telemetry):

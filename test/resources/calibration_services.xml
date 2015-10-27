@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<telecommunication
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance"
+  xsd:noNamespaceSchemaLocation="https://svn.dlr.de/eucropis-ops/prod/MIB/trunk/tools/p.doc/pdoc/resources/schema/telecommunication.xsd">
+
+  <service name="test">
+    <xi:include href="calibration_curves.xml" />
+    
+    <enumerations>
+      <enumeration name="Some Enumeration" uid="E1" width="16">
+        <entry name="Key0" value="10" />
+        <entry name="Key1" value="213" />
+      </enumeration>
+    </enumerations>
+    
+    <parameters>
+      <parameter name="Parameter ID" uid="P7" type="uint16">
+        <default value="123456" />
+        <calibration>
+          <calibrationRef uid="calibration_test" />
+        </calibration>
+      </parameter>
+    </parameters>
+      
+    <telemetries>
+      <telemetry name="Other" uid="other">
+        <serviceType>128</serviceType>
+        <serviceSubtype>128</serviceSubtype>
+        
+        <parameters>
+          <parameter name="SID" uid="P100" type="float32">
+            <calibration>
+              <telemetryInterpolation name="test2"
+                                      uid="calibration_parameter"
+                                      outputType="Signed Integer"
+                                      extrapolate="false">
+                <point x="100.12" y="-2" />
+                <point x="200.5" y="-1" />
+              </telemetryInterpolation>
+            </calibration>
+          </parameter>
+          <parameter name="D" uid="P101" type="uint8">
+            <calibration>
+              <calibrationRef uid="calibration_polynom" />
+            </calibration>
+          </parameter>
+        </parameters>
+      </telemetry>
+    </telemetries>
+    
+    <telecommands>
+      <telecommand name="Test Packet" uid="TEST03">
+        <serviceType>8</serviceType>
+        <serviceSubtype>100</serviceSubtype>
+        
+        <parameters>
+          <enumerationParameter name="Large Data Unit Id" uid="P4" enumeration="E1" />
+          <parameterRef uid="P7" />
+        </parameters>
+      </telecommand>
+    </telecommands>
+  </service>
+  
+  <mapping subsystem="0">
+    <enumerations>
+      <telemetry>
+        <enumerationMapping sid="0100" uid="E1" />
+      </telemetry>
+      <telecommand>
+        <enumerationMapping sid="0000" uid="E1" />
+      </telecommand>
+    </enumerations>
+    
+    <calibrations>
+      <telemetry>
+        <calibrationMapping sid="0200" uid="calibration_parameter" />
+        <calibrationMapping sid="0201" uid="calibration_polynom2" />
+      </telemetry>
+      <telecommand>
+        <calibrationMapping sid="0123" uid="calibration_test" />
+      </telecommand>
+    </calibrations>
+    
+    <telecommandParameters>
+      <parameterMapping sid="DHSP0000" uid="P4" />
+      <parameterMapping sid="DHSP0001" uid="P7" />
+    </telecommandParameters>
+    
+    <application name="Test Application" apid="0x123">
+      <telemetries>
+        <telemetry uid="other" sid="51235">
+          <parameterMapping sid="DHST0008" uid="P100" />
+        </telemetry>
+      </telemetries>
+      
+      <telecommands>
+        <telecommandMappingRef sid="DHSC0001" uid="TEST03" /> 
+      </telecommands>
+    </application>
+  </mapping>
+</telecommunication>

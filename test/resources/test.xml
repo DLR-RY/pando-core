@@ -2,7 +2,7 @@
 <telecommunication
   xmlns:xi="http://www.w3.org/2001/XInclude"
   xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance"
-  xsd:noNamespaceSchemaLocation="http://www.dlr.de/irs/schema/telecommunication.xsd">
+  xsd:noNamespaceSchemaLocation="https://svn.dlr.de/eucropis-ops/prod/MIB/trunk/tools/p.doc/pdoc/resources/schema/telecommunication.xsd">
 
   <service>
     <enumerations>
@@ -182,8 +182,12 @@
   
   <mapping subsystem="0">
     <enumerations>
-      <telecommandEnumerationMapping sid="0000" uid="E0" />
-      <telemetryEnumerationMapping sid="0100" uid="E0" />
+      <telemetry>
+        <enumerationMapping sid="0100" uid="E0" />
+      </telemetry>
+      <telecommand>
+        <enumerationMapping sid="0000" uid="E0" />
+      </telecommand>
     </enumerations>
     
     <telecommandParameters>

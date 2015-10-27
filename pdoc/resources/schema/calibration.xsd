@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <xsd:import namespace="http://www.w3.org/XML/1998/namespace"
+              schemaLocation="http://www.w3.org/2001/xml.xsd" />
+  
+  <xsd:element name="calibrations" type="CalibrationsType">
+  </xsd:element>
+  
+  <xsd:complexType name="CalibrationsType">
+    <xsd:sequence minOccurs="0" maxOccurs="unbounded">
+      <xsd:choice>
+        <xsd:element name="telemetryInterpolation" type="TelemetryInterpolationType" />
+        <xsd:element name="telecommandInterpolation" type="TelecommandInterpolationType" />
+        <xsd:element name="polynom" type="PolynomialCalibrationType" />
+      </xsd:choice>
+    </xsd:sequence>
+    
+    <xsd:attribute ref="xml:base" use="optional" />
+  </xsd:complexType>
+  
+  <xsd:complexType name="InterpolationType">
+    <xsd:sequence minOccurs="2" maxOccurs="unbounded">
+      <xsd:element name="point">
+        <xsd:complexType>
+          <xsd:attribute name="x" type="xsd:double" use="required" />
+          <xsd:attribute name="y" type="xsd:double" use="required" />
+        </xsd:complexType>
+      </xsd:element>
+    </xsd:sequence>
+    
+    <xsd:attribute name="name" use="required">
+      <xsd:simpleType>
+        <xsd:restriction base="xsd:string">
+          <xsd:minLength value="1" />
+          <xsd:maxLength value="32" />
+        </xsd:restriction>
+      </xsd:simpleType>
+    </xsd:attribute>
+    <xsd:attribute name="uid" use="required" type="xsd:string" />
+    <xsd:attribute name="extrapolate" type="xsd:boolean" default="true">
+      <xsd:annotation>
+        <xsd:documentation>
+If a raw value outside the calibration curve
+is received, a valid engineering value is calculated by
+extrapolating the first two calibration points (in case the raw
+value is outside the calibration range on the lower side) or the
+last two calibration points (in case the raw value is outside
+the calibration range on the upper side)
+        </xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+  </xsd:complexType>
+  
+  <xsd:complexType name="TelemetryInterpolationType">
+    <xsd:annotation>
+      <xsd:documentation>
+For telemetry parameters the output type of the calibration must be given
+explicitly, the input type is determined through the corresponding parameter
+type (signed integer, unsigned integer or float (float32/float64)).
+
+Invalid input types are rejected in the external verification step.
+  </xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexContent>
+      <xsd:extension base="InterpolationType">
+        <xsd:attribute name="outputType" use="required" type="InterpolationInOutType" />
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  
+  <xsd:complexType name="TelecommandInterpolationType">
+    <xsd:annotation>
+      <xsd:documentation>
+For telecommand parameters the input type of the calibration must be given
+explicitly, the output type is determined through the corresponding parameter
+type (signed integer, unsigned integer or float (float32/float64)).
+
+Invalid output types are rejected in the external verification step.
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexContent>
+      <xsd:extension base="InterpolationType">
+        <xsd:attribute name="inputType" use="required" type="InterpolationInOutType" />
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  
+  <xsd:simpleType name="InterpolationInOutType">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="Unsigned Integer" />
+      <xsd:enumeration value="Signed Integer" />
+      <xsd:enumeration value="Float" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  
+  <xsd:complexType name="PolynomialCalibrationType">
+    <xsd:annotation>
+      <xsd:documentation>
+        The polynomial calibration is only available for telemetry parameters.
+        
+        SCOS-2000 will calculate the engineering value 'Y' corresponding to the
+        raw value 'X' of a parameter using the following formula:
+        
+        Y = a0 + a1 * X + a2 * X^2 + a3 * X^3 + a4 * X^4
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:attribute name="name" use="required">
+      <xsd:simpleType>
+        <xsd:restriction base="xsd:string">
+          <xsd:minLength value="1" />
+          <xsd:maxLength value="32" />
+        </xsd:restriction>
+      </xsd:simpleType>
+    </xsd:attribute>
+    
+    <xsd:attribute name="uid" use="required" type="xsd:string" />
+    
+    <xsd:attribute name="a0" default="0.0" use="optional" type="xsd:double" />
+    <xsd:attribute name="a1" default="0.0" use="optional" type="xsd:double" />
+    <xsd:attribute name="a2" default="0.0" use="optional" type="xsd:double" />
+    <xsd:attribute name="a3" default="0.0" use="optional" type="xsd:double" />
+    <xsd:attribute name="a4" default="0.0" use="optional" type="xsd:double" />
+  </xsd:complexType>
+  
+  <xsd:complexType name="CalibrationReferenceType">
+    <xsd:attribute name="uid" type="xsd:string" use="required" />
+  </xsd:complexType>
+</xsd:schema>
+  

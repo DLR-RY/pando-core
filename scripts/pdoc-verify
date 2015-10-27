@@ -68,6 +68,20 @@ try:
 		logger.error("Telecommand enumeration mapping '%s' for uid '%s' not used!" % (additional.sid, additional.enumeration.uid))
 		success = False
 	
+	atc, utc, atm, utm = model.getUnmappedCalibrations()
+	for unresolved in utm:
+		logger.error("No telemetry calibration mapping found for uid '%s'" % (unresolved))
+		success = False
+	for unresolved in utc:
+		logger.error("No telecommand calibration mapping found for uid '%s'" % (unresolved))
+		success = False
+	for additional in atm:
+		logger.error("Telemetry calibration mapping '%s' for uid '%s' not used!" % (additional.sid, additional.calibration.uid))
+		success = False
+	for additional in atc:
+		logger.error("Telecommand calibration mapping '%s' for uid '%s' not used!" % (additional.sid, additional.calibration.uid))
+		success = False
+	
 	# Verify that the combination of APID, STYPE, SSTYPE and the two
 	# identification fields is unique.
 	for packet in model.getAmbiguousTelemetryPackets():

@@ -67,24 +67,27 @@ class Parser:
 				for node in enumerationsNode.iterchildren('enumeration'):
 					enumeration = self._parseEnumeration(node)
 					m.enumerations[enumeration.uid] = enumeration
+			
+			for calibrationsNode in serviceNode.iterfind('calibrations'):
+				self._parseCalibrations(calibrationsNode, m)
 		
 		for serviceNode in rootnode.iterfind('service'):
 			serviceName = serviceNode.attrib.get('name', '')
 			for parametersNode in serviceNode.iterfind('parameters'):
 				for node in parametersNode.iterchildren():
-					self._parseParameter(node, m.parameters, m.enumerations, listParameters)
+					self._parseParameter(node, m, m.parameters, m.enumerations, listParameters)
 					# Parameter is automatically added to the list of parameters
 
 		for serviceNode in rootnode.iterfind('service'):
 			serviceName = serviceNode.attrib.get('name', '')
 			for telemtriesNode in serviceNode.iterfind('telemetries'):
 				for node in telemtriesNode.iterchildren('telemetry'):
-					tm = self._parseTelemetry(node, m.parameters, m.enumerations, listParameters)
+					tm = self._parseTelemetry(node, m, m.parameters, m.enumerations, listParameters)
 					m.appendTelemetryPacket(tm)
 			
 			for telecommandsNode in serviceNode.iterfind('telecommands'):
 				for node in telecommandsNode.iterchildren('telecommand'):
-					tc = self._parseTelecommand(node, m.parameters, m.enumerations, m.telemetries, listParameters)
+					tc = self._parseTelecommand(node, m, m.parameters, m.enumerations, m.telemetries, listParameters)
 					m.appendTelecommandPacket(tc)
 		
 		# Parse SCOS mapping information
@@ -92,14 +95,23 @@ class Parser:
 			subsystemId = int(mappingNode.attrib["subsystem"], 0)
 			subsystem = m.getOrAddSubsystem(subsystemId)
 			
-			for node in mappingNode.iterfind('enumerations/telecommandEnumerationMapping'):
+			for node in mappingNode.iterfind('enumerations/telecommand/enumerationMapping'):
 				uid, sid = self._parseMapping(node)
 				enumeration = m.enumerations[uid]
 				subsystem.telecommandEnumerations[uid] = model.EnumerationMapping(sid=sid, enumeration=enumeration)
-			for node in mappingNode.iterfind('enumerations/telemetryEnumerationMapping'):
+			for node in mappingNode.iterfind('enumerations/telemetry/enumerationMapping'):
 				uid, sid = self._parseMapping(node)
 				enumeration = m.enumerations[uid]
 				subsystem.telemetryEnumerations[uid] = model.EnumerationMapping(sid=sid, enumeration=enumeration)
+			
+			for node in mappingNode.iterfind('calibrations/telecommand/calibrationMapping'):
+				uid, sid = self._parseMapping(node)
+				calibration = m.calibrations[uid]
+				subsystem.telecommandCalibrations[uid] = model.CalibrationMapping(sid=sid, calibration=calibration)
+			for node in mappingNode.iterfind('calibrations/telemetry/calibrationMapping'):
+				uid, sid = self._parseMapping(node)
+				calibration = m.calibrations[uid]
+				subsystem.telemetryCalibrations[uid] = model.CalibrationMapping(sid=sid, calibration=calibration)
 			
 			for node in mappingNode.iterfind('telecommandParameters/parameterMapping'):
 				uid, sid = self._parseMapping(node)
@@ -110,24 +122,70 @@ class Parser:
 				app = self._parseApplicationMapping(node, m)
 				subsystem.applications[app.apid] = app
 		
-		# Extract telecommand and telemetry enumerations
-		# Might be done during parsing to be more efficient
+		# Extract telecommand and telemetry enumerations and calibrations
 		for subsystem in m.subsystems.values():
 			for application in subsystem.applications.values():
-				for tc in application.getTelecommands():
-					for p in tc.telecommand.getParametersAsFlattenedList():
-						if p.type.identifier == model.ParameterType.ENUMERATION:
-							e = p.type.enumeration
-							m.telecommandEnumerations[e] = m.enumerations[e]
-				
 				for tm in application.getTelemetries():
 					for p in tm.telemetry.getParametersAsFlattenedList():
 						if p.type.identifier == model.ParameterType.ENUMERATION:
 							e = p.type.enumeration
 							m.telemetryEnumerations[e] = m.enumerations[e]
+						
+						calibration = p.calibration
+						if calibration is not None:
+							calibration = m.calibrations[calibration.uid]
+							self._verifyTelemetryCalibration(calibration, p)
+							m.telemetryCalibrations[calibration.uid] = calibration
+
+				for tc in application.getTelecommands():
+					for p in tc.telecommand.getParametersAsFlattenedList():
+						if p.type.identifier == model.ParameterType.ENUMERATION:
+							e = p.type.enumeration
+							m.telecommandEnumerations[e] = m.enumerations[e]
+						
+						calibration = p.calibration
+						if calibration is not None:
+							calibration = m.calibrations[calibration.uid]
+							self._verifyTelecommandCalibration(calibration, p)
+							m.telecommandCalibrations[p.calibration.uid] = calibration
 		
 		return m
-
+	
+	def _verifyTelemetryCalibration(self, calibration, parameter):
+		if calibration.type == model.Calibration.INTERPOLATION_TELECOMMAND:
+			raise ParserException("Invalid calibration for parameter '%s' (%s). " \
+								  "'telecommandInterpolation' is invalid for " \
+								  "telemetry parameter!"
+								  	 % (parameter.name, parameter.uid))
+		elif calibration.type == model.Calibration.INTERPOLATION_TELEMETRY:
+			inputType = calibration.typeFromParameterType(parameter.type)
+			if calibration.inputType is None:
+				calibration.inputType = inputType
+			else:
+				if calibration.inputType != inputType:
+					raise ParserException("Invalid input type for telemetry " \
+										  "interpolation '%s'. Parameter %s (%s) "\
+										  "requires '%s', previous definition is '%s'" 
+										  	% (calibration.uid, parameter.name, parameter.uid,
+												inputType, calibration.inputType))
+	
+	def _verifyTelecommandCalibration(self, calibration, parameter):
+		if calibration.type != model.Calibration.INTERPOLATION_TELECOMMAND:
+			raise ParserException("Invalid calibration for parameter '%s' (%s). " \
+								  "Only 'telecommandInterpolation' is available " \
+								  "for telecommand parameter!"
+								  	 % (parameter.name, parameter.uid))
+		else:
+			outputType = calibration.typeFromParameterType(parameter.type)
+			if calibration.outputType is None:
+				calibration.outputType = outputType
+			else:
+				if calibration.outputType != outputType:
+					raise ParserException("Invalid output type for telecommand " \
+										  "interpolation '%s'. Parameter %s (%s) "\
+										  "requires '%s', previous definition is '%s'" 
+										  	% (calibration.uid, parameter.name, parameter.uid,
+												outputType, calibration.outputType))
 
 	def _validateAndParse(self, filename, xsdfile):
 		try:
@@ -158,7 +216,7 @@ class Parser:
 		
 		return rootnode
 	
-	def _parseTelemetry(self, node, referenceParameters, enumerations, lists):
+	def _parseTelemetry(self, node, m, referenceParameters, enumerations, lists):
 		p = model.Telemetry(name=node.attrib["name"],
 		                    uid=node.attrib["uid"],
 		                    description=self._parseText(node, "description", ""))
@@ -167,7 +225,7 @@ class Parser:
 		self._parseDesignators(p, node)
 		self._parseServiceType(p, node)
 		
-		self._parseParameters(p, node.find("parameters"), referenceParameters, enumerations, lists)
+		self._parseParameters(p, node.find("parameters"), m, referenceParameters, enumerations, lists)
 		p.updateGroupDepth()
 		
 		parameters = p.getParametersAsFlattenedList()
@@ -176,7 +234,7 @@ class Parser:
 		
 		return p
 	
-	def _parseTelecommand(self, node, referenceParameters, enumerations, telemetries, lists):
+	def _parseTelecommand(self, node, m, referenceParameters, enumerations, telemetries, lists):
 		p = model.Telecommand(name=node.attrib["name"],
 		                      uid=node.attrib["uid"],
 		                      description=self._parseText(node, "description", ""))
@@ -185,7 +243,7 @@ class Parser:
 		self._parseDesignators(p, node)
 		self._parseServiceType(p, node)
 		
-		self._parseParameters(p, node.find("parameters"), referenceParameters, enumerations, lists)
+		self._parseParameters(p, node.find("parameters"), m, referenceParameters, enumerations, lists)
 		p.updateGroupDepth()
 		self._parseParameterValues(p, node, enumerations)
 		
@@ -258,14 +316,14 @@ class Parser:
 			if text is not None:
 				packet.additional[defaultHeading] = text
 	
-	def _parseParameters(self, packet, node, referenceParameters, enumerations, lists):
+	def _parseParameters(self, packet, node, m, referenceParameters, enumerations, lists):
 		for parameterNode in node:
-			parameters = self._parseParameter(parameterNode, referenceParameters, enumerations, lists)
+			parameters = self._parseParameter(parameterNode, m, referenceParameters, enumerations, lists)
 			if parameters is not None:
 				for parameter in parameters:
 					packet.appendParameter(parameter)
 	
-	def _parseParameter(self, node, referenceParameters, enumerations, lists):
+	def _parseParameter(self, node, m, referenceParameters, enumerations, lists):
 		parameters = []
 		uid = node.attrib.get("uid", "")
 		if node.tag == "parameter" or node.tag == "group":
@@ -277,9 +335,21 @@ class Parser:
 				parameter = model.Parameter(name=name, uid=uid, description=description, parameterType=parameterType)
 			
 				parameter.unit = node.attrib.get("unit")
+				
+				calibrationNode = node.find("calibration")
+				if calibrationNode is not None:
+					calibrationRefNode = calibrationNode.find('calibrationRef')
+					if calibrationRefNode is not None:
+						uid = calibrationRefNode.attrib.get("uid")
+					else:
+						calibrations = self._parseCalibrations(calibrationNode, m)
+						uid = calibrations[0].uid
+				
+					parameter.calibration = m.calibrations[uid]
+				
 			elif node.tag == "group":
 				parameter = model.Group(name=name, uid=uid, description=description, parameterType=parameterType)
-				self._parseParameters(parameter, node, referenceParameters, enumerations, lists)
+				self._parseParameters(parameter, node, m, referenceParameters, enumerations, lists)
 			
 			self._parseShortName(parameter, node)
 			
@@ -319,7 +389,7 @@ class Parser:
 			parameters.append(parameter)
 		elif node.tag == "list":
 			parameterList = self.ParameterList()
-			self._parseParameters(parameterList, node, referenceParameters, enumerations, lists)
+			self._parseParameters(parameterList, node, m, referenceParameters, enumerations, lists)
 			
 			lists[uid] = parameterList
 			parameters = parameterList.parameters
@@ -343,10 +413,25 @@ class Parser:
 		elif node.tag in ["fixed", "default", "range"]:
 			return None
 		else:
-			raise ParserException("Unknow element '%s' found. Was expecting 'parameter|group|enumerationParameter|parameterRef'" % node.tag)
+			raise ParserException("Unknown element '%s' found. Was expecting 'parameter|group|enumerationParameter|parameterRef'" % node.tag)
 		
 		return parameters
-
+	
+	def _parseCalibrations(self, node, m):
+		calibrations = []
+		for calibrationNode in node.iterchildren('telemetryInterpolation'):
+			calibration = self._parseCalibrationInterpolationTelemetry(calibrationNode)
+			m.calibrations[calibration.uid] = calibration
+			calibrations.append(calibration)
+		for calibrationNode in node.iterchildren('telecommandInterpolation'):
+			calibration = self._parseCalibrationInterpolationTelecommand(calibrationNode)
+			m.calibrations[calibration.uid] = calibration
+			calibrations.append(calibration)
+		for calibrationNode in node.iterchildren('polynom'):
+			calibration = self._parseCalibrationPolynom(calibrationNode)
+			m.calibrations[calibration.uid] = calibration
+			calibrations.append(calibration)
+		return calibrations
 
 	def _parseText(self, node, tag, defaultValue=None):
 		""" Removes indentation from text tags """
@@ -475,6 +560,55 @@ class Parser:
 									   self._parseText(node, "description", ""))
 		return entry
 
+	def _toBoolean(self, s):
+		return True if (s == "true" or s == "1") else False
+	
+	def _toInterpolationType(self, typeString):
+		return {
+			"Unsigned Integer": model.Interpolation.UNSIGNED_INTEGER,
+			"Signed Integer": model.Interpolation.SIGNED_INTEGER,
+			"Float": model.Interpolation.REAL
+		}[typeString]
+	
+	def _parseCalibrationInterpolationTelemetry(self, node):
+		c = model.Interpolation(model.Calibration.INTERPOLATION_TELEMETRY,
+							    name=node.attrib.get("name"),
+		                        uid=node.attrib.get("uid"),
+		                        description=self._parseText(node, "description", ""))
+		c.extrapolate = self._toBoolean(node.attrib.get("extrapolate", "true"))
+		c.outputType = self._toInterpolationType(node.attrib.get("outputType"))
+		for pointNode in node.iterfind("point"):
+			c.appendPoint(self._parseCalibrationInterpolationPoint(pointNode))
+		return c
+	
+	def _parseCalibrationInterpolationTelecommand(self, node):
+		c = model.Interpolation(model.Calibration.INTERPOLATION_TELECOMMAND,
+							    name=node.attrib.get("name"),
+		                        uid=node.attrib.get("uid"),
+		                        description=self._parseText(node, "description", ""))
+		c.extrapolate = self._toBoolean(node.attrib.get("extrapolate", "true"))
+		c.inputType = self._toInterpolationType(node.attrib.get("inputType"))
+		for pointNode in node.iterfind("point"):
+			c.appendPoint(self._parseCalibrationInterpolationPoint(pointNode))
+		return c
+
+	def _parseCalibrationInterpolationPoint(self, node):
+		p = model.Interpolation.Point(float(node.attrib.get("x")),
+									  float(node.attrib.get("y")))
+		return p
+
+	def _parseCalibrationPolynom(self, node):
+		c = model.Polynom(name=node.attrib.get("name"),
+		                  uid=node.attrib.get("uid"),
+		                  description=self._parseText(node, "description", ""))
+		
+		c.a0 = float(node.attrib.get("a0", "0"))
+		c.a1 = float(node.attrib.get("a1", "0"))
+		c.a2 = float(node.attrib.get("a2", "0"))
+		c.a3 = float(node.attrib.get("a3", "0"))
+		c.a4 = float(node.attrib.get("a4", "0"))
+		
+		return c
 
 	def _parseApplicationMapping(self, node, tmtcModel):
 		""" Parse an application mapping.
