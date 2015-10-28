@@ -354,7 +354,7 @@ class ParameterType:
 		}[identifier]
 	
 	def __str__(self):
-		return typeToString(self.identifier)
+		return ParameterType.typeToString(self.identifier)
 
 class EnumerationType(ParameterType):
 
