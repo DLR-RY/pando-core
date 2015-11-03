@@ -74,7 +74,7 @@
         <serviceSubtype>128</serviceSubtype>
 
         <parameters>
-          <parameter name="Time" uid="P1" type="time4.2" unit="sec" />
+          <parameter name="Time" uid="P1" type="Absolute Time CUC4.2" unit="sec" />
         </parameters>
         <purpose>
 		Set a new absolute time. The time is relative

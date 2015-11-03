@@ -531,8 +531,10 @@ which are directly visible inside the SCOS during ground station contact.</xsd:d
 
       <xsd:enumeration value="octet" />
       <xsd:enumeration value="ascii" />
-      <xsd:enumeration value="time4" />
-      <xsd:enumeration value="time4.2" />
+      <xsd:enumeration value="Absolute Time CUC4" />
+      <xsd:enumeration value="Absolute Time CUC4.2" />
+      <xsd:enumeration value="Relative Time CUC4" />
+      <xsd:enumeration value="Relative Time CUC4.2" />
     </xsd:restriction>
   </xsd:simpleType>
 </xsd:schema>

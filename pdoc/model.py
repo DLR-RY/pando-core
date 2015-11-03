@@ -335,7 +335,8 @@ class ParameterType:
 	REAL = 5
 	OCTET_STRING = 7
 	ASCII_STRING = 8
-	TIME = 9
+	ABSOLUTE_TIME = 9
+	RELATIVE_TIME = 10
 	
 	def __init__(self, identifier, width):
 		self.identifier = identifier
@@ -343,14 +344,15 @@ class ParameterType:
 	
 	def typeToString(identifier):
 		return {
-			1: "Boolean",
-			2: "Enumeration",
-			3: "Unsigned Integer",
-			4: "Signed Integer",
-			5: "Floating Point",
-			7: "Octet String",
-			8: "ASCII String",
-			9: "CUC",
+			 1: "Boolean",
+			 2: "Enumeration",
+			 3: "Unsigned Integer",
+			 4: "Signed Integer",
+			 5: "Floating Point",
+			 7: "Octet String",
+			 8: "ASCII String",
+			 9: "Absolute Time CUC",
+			10: "Relative Time CUC",
 		}[identifier]
 	
 	def __str__(self):

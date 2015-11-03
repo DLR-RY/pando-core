@@ -477,11 +477,17 @@ class Parser:
 				typeid = model.ParameterType.ASCII_STRING
 				# convert width from bytes to bits
 				width = int(node.attrib.get("width", 0)) * 8
-			elif typeattrib == "time4":
-				typeid = model.ParameterType.TIME
+			elif typeattrib == "Absolute Time CUC4":
+				typeid = model.ParameterType.ABSOLUTE_TIME
 				width = 4 * 8
-			elif typeattrib == "time4.2":
-				typeid = model.ParameterType.TIME
+			elif typeattrib == "Absolute Time CUC4.2":
+				typeid = model.ParameterType.ABSOLUTE_TIME
+				width = 6 * 8
+			elif typeattrib == "Relative Time CUC4":
+				typeid = model.ParameterType.RELATIVE_TIME
+				width = 4 * 8
+			elif typeattrib == "Relative Time CUC4.2":
+				typeid = model.ParameterType.RELATIVE_TIME
 				width = 6 * 8
 			else:
 				raise ParserException("Invalid type name '%s'" % typeattrib)
