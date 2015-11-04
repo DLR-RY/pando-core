@@ -583,6 +583,7 @@ class Parser:
 		                        description=self._parseText(node, "description", ""))
 		c.extrapolate = self._toBoolean(node.attrib.get("extrapolate", "true"))
 		c.outputType = self._toInterpolationType(node.attrib.get("outputType"))
+		c.unit = node.attrib.get("unit", "")
 		for pointNode in node.iterfind("point"):
 			c.appendPoint(self._parseCalibrationInterpolationPoint(pointNode))
 		return c

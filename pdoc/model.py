@@ -576,6 +576,8 @@ class Calibration:
 		self.name = name
 		self.uid = uid
 		self.description = description
+		
+		self.unit = ""
 
 class Interpolation(Calibration):
 	
