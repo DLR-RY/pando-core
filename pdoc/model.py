@@ -67,6 +67,24 @@ class Model:
 		else:
 			raise ModelException("Could not find mapping for telemetry enumeration '%s'" % uid)
 	
+	def getTelecommandCalibrationMapping(self, uid):
+		for subsystem in self.subsystems.values():
+			try:
+				return subsystem.telecommandCalibrations[uid]
+			except KeyError:
+				pass
+		else:
+			raise ModelException("Could not find mapping for telecommand calibration '%s'" % uid)
+	
+	def getTelemetryCalibrationMapping(self, uid):
+		for subsystem in self.subsystems.values():
+			try:
+				return subsystem.telemetryCalibrations[uid]
+			except KeyError:
+				pass
+		else:
+			raise ModelException("Could not find mapping for telemetry calibration '%s'" % uid)
+	
 	def getUnmappedTelecommandParameters(self):
 		"""
 		Find the UID of all telecommand parameters that are referenced through
