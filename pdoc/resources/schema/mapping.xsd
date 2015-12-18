@@ -94,6 +94,26 @@
     </xsd:sequence>
     <xsd:attribute name="name" type="xsd:string" use="required" />
     <xsd:attribute name="apid" type="HexadecimalNumberType" use="required" />
+    <xsd:attribute name="namePrefix" type="xsd:string" use="optional">
+      <xsd:annotation>
+        <xsd:documentation>
+          The value is prepended to all TM packet and parameter names, as well
+          as all TC command names. The prefix decreases the often very
+          limited number of characters that are available for the naming
+          of these items.
+        </xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+    <xsd:attribute name="nameSuffix" type="xsd:string" use="optional">
+      <xsd:annotation>
+        <xsd:documentation>
+          The value is prepended to all TM packet and parameter names, as well
+          as all TC command names. The suffix decreases the often very
+          limited number of characters that are available for the naming
+          of these items.
+        </xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
   </xsd:complexType>
   
   <xsd:simpleType name="HexadecimalNumberType">

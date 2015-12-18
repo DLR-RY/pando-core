@@ -677,6 +677,9 @@ class ApplicationMapping:
 		self.apid = apid
 		self.description = description
 		
+		self.namePrefix = ""
+		self.nameSuffix = ""
+		
 		# -> TelemetryMapping
 		self._telemetry   = []
 		# -> TelecommandMapping

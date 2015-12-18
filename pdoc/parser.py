@@ -625,6 +625,9 @@ class Parser:
 		application = model.ApplicationMapping(name=node.attrib.get("name"),
 	             					           apid=int(node.attrib["apid"], 0),
 		 		                	           description=self._parseText(node, "description", ""))
+		
+		application.namePrefix = node.attrib.get("namePrefix", "")
+		application.nameSuffix = node.attrib.get("nameSuffix", "")
 
 		for telemetryNode in node.iterfind("telemetries/telemetry"):
 			uid, sid = self._parseMapping(telemetryNode)

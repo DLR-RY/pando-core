@@ -453,7 +453,6 @@ which are directly visible inside the SCOS during ground station contact.</xsd:d
       
       <xsd:group ref="Parameters" />
     </xsd:sequence>
-    <xsd:attribute name="name" type="xsd:string" use="required" />
     <xsd:attribute name="uid" type="xsd:string" use="required" />
   </xsd:complexType>
   

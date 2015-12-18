@@ -7,4 +7,3 @@ from . import assistant
 from . import svg
 from . import latex
 from . import mib
-
