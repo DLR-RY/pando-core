@@ -3,7 +3,8 @@
 
 from . import builder
 
-from . import assistant
-from . import svg
-from . import latex
 from . import mib
+from . import assistant
+from . import latex
+from . import report
+from . import svg

@@ -34,7 +34,7 @@ class Builder:
 			
 			print("Generate '%s'" % filename)
 		except OSError as e:
-			print("Could not writ to file '%s': %s" % (filename, e), file=sys.stderr)
+			print("Could not write to file '%s': %s" % (filename, e), file=sys.stderr)
 			sys.exit(1)
 
 
