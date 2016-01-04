@@ -475,8 +475,8 @@ class Packet:
 		# List of { 'name': ..., 'value': ... } pairs.
 		self.designators = []
 		
-		# 'heading': 'text'
-		self.additional = {}
+		# [('heading', 'text'), (..., ...), ...]
+		self.additional = []
 		
 		self.parameters = []
 		

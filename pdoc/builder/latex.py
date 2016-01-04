@@ -43,7 +43,7 @@ class TableBuilder(builder.Builder):
 			image = None
 		else:
 			image = os.path.join(self.imagePath, packet.uid)
-		
+				
 		substitutions = {
 			'identifier': packet.uid,
 			'parameters': parameters,

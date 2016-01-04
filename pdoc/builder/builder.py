@@ -67,6 +67,9 @@ class Builder:
 				comment_start_string = '<#',
 				comment_end_string = '#>',
 				
+				line_statement_prefix = '##',
+                line_comment_prefix = '###',
+				
 				trim_blocks = True,
 				#lstrip_blocks = True,
 				
@@ -76,6 +79,9 @@ class Builder:
 			environment = jinja2.Environment(
 				trim_blocks = True,
 				#lstrip_blocks = True,
+				
+				line_statement_prefix = '##',
+                line_comment_prefix = '###',
 				
 				loader=loader,
 				extensions=["jinja2.ext.loopcontrols"])

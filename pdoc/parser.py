@@ -307,14 +307,14 @@ class Parser:
 
 
 	def _parsePacketAdditionalFields(self, packet, node):
-		for key, defaultHeading in [('note', 'Note'),
+		for key, defaultHeading in [('purpose', 'Purpose'),
 									('effects', 'Effects'),		# only for telecommand
-									('purpose', 'Purpose'),
 									('recommendation', 'Recommendation'),
+									('note', 'Note'),
 									('seeAlso', 'See Also'),]:
 			text = self._parseText(node, key)
 			if text is not None:
-				packet.additional[defaultHeading] = text
+				packet.additional.append((defaultHeading, text))
 	
 	def _parseParameters(self, packet, node, m, referenceParameters, enumerations, lists):
 		for parameterNode in node:
