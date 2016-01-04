@@ -8,13 +8,13 @@
     <parameters>
       <parameter name="Parameter 1" uid="p1" type="uint8" />
       
-      <list name="A List of Parameters" uid="list1">
+      <list uid="list1">
         <parameterRef uid="p1" />
         <parameter name="Parameter 2" uid="p2" type="uint16" />
         <parameter name="Parameter 3" uid="p3" type="uint32" />
       </list>
     
-      <list name="Another List of Parameters" uid="list2">
+      <list uid="list2">
         <parameterRef uid="p1" />
         <parameterRef uid="list1" />
         <parameter name="Parameter 3" uid="p4" type="uint32" />
