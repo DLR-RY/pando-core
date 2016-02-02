@@ -3,7 +3,6 @@ import unittest
 import logging
 
 import pdoc
-from pyatspi.application import Application
 
 class ModelTest(unittest.TestCase):
 	
