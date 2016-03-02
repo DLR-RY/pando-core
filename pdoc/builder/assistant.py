@@ -1,6 +1,7 @@
 
 import re
 import os
+import itertools
 
 from .. import model
 
@@ -55,19 +56,18 @@ class Assistant(builder.Builder):
         if len(unresolved) > 0 or len(additional) > 0:
             parameters = []
             lastSid = ""
-            for parameter in packet.getParametersAsFlattenedList():
-                p = packetMapping.getParameterByUid(parameter.uid)
-                
-                if lastSid != "":
-                    sidProposition = lastSid[0:4] + "%04i" % (int(lastSid[4:].lstrip('0')) + 1)
-                else:
-                    sidProposition = ""
-                sid = p.sid if p else sidProposition
-                lastSid = sid
-                parameters.append({
-                    "uid": parameter.uid,
-                    "sid": sid,
-                })
+            for parameter, mapping in itertools.zip_longest(packet.getParametersAsFlattenedList(), packetMapping.parameters):
+                if parameter is not None:
+                    if lastSid != "":
+                        sidProposition = lastSid[0:4] + "%04i" % (int(lastSid[4:].lstrip('0')) + 1)
+                    else:
+                        sidProposition = ""
+                    sid = mapping.sid if mapping is not None else sidProposition
+                    lastSid = sid
+                    parameters.append({
+                        "uid": parameter.uid,
+                        "sid": sid,
+                    })
             return {
                 "uid": packet.uid,
                 "parameters": parameters, 

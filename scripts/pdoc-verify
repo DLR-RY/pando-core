@@ -15,9 +15,9 @@ logger = logging.getLogger('pdoc.model')
 
 def _printUnmappedParameters(packet, unresolved, additional):
 	for parameter in unresolved:
-		logger.error("Packet '%s': parameter '%s' not found in mapping" % (packet.uid, parameter))
+		logger.error("Packet '%s': parameter '%s' (position %i) not found in mapping" % (packet.uid, parameter[0], parameter[1]))
 	for parameter in additional:
-		logger.error("Packet '%s': unexpected parameter '%s' found in mapping" % (packet.uid, parameter))
+		logger.error("Packet '%s': unexpected parameter '%s' (position %i) found in mapping" % (packet.uid, parameter[0], parameter[1]))
 
 arg = argparse.ArgumentParser(description='p.doc Mapping Verification')
 arg.add_argument('-i', '--input', dest='input', required=True, help='XML packet description ')

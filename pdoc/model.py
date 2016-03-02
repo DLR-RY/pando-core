@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import itertools
+
 class ModelException(Exception):
 	pass
 
@@ -119,7 +121,7 @@ class Model:
 		for subsystem in self.subsystems.values():
 			# Store the list of all parameters in the subsystem.
 			# With the function getUnmappedTelecommandParameters() it is
-			# check that this is complete. 
+			# checked that this is complete. 
 			parameters = subsystem.telecommandParameters.copy()
 			
 			# Remove all parameters which are used in any TC packet
@@ -157,23 +159,24 @@ class Model:
 		"""
 		Get the UID of parameters that are unused or additionally mapped.
 		
-		Returns two lists of parameter UIDs.
+		Returns two lists of (uid, positionInPacket)
 		"""
 		unresolved = []
-		parameters = [p.parameter.uid for p in packetMapping.parameters]
+		additional = []
 		
 		packetParameters = packet.getParametersAsFlattenedList()
-		for parameter in packetParameters:
-			if parameter.uid not in parameters:
+		position = 0
+		for parameter, mapping in itertools.zip_longest(packetParameters, packetMapping.parameters):
+			if parameter is None:
+				additional.append((mapping.parameter.uid, position))
+			elif mapping is None:
+				unresolved.append((parameter.uid, position))
+			elif parameter.uid != mapping.parameter.uid:
 				# Found a parameter which is in the structure but not the
 				# mapping.
-				unresolved.append(parameter.uid)
-			else:
-				parameters.remove(parameter.uid)
-
-		# Additional parameters in the mapping found not present
-		# in the structure
-		additional = parameters
+				unresolved.append((parameter.uid, position))
+				additional.append((mapping.parameter.uid, position))
+			position += 1
 		
 		return unresolved, additional
 	
@@ -365,6 +368,7 @@ class Model:
 							parameters[sid] = parameterMapping
 		
 		return ambiguous
+
 
 class ParameterType:
 	
@@ -755,12 +759,6 @@ class TelemetryMapping:
 	
 	def appendParameter(self, parameter):
 		self.parameters.append(parameter)
-	
-	def getParameterByUid(self, uid):
-		for parameter in self.parameters:
-			if parameter.parameter.uid == uid:
-				return parameter
-		return None
 
 
 class ParameterMapping:
