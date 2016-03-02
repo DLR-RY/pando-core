@@ -341,6 +341,30 @@ class Model:
 						packets[mapping.sid] = mapping.telecommand
 		
 		return ambiguous
+	
+	def getAmbiguousTelemetryParametersWithinMapping(self):
+		"""
+		Find all telemetry parameters within a packet that use the same
+		identifier.
+		
+		The same identifier is allow in different packets, but not within
+		the same packet.
+		"""
+		ambiguous = []
+		
+		for subsystem in self.subsystems.values():
+			for application in subsystem.applications.values():
+				for mapping in application.getTelemetries():
+					parameters = {}
+					
+					for parameterMapping in mapping.parameters:
+						sid = parameterMapping.sid
+						if sid in parameters:
+							ambiguous.append((mapping.sid, sid))
+						else:
+							parameters[sid] = parameterMapping
+		
+		return ambiguous
 
 class ParameterType:
 	

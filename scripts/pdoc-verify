@@ -92,6 +92,10 @@ try:
 		logger.error("packet SID '%s' is used for '%s' and '%s'" % (packet[0], packet[1].uid, packet[2].uid))
 		success = False
 	
+	for parameter in model.getAmbiguousTelemetryParametersWithinMapping():
+		logger.error("Parameter SID '%s' is used multiple times in telemetry packet '%s'" % (parameter[1], parameter[0]))
+		success = False
+	
 	if not success:
 		raise pdoc.parser.ParserException("Incomplete mapping. Please add/remove the requested elements!")
 	else:
