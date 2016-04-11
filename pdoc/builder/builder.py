@@ -10,6 +10,8 @@ import jinja2
 import time
 import datetime
 
+class BuilderException(Exception):
+	pass
 
 class Builder:
 
@@ -34,7 +36,8 @@ class Builder:
 			
 			print("Generate '%s'" % filename)
 		except OSError as e:
-			print("Could not write to file '%s': %s" % (filename, e), file=sys.stderr)
+			error_message = "Could not write to file '%s': %s" % (filename, e)
+			print(error_message, file=sys.stderr)
 			sys.exit(1)
 
 

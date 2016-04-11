@@ -8,3 +8,5 @@ from . import assistant
 from . import latex
 from . import report
 from . import svg
+
+from .builder import BuilderException
