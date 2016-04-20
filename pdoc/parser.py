@@ -517,7 +517,7 @@ class Parser:
 					valueType = model.Parameter.RANGE
 					valueRange = model.ParameterValueRange(
 									minimum=valueNode.attrib.get("min"),
-									maximum=valueNode.attrib.get("min"))
+									maximum=valueNode.attrib.get("max"))
 
 		return (value, valueType, valueRange)
 	
