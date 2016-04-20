@@ -64,6 +64,8 @@ class TableBuilder(builder.Builder):
 		
 		parameters.append({
 			'name': parameter.name,
+			'description': parameter.description,
+			'shortName': parameter.shortName,
 			'type': str(parameter.type),
 			'width': parameter.type.width,
 			'unit': xstr(parameter.unit),
