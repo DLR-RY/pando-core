@@ -59,8 +59,15 @@ class TableBuilder(builder.Builder):
 
 	def _packetParameter(self, parameter, parameters):
 		
-		minimum = xstr(parameter.valueRange.min) if parameter.valueType == model.Parameter.RANGE else ""
-		maximum = xstr(parameter.valueRange.max) if parameter.valueType == model.Parameter.RANGE else ""
+		if parameter.valueType == model.Parameter.RANGE:
+		  minimum = xstr(parameter.valueRange.min)
+		  maximum = xstr(parameter.valueRange.max)
+		elif parameter.valueType == model.Parameter.FIXED:
+		  minimum = xstr(parameter.value)
+		  maximum = xstr(parameter.value)
+		else:
+		  minimum = ""
+		  maximum = ""
 		
 		parameters.append({
 			'name': parameter.name,
@@ -73,7 +80,7 @@ class TableBuilder(builder.Builder):
 			'max': maximum,
 		})
 		
-		if parameter.valueType == model.Parameter.RANGE:
+		if parameter.valueType == model.Parameter.RANGE or parameter.valueType == model.Parameter.FIXED:
 			self.state.useMinMax = True
 		
 		if isinstance(parameter, model.Group):
