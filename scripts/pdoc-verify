@@ -96,6 +96,14 @@ try:
 		logger.error("Parameter SID '%s' is used multiple times in telemetry packet '%s'" % (parameter[1], parameter[0]))
 		success = False
 	
+	for t in model.getAmbiguousTelemetryServiceIdentifier():
+		logger.error("Telemetry packet SID '%s' (%d, %d) is ambiguous within " \
+					 "APID %d (0x%03X). Either use a different combination of "\
+					 "service and sub-service type or add an identification " \
+					 "parameter." %
+					(t["mapping"].sid, t["mapping"].telemetry.serviceType, t["mapping"].telemetry.serviceSubtype, t["apid"], t["apid"]))
+		success = False
+	
 	if not success:
 		raise pdoc.parser.ParserException("Incomplete mapping. Please add/remove the requested elements!")
 	else:

@@ -368,6 +368,43 @@ class Model:
 							parameters[sid] = parameterMapping
 		
 		return ambiguous
+	
+	def getAmbiguousTelemetryServiceIdentifier(self):
+		"""
+		Check that all telemetry generated from an application either
+		have a unique combination of service and sub-service id or a parameter
+		identification tag.
+		"""
+		ambiguous = []
+		
+		for subsystem in self.subsystems.values():
+			for application in subsystem.applications.values():
+				ids = {}
+				for mapping in application.getTelemetries():
+					identification = {
+						"__service_type": mapping.telemetry.serviceType,
+						"__service_subtype": mapping.telemetry.serviceSubtype,
+					}
+					
+					for p in mapping.telemetry.identificationParameter:
+						identification[p.parameter.uid] = p.value
+					
+					entry = {
+						"apid": application.apid,
+						"mapping": mapping,
+						"identification": identification,
+					}
+					
+					key = hash(frozenset(identification.items()))
+					t = ids.get(key, None)
+					if t is None:
+						ids[key] = entry
+					else:
+						if not t in ambiguous:
+							ambiguous.append(t)
+						ambiguous.append(entry)
+		
+		return ambiguous
 
 
 class ParameterType:
@@ -452,6 +489,9 @@ class Parameter:
 		
 		# -> Calibration object
 		self.calibration = None
+	
+	def __repr__(self):
+		return self.uid
 
 
 class Group(Parameter):
@@ -590,6 +630,9 @@ class TelemetryIdentificationParameter:
 	def __init__(self, parameter, value):
 		self.parameter = parameter
 		self.value     = value
+	
+	def __repr__(self):
+		return "%s: %s" % (self.parameter, self.value)
 
 class Enumeration:
 
@@ -737,6 +780,9 @@ class ApplicationMapping:
 	
 	def getTelecommands(self):
 		return self._telecommand
+	
+	def __repr__(self):
+		return str(self.apid)
 
 
 class EnumerationMapping:
