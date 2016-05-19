@@ -24,7 +24,7 @@ def get_filename(package, resource):
     parts = resource.split('/')
     parts.insert(0, os.path.dirname(mod.__file__))
     resource_name = os.path.normpath(os.path.join(*parts))
-    
+
     return resource_name
 
 catalogfile = get_filename('pdoc', 'resources/catalog.xml')
