@@ -675,7 +675,6 @@ class Interpolation(Calibration):
     REAL = ParameterType.REAL
 
     class Point:
-
         def __init__(self, x, y):
             self.x = x
             self.y = y
@@ -699,7 +698,7 @@ class Interpolation(Calibration):
         elif parameterType.identifier == ParameterType.REAL:
             t = self.REAL
         else:
-            raise ParserException("Invalid input type '%' for telemetry parameter " \
+            raise ParserException("Invalid input type '%s' for telemetry parameter " \
                                   "interpolation '%s'" % (parameterType, self.uid))
         return t
 
