@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+"""
+pkgutil helper package.
+
+Adds a function that returns the filename rather than the content in a similar
+fashion to pkgutil.get_data().
+"""
 
 import os
 import sys
@@ -28,4 +34,5 @@ def get_filename(package, resource):
     return resource_name
 
 CATALOGFILE = get_filename('pdoc', 'resources/catalog.xml')
-os.environ['XML_CATALOG_FILES'] = urllib.parse.urljoin('file:', urllib.request.pathname2url(CATALOGFILE))
+os.environ['XML_CATALOG_FILES'] = \
+    urllib.parse.urljoin('file:', urllib.request.pathname2url(CATALOGFILE))

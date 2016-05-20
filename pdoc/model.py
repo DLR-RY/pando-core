@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+"""
+Internal representation of the packet format.
+
+The model class can than be forwarded to the different builders to create
+documentation from the internal representation.
+"""
 
 import itertools
 
@@ -54,38 +60,46 @@ class Model:
     def getTelecommandEnumerationMapping(self, uid):
         for subsystem in self.subsystems.values():
             try:
-                return subsystem.telecommandEnumerations[uid]
+                mapping = subsystem.telecommandEnumerations[uid]
+                break
             except KeyError:
                 pass
         else:
             raise ModelException("Could not find mapping for telecommand enumeration '%s'" % uid)
+        return mapping
 
     def getTelemetryEnumerationMapping(self, uid):
         for subsystem in self.subsystems.values():
             try:
-                return subsystem.telemetryEnumerations[uid]
+                mapping = subsystem.telemetryEnumerations[uid]
+                break
             except KeyError:
                 pass
         else:
             raise ModelException("Could not find mapping for telemetry enumeration '%s'" % uid)
+        return mapping
 
     def getTelecommandCalibrationMapping(self, uid):
         for subsystem in self.subsystems.values():
             try:
-                return subsystem.telecommandCalibrations[uid]
+                mapping = subsystem.telecommandCalibrations[uid]
+                break
             except KeyError:
                 pass
         else:
             raise ModelException("Could not find mapping for telecommand calibration '%s'" % uid)
+        return mapping
 
     def getTelemetryCalibrationMapping(self, uid):
         for subsystem in self.subsystems.values():
             try:
-                return subsystem.telemetryCalibrations[uid]
+                mapping = subsystem.telemetryCalibrations[uid]
+                break
             except KeyError:
                 pass
         else:
             raise ModelException("Could not find mapping for telemetry calibration '%s'" % uid)
+        return mapping
 
     def getUnmappedTelecommandParameters(self):
         """
@@ -155,7 +169,8 @@ class Model:
                         unmapped.append((telemetry, unresolved, additional, application))
         return unmapped
 
-    def getUnmappedParameters(self, packet, packetMapping):
+    @staticmethod
+    def getUnmappedParameters(packet, packetMapping):
         """
         Get the UID of parameters that are unused or additionally mapped.
 
@@ -166,7 +181,8 @@ class Model:
 
         packetParameters = packet.getParametersAsFlattenedList()
         position = 0
-        for parameter, mapping in itertools.zip_longest(packetParameters, packetMapping.parameters):
+        for parameter, mapping in itertools.zip_longest(packetParameters,
+                                                        packetMapping.parameters):
             if parameter is None:
                 additional.append((mapping.parameter.uid, position))
             elif mapping is None:
@@ -289,17 +305,18 @@ class Model:
         ambiguous = []
         # tuple -> list of tm packets
         tm = {}
-        identifier = {}
         for subsystem in self.subsystems.values():
             for application in subsystem.applications.values():
                 for telemetryMapping in application.getTelemetries():
                     telemetry = telemetryMapping.telemetry
-                    id = (application.apid, telemetry.serviceType, telemetry.serviceSubtype)
+                    identifier = (application.apid, telemetry.serviceType, telemetry.serviceSubtype)
 
-                    others = tm.get(id, [])
+                    others = tm.get(identifier, [])
                     for other in others:
-                        if len(other.identificationParameter) == len(telemetry.identificationParameter):
-                            for i1, i2 in zip(other.identificationParameter, telemetry.identificationParameter):
+                        if len(other.identificationParameter) == \
+                           len(telemetry.identificationParameter):
+                            for i1, i2 in zip(other.identificationParameter,
+                                              telemetry.identificationParameter):
                                 if i1.parameter.uid != i2.parameter.uid or i1.value == i2.value:
                                     break
                             else:
@@ -309,7 +326,7 @@ class Model:
                         ambiguous.append((other, telemetry))
 
                     others.append(telemetry)
-                    tm[id] = others
+                    tm[identifier] = others
         return ambiguous
 
     def getAmbiguousPacketMappings(self):
@@ -332,7 +349,8 @@ class Model:
                         p = packets.get(parameterMapping.sid)
                         if p is not None:
                             if p.uid != parameterMapping.parameter.uid:
-                                ambiguous.append((parameterMapping.sid, p, parameterMapping.parameter))
+                                ambiguous.append((parameterMapping.sid, p,
+                                                  parameterMapping.parameter))
                         else:
                             packets[parameterMapping.sid] = parameterMapping.parameter
 
@@ -425,16 +443,17 @@ class ParameterType:
         self.identifier = identifier
         self.width = width
 
+    @staticmethod
     def typeToString(identifier):
         return {
-             1: "Boolean",
-             2: "Enumeration",
-             3: "Unsigned Integer",
-             4: "Signed Integer",
-             5: "Floating Point",
-             7: "Octet String",
-             8: "ASCII String",
-             9: "Absolute Time CUC",
+            1: "Boolean",
+            2: "Enumeration",
+            3: "Unsigned Integer",
+            4: "Signed Integer",
+            5: "Floating Point",
+            7: "Octet String",
+            8: "ASCII String",
+            9: "Absolute Time CUC",
             10: "Relative Time CUC",
         }[identifier]
 
@@ -629,7 +648,7 @@ class TelemetryIdentificationParameter:
 
     def __init__(self, parameter, value):
         self.parameter = parameter
-        self.value     = value
+        self.value = value
 
     def __repr__(self):
         return "%s: %s" % (self.parameter, self.value)
@@ -660,8 +679,8 @@ class Calibration:
     INTERPOLATION_TELEMETRY = 1
     POLYNOM = 2
 
-    def __init__(self, type, name, uid, description):
-        self.type = type
+    def __init__(self, type_, name, uid, description):
+        self.type = type_
         self.name = name
         self.uid = uid
         self.description = description
@@ -679,8 +698,8 @@ class Interpolation(Calibration):
             self.x = x
             self.y = y
 
-    def __init__(self, type, name, uid, description):
-        Calibration.__init__(self, type, name, uid, description)
+    def __init__(self, type_, name, uid, description):
+        Calibration.__init__(self, type_, name, uid, description)
 
         self.inputType = None
         self.outputType = None
@@ -698,8 +717,8 @@ class Interpolation(Calibration):
         elif parameterType.identifier == ParameterType.REAL:
             t = self.REAL
         else:
-            raise ParserException("Invalid input type '%s' for telemetry parameter " \
-                                  "interpolation '%s'" % (parameterType, self.uid))
+            raise ModelException("Invalid input type '%s' for telemetry parameter " \
+                                 "interpolation '%s'" % (parameterType, self.uid))
         return t
 
 class Polynom(Calibration):
@@ -751,7 +770,7 @@ class ApplicationMapping:
         self.nameSuffix = ""
 
         # -> TelemetryMapping
-        self._telemetry   = []
+        self._telemetry = []
         # -> TelecommandMapping
         self._telecommand = []
 

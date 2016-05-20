@@ -14,8 +14,8 @@ class ImageBuilder(builder.Builder):
             self.x = 0
             self.elementCount = 0
 
-    def __init__(self, model, templateFile=None, align=False):
-        builder.Builder.__init__(self, model)
+    def __init__(self, model_, templateFile=None, align=False):
+        builder.Builder.__init__(self, model_)
 
         self.boxWidth = 90
         self.groupDelimiterWidth = 10
@@ -29,13 +29,11 @@ class ImageBuilder(builder.Builder):
         self.state = self.DecodingState()
 
     def generate(self, outpath):
-        self.outpath = outpath
-
         for packet in self.model.telemetries.values():
-            filename = os.path.join(self.outpath, "%s.svg" % packet.uid)
+            filename = os.path.join(outpath, "%s.svg" % packet.uid)
             self._write(filename, self.generatePacket(packet) + "\n")
         for packet in self.model.telecommands.values():
-            filename = os.path.join(self.outpath, "%s.svg" % packet.uid)
+            filename = os.path.join(outpath, "%s.svg" % packet.uid)
             self._write(filename, self.generatePacket(packet) + "\n")
 
     def generatePacket(self, packet):

@@ -1,6 +1,7 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
 import os
-import textwrap
 
 from .. import model
 
@@ -17,23 +18,23 @@ class TableBuilder(builder.Builder):
         def __init__(self):
             self.useMinMax = False
 
-    def __init__(self, model, templateFile, imagePath):
-        builder.Builder.__init__(self, model)
+    def __init__(self, model_, templateFile, imagePath):
+        builder.Builder.__init__(self, model_)
 
         if templateFile is None:
             templateFile = '#latex_table.tpl'
         self.templateFile = templateFile
         self.imagePath = imagePath
 
+        self.state = None
+
     def generate(self, outpath):
-        self.outpath = outpath
-
         for packet in self.model.telemetries.values():
-            self._generatePacket(packet)
+            self._generatePacket(outpath, packet)
         for packet in self.model.telecommands.values():
-            self._generatePacket(packet)
+            self._generatePacket(outpath, packet)
 
-    def _generatePacket(self, packet):
+    def _generatePacket(self, outpath, packet):
         parameters = []
         self.state = self.State()
         for parameter in packet.parameters:
@@ -52,7 +53,7 @@ class TableBuilder(builder.Builder):
             'useMinMax': self.state.useMinMax,
         }
 
-        filename = os.path.join(self.outpath, "%s.tex" % packet.uid)
+        filename = os.path.join(outpath, "%s.tex" % packet.uid)
 
         template = self._template(self.templateFile, alternateMarking=True)
         self._write(filename, template.render(substitutions) + "\n")
@@ -149,17 +150,15 @@ class EnumerationBuilder(builder.Builder):
         self.templateFile = templateFile
 
     def generate(self, outpath):
-        self.outpath = outpath
-
         for enumeration in self.enumerations.values():
-            self._generateEnumeration(enumeration)
+            self._generateEnumeration(outpath, enumeration)
 
-    def _generateEnumeration(self, enumeration):
+    def _generateEnumeration(self, outpath, enumeration):
         substitutions = {
             'enumeration': enumeration,
         }
 
-        filename = os.path.join(self.outpath, "enumeration_%s.tex" % enumeration.uid)
+        filename = os.path.join(outpath, "enumeration_%s.tex" % enumeration.uid)
         template = self._template(self.templateFile, alternateMarking=True)
         self._write(filename, template.render(substitutions) + "\n")
 

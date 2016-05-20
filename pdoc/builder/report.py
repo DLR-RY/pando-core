@@ -1,13 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import os
-import textwrap
-
-from .. import model
-
 from . import builder
-
 
 class ReportBuilder(builder.Builder):
 
@@ -19,7 +13,6 @@ class ReportBuilder(builder.Builder):
         self.templateFile = templateFile
 
     def generate(self, outpath):
-        self.outpath = outpath
 
         applications = []
         for subsystem in self.model.subsystems.values():
@@ -30,9 +23,9 @@ class ReportBuilder(builder.Builder):
             application = application[1]
             print(application.apid, application.name)
 
-        #for packet in self.model.telemetries.values():
-        #   filename = os.path.join(self.outpath, "%s.svg" % packet.uid)
+        # for packet in self.model.telemetries.values():
+        #   filename = os.path.join(outpath, "%s.svg" % packet.uid)
         #   self._write(filename, self.generatePacket(packet) + "\n")
         #for packet in self.model.telecommands.values():
-        #   filename = os.path.join(self.outpath, "%s.svg" % packet.uid)
+        #   filename = os.path.join(outpath, "%s.svg" % packet.uid)
         #   self._write(filename, self.generatePacket(packet) + "\n")

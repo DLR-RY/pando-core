@@ -1,9 +1,7 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
-import re
-import os
 import itertools
-
-from .. import model
 
 from . import builder
 
@@ -24,9 +22,9 @@ def keynat(string):
             c = int(c)
             try:
                 r[-1] = r[-1] * 10 + c
-            except:
+            except Exception:
                 r.append(c)
-        except:
+        except Exception:
             r.append(ord(c))
     return r
 

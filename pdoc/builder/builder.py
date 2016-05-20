@@ -9,6 +9,7 @@ import jinja2
 
 import time
 import datetime
+import textwrap
 
 class BuilderException(Exception):
     pass
@@ -25,9 +26,9 @@ class Builder:
 
     def _write(self, filename, data):
         # Create path if it does not exist
-        dir = os.path.dirname(filename)
-        if not os.path.isdir(dir):
-            os.makedirs(dir)
+        directory = os.path.dirname(filename)
+        if not os.path.isdir(directory):
+            os.makedirs(directory)
 
         try:
             # write data
@@ -41,7 +42,7 @@ class Builder:
             sys.exit(1)
 
 
-    def _template(self, filename, filter=None, alternateMarking=False):
+    def _template(self, filename, filters=None, alternateMarking=False):
         """ Open a template file
 
         """
@@ -90,8 +91,8 @@ class Builder:
                 extensions=["jinja2.ext.loopcontrols"])
         environment.filters['xpcc.wordwrap'] = filter_wordwrap
         environment.filters['xpcc.indent'] = filter_indent
-        if filter:
-            environment.filters.update(filter)
+        if filters:
+            environment.filters.update(filters)
         template = environment.get_template(name, globals=self.globals)
         return template
 

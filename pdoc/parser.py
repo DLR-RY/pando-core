@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+"""
+XML parser for the packet description files.
+
+Reads the description from a set of XML files and populates the model with
+the result.
+"""
 
 import re
 import copy
@@ -43,14 +49,12 @@ class Parser:
                 self._parseCalibrations(calibrationsNode, m)
 
         for serviceNode in rootnode.iterfind('service'):
-            serviceName = serviceNode.attrib.get('name', '')
             for parametersNode in serviceNode.iterfind('parameters'):
                 for node in parametersNode.iterchildren():
                     self._parseParameter(node, m, m.parameters, m.enumerations, listParameters)
                     # Parameter is automatically added to the list of parameters
 
         for serviceNode in rootnode.iterfind('service'):
-            serviceName = serviceNode.attrib.get('name', '')
             for telemtriesNode in serviceNode.iterfind('telemetries'):
                 for node in telemtriesNode.iterchildren('telemetry'):
                     tm = self._parseTelemetry(node, m, m.parameters,
@@ -628,7 +632,7 @@ class Parser:
                 uid, sid = self._parseMapping(parameterNode)
                 try:
                     parameter = tmtcModel.parameters[uid]
-                except KeyError as e:
+                except KeyError:
                     raise ParserException("Parameter '%s' not found in mapping of '%s'!"
                                           % (uid, telemetry.uid))
                 telemetryMapping.appendParameter(
