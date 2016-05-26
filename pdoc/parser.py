@@ -188,10 +188,9 @@ class Parser:
             raise ParserException(e)
         except (lxml.etree.DocumentInvalid,
                 lxml.etree.XMLSyntaxError,
-                lxml.etree.XMLSchemaParseError) as e:
-            raise ParserException("While parsing '%s': %s" % (e.error_log[0].filename, e))
-        except lxml.etree.XIncludeError as e:
-            raise ParserException("While including '%s': %s" % (e.error_log[0].filename, e))
+                lxml.etree.XMLSchemaParseError,
+                lxml.etree.XIncludeError) as e:
+            raise ParserException("While parsing '%s': %s" % (e.error_log.last_error.filename, e))
 
         if rootnode.tag != "telecommunication":
             raise ParserException("Expected rootnode 'telecommunication', got '%s' in file '%s'" %

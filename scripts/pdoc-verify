@@ -11,7 +11,7 @@ sys.path.append(rootpath)
 
 import pdoc
 
-logger = logging.getLogger('pdoc.model')
+logger = logging.getLogger('pdoc.verify')
 
 def _printUnmappedParameters(packet, unresolved, additional):
 	for parameter in unresolved:

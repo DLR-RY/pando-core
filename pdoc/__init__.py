@@ -11,6 +11,8 @@ from . import pkg
 from . import parser
 from . import builder
 
+from .pkg import naturalkey
+
 __all__ = ['model', 'pkg', 'parser', 'builder']
 
 __author__ = "Fabian Greif"

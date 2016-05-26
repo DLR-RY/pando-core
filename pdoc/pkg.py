@@ -8,11 +8,25 @@ fashion to pkgutil.get_data().
 """
 
 import os
+import re
 import sys
 import pkgutil
 
 import urllib.request
 import urllib.parse
+
+def naturalkey(key):
+    """
+    alist.sort(key=natural_keys) sorts in human order
+    http://nedbatchelder.com/blog/200712/human_sorting.html
+    """
+    def atoi(text):
+        try:
+            return int(text)
+        except ValueError:
+            return text
+
+    return [atoi(c) for c in re.split(r"([-]?\d+)", key)]
 
 def get_filename(package, resource):
     """Rewrite of pkgutil.get_data() that return the file path.

@@ -8,7 +8,7 @@ import sys
 rootpath = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..")
 sys.path.append(rootpath)
 
-import pdoc
+import pdoc.builder.svg
 
 arg = argparse.ArgumentParser(description='p.doc Packet Documentation Generator')
 arg.add_argument('-i', '--input', dest='input', required=True, help='XML packet description ')

@@ -14,6 +14,9 @@ test-latex:
 		--latex-path=build/latex \
 		--latex-overview-target=overview.tex
 
+pylint-gui:
+	@cd pdoc; pylint-gui
+
 dist:
 	@python3 setup.py sdist --formats=zip
 

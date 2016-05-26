@@ -5,28 +5,7 @@ import itertools
 
 from . import builder
 
-def keynat(string):
-    """
-    A natural sort helper function for sort() and sorted()
-    without using regular expression.
-
-    >>> items = ('Z', 'a', '10', '1', '9')
-    >>> sorted(items)
-    ['1', '10', '9', 'Z', 'a']
-    >>> sorted(items, key=keynat)
-    ['1', '9', '10', 'Z', 'a']
-    """
-    r = []
-    for c in string:
-        try:
-            c = int(c)
-            try:
-                r[-1] = r[-1] * 10 + c
-            except Exception:
-                r.append(c)
-        except Exception:
-            r.append(ord(c))
-    return r
+import pdoc
 
 class Assistant(builder.Builder):
     
@@ -46,7 +25,7 @@ class Assistant(builder.Builder):
             })
         return {
             "uid": packet.uid,
-            "parameters": parameters, 
+            "parameters": parameters,
         }
     
     def _getPartialSuggestion(self, packet, packetMapping):
@@ -91,8 +70,8 @@ class Assistant(builder.Builder):
                         telemetries.append(suggestion)
         
         substitutions = {
-            "parameters": sorted(parameters, key=keynat),
-            "telemetries": sorted(telemetries, key=lambda p: keynat(p["uid"])),
+            "parameters": sorted(parameters, key=pdoc.naturalkey),
+            "telemetries": sorted(telemetries, key=lambda p: pdoc.naturalkey(p["uid"])),
         }
         
         template = self._template(self.templateFile)
@@ -116,9 +95,9 @@ class Assistant(builder.Builder):
                 telecommands.append(self._getSuggestion(packet))
         
         substitutions = {
-            "parameters": sorted(parameters, key=keynat),
-            "telecommands": sorted(telecommands, key=lambda p: keynat(p["uid"])),
-            "telemetries": sorted(telemetries, key=lambda p: keynat(p["uid"])),
+            "parameters": sorted(parameters, key=pdoc.naturalkey),
+            "telecommands": sorted(telecommands, key=lambda p: pdoc.naturalkey(p["uid"])),
+            "telemetries": sorted(telemetries, key=lambda p: pdoc.naturalkey(p["uid"])),
         }
         
         template = self._template(self.templateFile)
