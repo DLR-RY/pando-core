@@ -263,6 +263,12 @@ class Model:
                     for parameter in telecommandMapping.telecommand.getParametersAsFlattenedList():
                         if parameter.uid in parameters:
                             parameters.remove(parameter.uid)
+
+        # Remove all list parameters
+        for parameter in self.parameters.values():
+            if isinstance(parameter, List):
+                parameters.remove(parameter.uid)
+
         parameters.sort()
         return parameters
 
@@ -513,6 +519,29 @@ class Parameter:
         return self.uid
 
 
+class List:
+    def __init__(self, name, uid, description):
+        self.name = name
+        self.uid = uid
+        self.description = description
+
+        self.parameters = []
+
+    def appendParameter(self, parameter):
+        self.parameters.append(parameter)
+
+    def getFlattenedMemberCount(self):
+        count = 0
+        for parameter in self.parameters:
+            if isinstance(parameter, List):
+                count += parameter.getFlattenedMemberCount()
+            else:
+                count += 1
+                if isinstance(parameter, Group):
+                    count += parameter.getFlattenedGroupMemberCount()
+        return count
+
+
 class Group(Parameter):
 
     def __init__(self, name, uid, description, parameterType):
@@ -532,9 +561,12 @@ class Group(Parameter):
         """
         count = 0
         for parameter in self.parameters:
-            count += 1
-            if isinstance(parameter, Group):
-                count += parameter.getFlattenedGroupMemberCount()
+            if isinstance(parameter, List):
+                count += parameter.getFlattenedMemberCount()
+            else:
+                count += 1
+                if isinstance(parameter, Group):
+                    count += parameter.getFlattenedGroupMemberCount()
         return count
 
     def updateGroupDepth(self):
@@ -565,13 +597,16 @@ class Packet:
         # [('heading', 'text'), (..., ...), ...]
         self.additional = []
 
-        self.parameters = []
+        self._parameters = []
 
         # Maximum nested group depth
         self.depth = 0
 
     def appendParameter(self, parameter):
-        self.parameters.append(parameter)
+        self._parameters.append(parameter)
+
+    def getParameters(self):
+        return self._parameters
 
     def getParametersAsFlattenedList(self):
         """ Returns all parameters as a flat list.
@@ -581,16 +616,19 @@ class Packet:
         """
         parameters = []
 
-        def handleGroup(group):
+        def handleList(group):
             for p in group.parameters:
                 handleParameter(p)
 
         def handleParameter(parameter):
-            parameters.append(parameter)
-            if isinstance(parameter, Group):
-                handleGroup(parameter)
+            if isinstance(parameter, List):
+                handleList(parameter)
+            else:
+                parameters.append(parameter)
+                if isinstance(parameter, Group):
+                    handleList(parameter)
 
-        for p in self.parameters:
+        for p in self._parameters:
             handleParameter(p)
 
         return parameters
@@ -598,7 +636,7 @@ class Packet:
     def updateGroupDepth(self):
         if self.depth == 0:
             self.depth = 1
-            for parameter in self.parameters:
+            for parameter in self._parameters:
                 if isinstance(parameter, Group):
                     parameter.updateGroupDepth()
                     self.depth = max(self.depth, parameter.depth + 1)

@@ -24,17 +24,10 @@ class ParserException(Exception):
 
 class Parser:
 
-    class ParameterList:
-        def __init__(self):
-            self.parameters = []
-        def appendParameter(self, parameter):
-            self.parameters.append(parameter)
-
     def parse(self, filename, xsdfile=None):
         rootnode = self._validateAndParse(filename, xsdfile)
 
         m = model.Model()
-        listParameters = {}
 
         # Parse packet/parameter structure
         for serviceNode in rootnode.iterfind('service'):
@@ -51,20 +44,20 @@ class Parser:
         for serviceNode in rootnode.iterfind('service'):
             for parametersNode in serviceNode.iterfind('parameters'):
                 for node in parametersNode.iterchildren():
-                    self._parseParameter(node, m, m.parameters, m.enumerations, listParameters)
+                    self._parseParameter(node, m, m.parameters, m.enumerations)
                     # Parameter is automatically added to the list of parameters
 
         for serviceNode in rootnode.iterfind('service'):
             for telemtriesNode in serviceNode.iterfind('telemetries'):
                 for node in telemtriesNode.iterchildren('telemetry'):
                     tm = self._parseTelemetry(node, m, m.parameters,
-                                              m.enumerations, listParameters)
+                                              m.enumerations)
                     m.appendTelemetryPacket(tm)
 
             for telecommandsNode in serviceNode.iterfind('telecommands'):
                 for node in telecommandsNode.iterchildren('telecommand'):
                     tc = self._parseTelecommand(node, m, m.parameters,
-                                                m.enumerations, m.telemetries, listParameters)
+                                                m.enumerations, m.telemetries)
                     m.appendTelecommandPacket(tc)
 
         # Parse SCOS mapping information
@@ -198,7 +191,7 @@ class Parser:
 
         return rootnode
 
-    def _parseTelemetry(self, node, m, referenceParameters, enumerations, lists):
+    def _parseTelemetry(self, node, m, referenceParameters, enumerations):
         p = model.Telemetry(name=node.attrib["name"],
                             uid=node.attrib["uid"],
                             description=self._parseText(node, "description", ""))
@@ -208,7 +201,7 @@ class Parser:
         self._parseServiceType(p, node)
 
         self._parseParameters(p, node.find("parameters"), m,
-                              referenceParameters, enumerations, lists)
+                              referenceParameters, enumerations)
         p.updateGroupDepth()
 
         parameters = p.getParametersAsFlattenedList()
@@ -217,7 +210,7 @@ class Parser:
 
         return p
 
-    def _parseTelecommand(self, node, m, referenceParameters, enumerations, telemetries, lists):
+    def _parseTelecommand(self, node, m, referenceParameters, enumerations, telemetries):
         p = model.Telecommand(name=node.attrib["name"],
                               uid=node.attrib["uid"],
                               description=self._parseText(node, "description", ""))
@@ -227,7 +220,7 @@ class Parser:
         self._parseServiceType(p, node)
 
         self._parseParameters(p, node.find("parameters"), m,
-                              referenceParameters, enumerations, lists)
+                              referenceParameters, enumerations)
         p.updateGroupDepth()
         self._parseParameterValues(p, node, enumerations)
 
@@ -301,15 +294,15 @@ class Parser:
             if text is not None:
                 packet.additional.append((defaultHeading, text))
 
-    def _parseParameters(self, packet, node, m, referenceParameters, enumerations, lists):
+    def _parseParameters(self, packet, node, m, referenceParameters, enumerations):
         for parameterNode in node:
             parameters = self._parseParameter(parameterNode, m,
-                                              referenceParameters, enumerations, lists)
+                                              referenceParameters, enumerations)
             if parameters is not None:
                 for parameter in parameters:
                     packet.appendParameter(parameter)
 
-    def _parseParameter(self, node, m, referenceParameters, enumerations, lists):
+    def _parseParameter(self, node, m, referenceParameters, enumerations):
         parameters = []
         uid = node.attrib.get("uid", "")
         if node.tag == "parameter" or node.tag == "group":
@@ -337,7 +330,7 @@ class Parser:
             elif node.tag == "group":
                 parameter = model.Group(name=name, uid=uid,
                                         description=description, parameterType=parameterType)
-                self._parseParameters(parameter, node, m, referenceParameters, enumerations, lists)
+                self._parseParameters(parameter, node, m, referenceParameters, enumerations)
 
             self._parseShortName(parameter, node)
 
@@ -379,22 +372,21 @@ class Parser:
             referenceParameters[parameter.uid] = parameter
             parameters.append(parameter)
         elif node.tag == "list":
-            parameterList = self.ParameterList()
-            self._parseParameters(parameterList, node, m, referenceParameters, enumerations, lists)
+            name = node.attrib.get("name")
+            name = node.attrib.get("uid")
+            description = self._parseText(node, "description", "")
 
-            lists[uid] = parameterList
-            parameters = parameterList.parameters
+            parameter = model.List(name=name, uid=uid, description=description)
+            self._parseParameters(parameter, node, m, referenceParameters, enumerations)
+
+            referenceParameters[parameter.uid] = parameter
+            parameters.append(parameter)
         elif node.tag == "parameterRef":
             # The parameter needs to be copied here. Otherwise the reference
             # parameter might be changed when we later assign fixed/default
             # values to parameters in the telecommand.
-            if uid in lists:
-                for p in lists[uid].parameters:
-                    parameter = copy.deepcopy(p)
-                    parameters.append(parameter)
-            else:
-                parameter = copy.deepcopy(referenceParameters[uid])
-                parameters.append(parameter)
+            parameter = copy.deepcopy(referenceParameters[uid])
+            parameters.append(parameter)
         elif node.tag == lxml.etree.Comment:
             return None
         elif node.tag in ["description", "shortName"]:

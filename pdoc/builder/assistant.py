@@ -96,8 +96,8 @@ class Assistant(builder.Builder):
         
         substitutions = {
             "parameters": sorted(parameters, key=pdoc.naturalkey),
-            "telecommands": sorted(telecommands, key=lambda p: pdoc.naturalkey(p["uid"])),
             "telemetries": sorted(telemetries, key=lambda p: pdoc.naturalkey(p["uid"])),
+            "telecommands": sorted(telecommands, key=lambda p: pdoc.naturalkey(p["uid"])),
         }
         
         template = self._template(self.templateFile)

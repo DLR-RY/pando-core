@@ -59,33 +59,35 @@ class TableBuilder(builder.Builder):
         self._write(filename, template.render(substitutions) + "\n")
 
     def _packetParameter(self, parameter, parameters):
-
-        if parameter.valueType == model.Parameter.RANGE:
-            minimum = xstr(parameter.valueRange.min)
-            maximum = xstr(parameter.valueRange.max)
-        elif parameter.valueType == model.Parameter.FIXED:
-            minimum = xstr(parameter.value)
-            maximum = xstr(parameter.value)
+        if isinstance(parameter, model.List):
+            self._packetParameter(parameter, parameters)
         else:
-            minimum = ""
-            maximum = ""
+            if parameter.valueType == model.Parameter.RANGE:
+                minimum = xstr(parameter.valueRange.min)
+                maximum = xstr(parameter.valueRange.max)
+            elif parameter.valueType == model.Parameter.FIXED:
+                minimum = xstr(parameter.value)
+                maximum = xstr(parameter.value)
+            else:
+                minimum = ""
+                maximum = ""
 
-        parameters.append({
-            'name': parameter.name,
-            'description': parameter.description,
-            'shortName': parameter.shortName,
-            'type': str(parameter.type),
-            'width': parameter.type.width,
-            'unit': xstr(parameter.unit),
-            'min': minimum,
-            'max': maximum,
-        })
+            parameters.append({
+                'name': parameter.name,
+                'description': parameter.description,
+                'shortName': parameter.shortName,
+                'type': str(parameter.type),
+                'width': parameter.type.width,
+                'unit': xstr(parameter.unit),
+                'min': minimum,
+                'max': maximum,
+            })
 
-        if parameter.valueType == model.Parameter.RANGE or parameter.valueType == model.Parameter.FIXED:
-            self.state.useMinMax = True
+            if parameter.valueType == model.Parameter.RANGE or parameter.valueType == model.Parameter.FIXED:
+                self.state.useMinMax = True
 
-        if isinstance(parameter, model.Group):
-            self._packetGroup(parameter, parameters)
+            if isinstance(parameter, model.Group):
+                self._packetGroup(parameter, parameters)
 
     def _packetGroup(self, group, parameters):
         for parameter in group.parameters:

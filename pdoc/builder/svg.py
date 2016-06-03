@@ -40,7 +40,7 @@ class ImageBuilder(builder.Builder):
         self.state = self.DecodingState()
         elements = []
 
-        for parameter in packet.parameters:
+        for parameter in packet.getParameters():
             self._packetParameter(parameter, elements)
 
         defaultWidth = 525
@@ -67,33 +67,37 @@ class ImageBuilder(builder.Builder):
         return template.render(substitutions)
 
     def _packetParameter(self, parameter, elements):
-        wrapper = textwrap.TextWrapper()
-        wrapper.width = 14
+        if isinstance(parameter, model.List):
+            for p in parameter.parameters:
+                self._packetParameter(p, elements)
+        else:
+            wrapper = textwrap.TextWrapper()
+            wrapper.width = 14
 
-        text = wrapper.wrap(parameter.name)
+            text = wrapper.wrap(parameter.name)
 
-        texts = []
-        offset = (40 - self.textHeight * len(text)) / 2 - 3
-        for t in text:
-            offset += self.textHeight
-            texts.append({
-                'text': t,
-                'y': offset,
+            texts = []
+            offset = (40 - self.textHeight * len(text)) / 2 - 3
+            for t in text:
+                offset += self.textHeight
+                texts.append({
+                    'text': t,
+                    'y': offset,
+                })
+
+            elements.append({
+                'type': 'element',
+                'parameterName': texts,
+                'parameterType': str(parameter.type),
+                'parameterWidth': parameter.type.width,
+                'x': self.state.x,
+                'width': self.boxWidth,
             })
+            self.state.x += self.boxWidth
+            self.state.elementCount += 1
 
-        elements.append({
-            'type': 'element',
-            'parameterName': texts,
-            'parameterType': str(parameter.type),
-            'parameterWidth': parameter.type.width,
-            'x': self.state.x,
-            'width': self.boxWidth,
-        })
-        self.state.x += self.boxWidth
-        self.state.elementCount += 1
-
-        if isinstance(parameter, model.Group):
-            self._packetGroup(parameter, elements)
+            if isinstance(parameter, model.Group):
+                self._packetGroup(parameter, elements)
 
     def _packetGroup(self, group, elements):
         elements.append({
