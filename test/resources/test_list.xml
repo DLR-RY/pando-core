@@ -6,7 +6,7 @@
 
   <service>
     <parameters>
-      <list uid="list">
+      <list name="List" uid="list">
         <parameter name="Parameter 1" uid="p1" type="uint8" />
         <parameter name="Parameter 2" uid="p2" type="uint16" />
         <parameter name="Parameter 3" uid="p3" type="uint32" />
