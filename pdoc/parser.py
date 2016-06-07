@@ -63,7 +63,8 @@ class Parser:
         # Parse SCOS mapping information
         for mappingNode in rootnode.iterfind('mapping'):
             subsystemId = int(mappingNode.attrib["subsystem"], 0)
-            subsystem = m.getOrAddSubsystem(subsystemId)
+            subsystemName = mappingNode.attrib["name"]
+            subsystem = m.getOrAddSubsystem(subsystemId, subsystemName)
 
             for node in mappingNode.iterfind('enumerations/telecommand/enumerationMapping'):
                 uid, sid = self._parseMapping(node)

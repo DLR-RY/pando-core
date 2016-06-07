@@ -41,6 +41,7 @@
       </xsd:restriction>
    </xsd:simpleType>
   </xsd:attribute>
+  <xsd:attribute name="name" type="xsd:string" use="required" />
   <xsd:attribute ref="xml:base" use="optional" />
   </xsd:complexType>
   

@@ -45,14 +45,17 @@ class Model:
     def appendTelecommandPacket(self, packet):
         self.telecommands[packet.uid] = packet
 
-    def getOrAddSubsystem(self, subsystemId):
+    def getOrAddSubsystem(self, subsystemId, name):
         try:
-            return self.subsystems[subsystemId]
+            subsystem = self.subsystems[subsystemId]
+            if subsystem.name != name:
+                raise ModelException("Different names ('%s' and '%s') for same subsystem id '%i' detected"
+                                     % (subsystem.name, name, subsystemId))
         except KeyError:
             # Create new subsystem entry
-            subsystem = Subsystem(subsystemId)
+            subsystem = Subsystem(subsystemId, name)
             self.subsystems[subsystemId] = subsystem
-            return subsystem
+        return subsystem
 
     def getSubsystems(self):
         return self.subsystems
@@ -779,8 +782,9 @@ class EnumerationEntry:
 
 class Subsystem:
 
-    def __init__(self, identifier):
+    def __init__(self, identifier, name):
         self.identifier = identifier
+        self.name = name
 
         # apid -> ApplicationMapping
         self.applications = {}

@@ -95,4 +95,3 @@ class Builder:
             environment.filters.update(filters)
         template = environment.get_template(name, globals=self.globals)
         return template
-
