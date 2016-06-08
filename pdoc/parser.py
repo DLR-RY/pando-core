@@ -374,7 +374,7 @@ class Parser:
             parameters.append(parameter)
         elif node.tag == "list":
             name = node.attrib.get("name")
-            name = node.attrib.get("uid")
+            uid = node.attrib.get("uid")
             description = self._parseText(node, "description", "")
 
             parameter = model.List(name=name, uid=uid, description=description)
