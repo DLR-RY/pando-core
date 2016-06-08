@@ -70,23 +70,23 @@ class Parser:
                 uid, sid = self._parseMapping(node)
                 enumeration = m.enumerations[uid]
                 subsystem.telecommandEnumerations[uid] = \
-                    model.EnumerationMapping(sid=sid, enumeration=enumeration)
+                    model.EnumerationMapping(sid=sid, enumeration=enumeration, subsystem=subsystem)
             for node in mappingNode.iterfind('enumerations/telemetry/enumerationMapping'):
                 uid, sid = self._parseMapping(node)
                 enumeration = m.enumerations[uid]
                 subsystem.telemetryEnumerations[uid] = \
-                    model.EnumerationMapping(sid=sid, enumeration=enumeration)
+                    model.EnumerationMapping(sid=sid, enumeration=enumeration, subsystem=subsystem)
 
             for node in mappingNode.iterfind('calibrations/telecommand/calibrationMapping'):
                 uid, sid = self._parseMapping(node)
                 calibration = m.calibrations[uid]
                 subsystem.telecommandCalibrations[uid] = \
-                    model.CalibrationMapping(sid=sid, calibration=calibration)
+                    model.CalibrationMapping(sid=sid, calibration=calibration, subsystem=subsystem)
             for node in mappingNode.iterfind('calibrations/telemetry/calibrationMapping'):
                 uid, sid = self._parseMapping(node)
                 calibration = m.calibrations[uid]
                 subsystem.telemetryCalibrations[uid] = \
-                    model.CalibrationMapping(sid=sid, calibration=calibration)
+                    model.CalibrationMapping(sid=sid, calibration=calibration, subsystem=subsystem)
 
             for node in mappingNode.iterfind('telecommandParameters/parameterMapping'):
                 uid, sid = self._parseMapping(node)
@@ -98,35 +98,25 @@ class Parser:
                 app = self._parseApplicationMapping(node, m)
                 subsystem.applications[app.apid] = app
 
-        # Extract telecommand and telemetry enumerations and calibrations
         for subsystem in m.subsystems.values():
             for application in subsystem.applications.values():
                 for tm in application.getTelemetries():
                     for p in tm.telemetry.getParametersAsFlattenedList():
-                        if p.type.identifier == model.ParameterType.ENUMERATION:
-                            e = p.type.enumeration
-                            m.telemetryEnumerations[e] = m.enumerations[e]
-
                         calibration = p.calibration
                         if calibration is not None:
                             calibration = m.calibrations[calibration.uid]
-                            self._verifyTelemetryCalibration(calibration, p)
-                            m.telemetryCalibrations[calibration.uid] = calibration
+                            self._verify_telemetry_calibration(calibration, p)
 
                 for tc in application.getTelecommands():
                     for p in tc.telecommand.getParametersAsFlattenedList():
-                        if p.type.identifier == model.ParameterType.ENUMERATION:
-                            e = p.type.enumeration
-                            m.telecommandEnumerations[e] = m.enumerations[e]
-
                         calibration = p.calibration
                         if calibration is not None:
                             calibration = m.calibrations[calibration.uid]
-                            self._verifyTelecommandCalibration(calibration, p)
-                            m.telecommandCalibrations[p.calibration.uid] = calibration
+                            self._verify_telecommand_calibration(calibration, p)
+
         return m
 
-    def _verifyTelemetryCalibration(self, calibration, parameter):
+    def _verify_telemetry_calibration(self, calibration, parameter):
         if calibration.type == model.Calibration.INTERPOLATION_TELECOMMAND:
             raise ParserException("Invalid calibration for parameter '%s' (%s). " \
                                   "'telecommandInterpolation' is invalid for " \
@@ -144,7 +134,7 @@ class Parser:
                                           % (calibration.uid, parameter.name, parameter.uid,
                                              inputType, calibration.inputType))
 
-    def _verifyTelecommandCalibration(self, calibration, parameter):
+    def _verify_telecommand_calibration(self, calibration, parameter):
         if calibration.type != model.Calibration.INTERPOLATION_TELECOMMAND:
             raise ParserException("Invalid calibration for parameter '%s' (%s). " \
                                   "Only 'telecommandInterpolation' is available " \
@@ -161,6 +151,7 @@ class Parser:
                                           "requires '%s', previous definition is '%s'"
                                           % (calibration.uid, parameter.name, parameter.uid,
                                              outputType, calibration.outputType))
+
 
     def _validateAndParse(self, filename, xsdfile):
         try:

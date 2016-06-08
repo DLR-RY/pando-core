@@ -10,6 +10,7 @@ rootpath = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..")
 sys.path.append(rootpath)
 
 import pdoc
+import pdoc.model_validator
 
 logger = logging.getLogger('pdoc.verify')
 
@@ -30,36 +31,36 @@ args = arg.parse_args()
 parser = pdoc.parser.Parser()
 
 try:
-	model = parser.parse(args.input)
+	modelValidator = pdoc.model_validator.ModelValidator(parser.parse(args.input))
 	
 	# Verify that all telecommands and telemetry packets in the
 	# mapping section define all the parameters defined in the structure.
 	success = True
 	
 	# Check telecommand parameters
-	for p in model.getUnmappedTelecommandParameters():
+	for p in modelValidator.getUnmappedTelecommandParameters():
 		success = False
 		logger.error("Parameter '%s' not found in mapping" % (p.uid))
 	
 	# Find parameters that are used in TC parameter mapping but not
 	# referenced in any TC packet
-	for p in model.getMappedButUnreferencedTelecommandParameter():
+	for p in modelValidator.getMappedButUnreferencedTelecommandParameter():
 		success = False
 		logger.error("Parameter '%s' found in mapping but not in any TC packet" % (p.uid))
 	
 	# Check telemetry parameters
-	for p in model.getUnmappedTelemetryParameters():
+	for p in modelValidator.getUnmappedTelemetryParameters():
 		success = False
 		_printUnmappedParameters(p[0], p[1], p[2])
 	
 	# Check that for all enumerations a corresponding mapping is available
 	# and that all mapped enumerations are defined somewhere in the XML file.
-	atc, utc, atm, utm = model.getUnmappedEnumerations()
-	for unresolved in utm:
-		logger.error("No telemetry enumeration mapping found for uid '%s'" % (unresolved))
+	atm, utm, atc, utc = modelValidator.getUnmappedEnumerations()
+	for unresolved, subsystem in utm:
+		logger.error("No telemetry enumeration mapping found for uid '%s' in subsystem '%s'" % (unresolved.uid, subsystem.name))
 		success = False
-	for unresolved in utc:
-		logger.error("No telecommand enumeration mapping found for uid '%s'" % (unresolved))
+	for unresolved, subsystem in utc:
+		logger.error("No telecommand enumeration mapping found for uid '%s' in subsystem '%s'" % (unresolved.uid, subsystem.name))
 		success = False
 	for additional in atm:
 		logger.error("Telemetry enumeration mapping '%s' for uid '%s' not used!" % (additional.sid, additional.enumeration.uid))
@@ -68,12 +69,12 @@ try:
 		logger.error("Telecommand enumeration mapping '%s' for uid '%s' not used!" % (additional.sid, additional.enumeration.uid))
 		success = False
 	
-	atc, utc, atm, utm = model.getUnmappedCalibrations()
-	for unresolved in utm:
-		logger.error("No telemetry calibration mapping found for uid '%s'" % (unresolved))
+	atm, utm, atc, utc = modelValidator.getUnmappedCalibrations()
+	for unresolved, subsystem in utm:
+		logger.error("No telemetry calibration mapping found for uid '%s' in subsystem '%s'" % (unresolved.uid, subsystem.name))
 		success = False
-	for unresolved in utc:
-		logger.error("No telecommand calibration mapping found for uid '%s'" % (unresolved))
+	for unresolved, subsystem in utc:
+		logger.error("No telecommand calibration mapping found for uid '%s' in subsystem '%s'" % (unresolved.uid, subsystem.name))
 		success = False
 	for additional in atm:
 		logger.error("Telemetry calibration mapping '%s' for uid '%s' not used!" % (additional.sid, additional.calibration.uid))
@@ -84,19 +85,19 @@ try:
 	
 	# Verify that the combination of APID, STYPE, SSTYPE and the two
 	# identification fields is unique.
-	for packet in model.getAmbiguousTelemetryPackets():
+	for packet in modelValidator.getAmbiguousTelemetryPackets():
 		logger.error("TM packet '%s' and '%s' are ambiguous" % (packet[0].uid, packet[1].uid))
 		success = False
 	
-	for packet in model.getAmbiguousPacketMappings():
+	for packet in modelValidator.getAmbiguousPacketMappings():
 		logger.error("packet SID '%s' is used for '%s' and '%s'" % (packet[0], packet[1].uid, packet[2].uid))
 		success = False
 	
-	for parameter in model.getAmbiguousTelemetryParametersWithinMapping():
+	for parameter in modelValidator.getAmbiguousTelemetryParametersWithinMapping():
 		logger.error("Parameter SID '%s' is used multiple times in telemetry packet '%s'" % (parameter[1], parameter[0]))
 		success = False
 	
-	for t in model.getAmbiguousTelemetryServiceIdentifier():
+	for t in modelValidator.getAmbiguousTelemetryServiceIdentifier():
 		logger.error("Telemetry packet SID '%s' (%d, %d) is ambiguous within " \
 					 "APID %d (0x%03X). Either use a different combination of "\
 					 "service and sub-service type or add an identification " \
@@ -108,19 +109,19 @@ try:
 		raise pdoc.parser.ParserException("Incomplete mapping. Please add/remove the requested elements!")
 	else:
 		if args.detailed:
-			parameters = model.getUnusedParameters()
+			parameters = modelValidator.getUnusedParameters()
 			if len(parameters) > 0:
 				print("\nUnused parameters:")
 				for parameter in parameters:
 					print("-", parameter)
 			
-			telemetries = model.getUnusedTelemetries()
+			telemetries = modelValidator.getUnusedTelemetries()
 			if len(telemetries) > 0:
 				print("\nUnused telemetry packets:")
 				for telemetry in telemetries:
 					print("-", telemetry)
 			
-			telecommands = model.getUnusedTelecommands()
+			telecommands = modelValidator.getUnusedTelecommands()
 			if len(telecommands) > 0:
 				print("\nUnused telecommand packets:")
 				for telecommand in telecommands:

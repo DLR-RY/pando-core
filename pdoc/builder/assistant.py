@@ -6,12 +6,15 @@ import itertools
 from . import builder
 
 import pdoc
+import pdoc.model_validator
 
 class Assistant(builder.Builder):
     
     def __init__(self, model, templateFile=None):
         builder.Builder.__init__(self, model)
         
+        self.modelValidator = pdoc.model_validator.ModelValidator(model)
+
         if templateFile is None:
             templateFile = '#suggestions.tpl'
         self.templateFile = templateFile
@@ -29,7 +32,7 @@ class Assistant(builder.Builder):
         }
     
     def _getPartialSuggestion(self, packet, packetMapping):
-        unresolved, additional = self.model.getUnmappedParameters(packet, packetMapping)
+        unresolved, additional = self.modelValidator.getUnmappedParameters(packet, packetMapping)
         if len(unresolved) > 0 or len(additional) > 0:
             parameters = []
             lastSid = ""
@@ -54,7 +57,7 @@ class Assistant(builder.Builder):
     
     def printSuggestions(self):
         # Find all telecommand parameters without a mapping
-        unmappedParameters = self.model.getUnmappedTelecommandParameters()
+        unmappedParameters = self.modelValidator.getUnmappedTelecommandParameters()
         parameters = [x.uid for x in unmappedParameters]
         
         # Find all telemetry packets with a partial mapping
@@ -78,17 +81,17 @@ class Assistant(builder.Builder):
         print(template.render(substitutions))
 
     def printSuggestionsForUnusedPackets(self):
-        parameters = self.model.getUnusedParameters()
+        parameters = self.modelValidator.getUnusedParameters()
         
         telemetries = []
-        unusedTelemetries = self.model.getUnusedTelemetries()
+        unusedTelemetries = self.modelValidator.getUnusedTelemetries()
         if len(unusedTelemetries) > 0:
             for uid in unusedTelemetries:
                 packet = self.model.telemetries[uid]
                 telemetries.append(self._getSuggestion(packet))
         
         telecommands = []
-        unusedTelecommands = self.model.getUnusedTelecommands()
+        unusedTelecommands = self.modelValidator.getUnusedTelecommands()
         if len(unusedTelecommands) > 0:
             for uid in unusedTelecommands:
                 packet = self.model.telecommands[uid]
