@@ -66,6 +66,8 @@ class Parser:
             subsystemName = mappingNode.attrib["name"]
             subsystem = m.getOrAddSubsystem(subsystemId, subsystemName)
 
+            subsystem.description = self._parseText(mappingNode, "description", "")
+
             for node in mappingNode.iterfind('enumerations/telecommand/enumerationMapping'):
                 uid, sid = self._parseMapping(node)
                 enumeration = m.enumerations[uid]
