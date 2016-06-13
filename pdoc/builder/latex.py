@@ -110,11 +110,11 @@ class TableBuilder(builder.Builder):
             if parameter.valueType == model.Parameter.RANGE or parameter.valueType == model.Parameter.FIXED:
                 self.state.useMinMax = True
 
-            if isinstance(parameter, model.Group):
-                self._packetGroup(parameter, parameters)
+            if isinstance(parameter, model.Repeater):
+                self._packetRepeater(parameter, parameters)
 
-    def _packetGroup(self, group, parameters):
-        for parameter in group.parameters:
+    def _packetRepeater(self, repeater, parameters):
+        for parameter in repeater.parameters:
             self._packetParameter(parameter, parameters)
 
 

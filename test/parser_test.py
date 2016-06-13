@@ -55,7 +55,7 @@ class ParserTest(unittest.TestCase):
         self.assertGreater(len(self.model.telemetries), 0)
         self.assertGreater(len(self.model.telecommands), 0)
 
-    def test_shouldCalculateTheDepthOfAGroupParameter(self):
+    def test_shouldCalculateTheDepthOfARepeaterParameter(self):
         tm = self.model.telemetries["service_3_12"]
         self.assertEqual(tm.depth, 3)
 

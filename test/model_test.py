@@ -22,8 +22,8 @@ class ModelTest(unittest.TestCase):
         model.parameters[p.uid] = p
         return p
 
-    def _createGroup(self, name, model):
-        p = pdoc.model.Group(name=name, uid=name.lower(), description=None, parameterType=None)
+    def _createRepeater(self, name, model):
+        p = pdoc.model.Repeater(name=name, uid=name.lower(), description=None, parameterType=None)
         model.parameters[p.uid] = p
         return p
 
@@ -32,29 +32,29 @@ class ModelTest(unittest.TestCase):
 
         packet.appendParameter(self._createParameter("P1", model))
 
-        group = self._createGroup("P2", model)
-        group.appendParameter(self._createParameter("P3", model))
+        repeater = self._createRepeater("P2", model)
+        repeater.appendParameter(self._createParameter("P3", model))
 
-        packet.appendParameter(group)
+        packet.appendParameter(repeater)
         packet.appendParameter(self._createParameter("P4", model))
 
         model.telecommands[packet.uid] = packet
         return packet
 
-    def _generatePacketWithNestedGroups(self, model):
+    def _generatePacketWithNestedRepeaters(self, model):
         packet = pdoc.model.Packet(name="Test", uid="test", description="")
 
         packet.appendParameter(self._createParameter("P1", model))
 
-        group = self._createGroup("G1", model)
-        group.appendParameter(self._createParameter("P2", model))
+        repeater = self._createRepeater("G1", model)
+        repeater.appendParameter(self._createParameter("P2", model))
 
-        group2 = self._createGroup("G2", model)
-        group2.appendParameter(self._createParameter("P3", model))
-        group2.appendParameter(self._createParameter("P4", model))
+        repeater2 = self._createRepeater("G2", model)
+        repeater2.appendParameter(self._createParameter("P3", model))
+        repeater2.appendParameter(self._createParameter("P4", model))
 
-        group.appendParameter(group2)
-        packet.appendParameter(group)
+        repeater.appendParameter(repeater2)
+        packet.appendParameter(repeater)
         packet.appendParameter(self._createParameter("P5", model))
 
         model.telecommands[packet.uid] = packet
@@ -118,15 +118,15 @@ class ModelTest(unittest.TestCase):
 
         self.assertEqual(len(model.getUnmappedTelecommandParameters()), 0)
 
-    def test_shouldHaveCorrectGroupMemberCount(self):
+    def test_shouldHaveCorrectRepeaterMemberCount(self):
         model = pdoc.model.Model()
         packet = self._generatePacket(model)
 
         parameters = packet.getParametersAsFlattenedList()
-        self.assertEqual(parameters[1].getFlattenedGroupMemberCount(), 1)
+        self.assertEqual(parameters[1].getFlattenedRepeaterMemberCount(), 1)
 
-        packet2 = self._generatePacketWithNestedGroups(model)
+        packet2 = self._generatePacketWithNestedRepeaters(model)
 
         parameters2 = packet2.getParametersAsFlattenedList()
-        self.assertEqual(parameters2[1].getFlattenedGroupMemberCount(), 4)
-        self.assertEqual(parameters2[3].getFlattenedGroupMemberCount(), 2)
+        self.assertEqual(parameters2[1].getFlattenedRepeaterMemberCount(), 4)
+        self.assertEqual(parameters2[3].getFlattenedRepeaterMemberCount(), 2)

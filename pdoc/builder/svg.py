@@ -18,7 +18,7 @@ class ImageBuilder(builder.Builder):
         builder.Builder.__init__(self, model_)
 
         self.boxWidth = 90
-        self.groupDelimiterWidth = 10
+        self.repeaterDelimiterWidth = 10
         self.textHeight = 14
 
         if templateFile is None:
@@ -96,34 +96,34 @@ class ImageBuilder(builder.Builder):
             self.state.x += self.boxWidth
             self.state.elementCount += 1
 
-            if isinstance(parameter, model.Group):
-                self._packetGroup(parameter, elements)
+            if isinstance(parameter, model.Repeater):
+                self._packetRepeater(parameter, elements)
 
-    def _packetGroup(self, group, elements):
+    def _packetRepeater(self, repeater, elements):
         elements.append({
-            'type': 'groupStart',
+            'type': 'repeaterStart',
             'x': self.state.x,
-            'width': self.groupDelimiterWidth,
-            'depth': group.depth,
+            'width': self.repeaterDelimiterWidth,
+            'depth': repeater.depth,
         })
-        self.state.x += self.groupDelimiterWidth
+        self.state.x += self.repeaterDelimiterWidth
         startPosition = self.state.x
         startCount = self.state.elementCount
 
-        for parameter in group.parameters:
+        for parameter in repeater.parameters:
             self._packetParameter(parameter, elements)
 
-        if elements[-1]["type"] == "groupEnd":
-            self.state.x -= int(self.groupDelimiterWidth / 2)
+        if elements[-1]["type"] == "repeaterEnd":
+            self.state.x -= int(self.repeaterDelimiterWidth / 2)
 
-        groupWidth = self.state.elementCount - startCount
+        repeaterWidth = self.state.elementCount - startCount
         elements.append({
-            'type': 'groupEnd',
+            'type': 'repeaterEnd',
             'x': self.state.x,
-            'width': self.groupDelimiterWidth,
-            'depth': group.depth,
+            'width': self.repeaterDelimiterWidth,
+            'depth': repeater.depth,
             'textposition': int(startPosition + (self.state.x - startPosition) / 2),
-            'groupRepeatText': ("repeated %s times" if (groupWidth > 1) else "rep. %s times") % group.name,
+            'repeaterRepeatText': ("repeated %s times" if (repeaterWidth > 1) else "rep. %s times") % repeater.name,
         })
-        self.state.x += self.groupDelimiterWidth
+        self.state.x += self.repeaterDelimiterWidth
 

@@ -87,16 +87,16 @@
   <text x="{{ element.width / 2 }}" y="52" text-anchor="middle" class="size">{{ element.parameterType }}</text>
   <text x="{{ element.width / 2 }}" y="63" text-anchor="middle" class="size">{% if element.parameterWidth == 0 %}variable{% elif element.parameterType == "Octet String" or element.parameterType == "ASCII String" %}{{ element.parameterWidth // 8 }} Byte{% else %}{{ element.parameterWidth }} Bit{% endif %}</text>
 </g>
-{% elif element.type == "groupStart" %}
+{% elif element.type == "repeaterStart" %}
 <g transform="translate({{ element.x }},0)">
   <path d="m 10,-{{ element.depth * 5 }} -5,0 0,{{ 85 - 20 + element.depth * 20 }} 5,0" />
 </g>
-{% elif element.type == "groupEnd" %}
+{% elif element.type == "repeaterEnd" %}
 <g transform="translate({{ element.x }},0)">
   <path d="m 0,-{{ element.depth * 5 }} 5,0 0,{{ 85 - 20 + element.depth * 20 }} -5,0" />
 </g>
-<text x="{{ element.textposition }}" y="{{ 85 - 15 + element.depth * 15 - 2 }}" text-anchor="middle" class="sizeback">{{ element.groupRepeatText }}</text>
-<text x="{{ element.textposition }}" y="{{ 85 - 15 + element.depth * 15 - 2 }}" text-anchor="middle" class="size">{{ element.groupRepeatText }}</text>
+<text x="{{ element.textposition }}" y="{{ 85 - 15 + element.depth * 15 - 2 }}" text-anchor="middle" class="sizeback">{{ element.repeaterRepeatText }}</text>
+<text x="{{ element.textposition }}" y="{{ 85 - 15 + element.depth * 15 - 2 }}" text-anchor="middle" class="size">{{ element.repeaterRepeatText }}</text>
 {% endif %}
 {% endfor %}
 </g>

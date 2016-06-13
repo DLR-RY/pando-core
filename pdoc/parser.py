@@ -196,7 +196,7 @@ class Parser:
 
         self._parseParameters(p, node.find("parameters"), m,
                               referenceParameters, enumerations)
-        p.updateGroupDepth()
+        p.updateRepeaterDepth()
 
         parameters = p.getParametersAsFlattenedList()
         self._parseIdentificationParameter(p, node, parameters)
@@ -215,7 +215,7 @@ class Parser:
 
         self._parseParameters(p, node.find("parameters"), m,
                               referenceParameters, enumerations)
-        p.updateGroupDepth()
+        p.updateRepeaterDepth()
         self._parseParameterValues(p, node, enumerations)
 
         self._parsePacketAdditionalFields(p, node)
@@ -322,7 +322,7 @@ class Parser:
                     parameter.calibration = m.calibrations[uid]
 
             elif node.tag == "repeater":
-                parameter = model.Group(name=name, uid=uid,
+                parameter = model.Repeater(name=name, uid=uid,
                                         description=description, parameterType=parameterType)
                 self._parseParameters(parameter, node, m, referenceParameters, enumerations)
 

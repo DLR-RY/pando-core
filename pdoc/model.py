@@ -157,12 +157,12 @@ class List:
                 count += parameter.getFlattenedMemberCount()
             else:
                 count += 1
-                if isinstance(parameter, Group):
-                    count += parameter.getFlattenedGroupMemberCount()
+                if isinstance(parameter, Repeater):
+                    count += parameter.getFlattenedRepeaterMemberCount()
         return count
 
 
-class Group(Parameter):
+class Repeater(Parameter):
 
     def __init__(self, name, uid, description, parameterType):
         Parameter.__init__(self, name, uid, description, parameterType)
@@ -173,11 +173,11 @@ class Group(Parameter):
     def appendParameter(self, parameter):
         self.parameters.append(parameter)
 
-    def getFlattenedGroupMemberCount(self):
+    def getFlattenedRepeaterMemberCount(self):
         """
-        Get the number of parameters belonging to this group.
+        Get the number of parameters belonging to this repeater.
 
-        The parameters of subgroups are also included.
+        The parameters of sub-repeaters are also included.
         """
         count = 0
         for parameter in self.parameters:
@@ -185,16 +185,16 @@ class Group(Parameter):
                 count += parameter.getFlattenedMemberCount()
             else:
                 count += 1
-                if isinstance(parameter, Group):
-                    count += parameter.getFlattenedGroupMemberCount()
+                if isinstance(parameter, Repeater):
+                    count += parameter.getFlattenedRepeaterMemberCount()
         return count
 
-    def updateGroupDepth(self):
+    def updateRepeaterDepth(self):
         if self.depth == 0:
             self.depth = 1
             for parameter in self.parameters:
-                if isinstance(parameter, Group):
-                    parameter.updateGroupDepth()
+                if isinstance(parameter, Repeater):
+                    parameter.updateRepeaterDepth()
                     self.depth = max(self.depth, parameter.depth + 1)
 
 
@@ -219,7 +219,7 @@ class Packet:
 
         self._parameters = []
 
-        # Maximum nested group depth
+        # Maximum nested repeater depth
         self.depth = 0
 
     def appendParameter(self, parameter):
@@ -231,13 +231,13 @@ class Packet:
     def getParametersAsFlattenedList(self):
         """ Returns all parameters as a flat list.
 
-        Removes the nesting of groups. Group parameters still contain their
+        Removes the nesting of repeaters. Repeater parameters still contain their
         embedded parameters.
         """
         parameters = []
 
-        def handleList(group):
-            for p in group.parameters:
+        def handleList(repeater):
+            for p in repeater.parameters:
                 handleParameter(p)
 
         def handleParameter(parameter):
@@ -245,7 +245,7 @@ class Packet:
                 handleList(parameter)
             else:
                 parameters.append(parameter)
-                if isinstance(parameter, Group):
+                if isinstance(parameter, Repeater):
                     handleList(parameter)
 
         for p in self._parameters:
@@ -253,12 +253,12 @@ class Packet:
 
         return parameters
 
-    def updateGroupDepth(self):
+    def updateRepeaterDepth(self):
         if self.depth == 0:
             self.depth = 1
             for parameter in self._parameters:
-                if isinstance(parameter, Group):
-                    parameter.updateGroupDepth()
+                if isinstance(parameter, Repeater):
+                    parameter.updateRepeaterDepth()
                     self.depth = max(self.depth, parameter.depth + 1)
 
     def __repr__(self):
