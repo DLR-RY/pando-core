@@ -22,7 +22,7 @@
         <fixed value="Unit1" />
       </enumerationParameter>
       
-      <group name="NPAR" uid="G1" type="uint16">
+      <repeater name="NPAR" uid="G1" type="uint16">
         <description>
           Number of parameters. The description can be longer
           and stretch over multiple lines.
@@ -32,7 +32,7 @@
         <range min="1" max="10" />
         
         <parameterRef uid="P7" />
-      </group>
+      </repeater>
     </parameters>
 
     <telemetries>
@@ -41,7 +41,7 @@
         <serviceSubtype>12</serviceSubtype>
         
         <parameters>
-          <group name="NSID" uid="G0" type="uint16">
+          <repeater name="NSID" uid="G0" type="uint16">
             <default value="2" />
             
             <parameter name="SID" uid="P9" type="uint16">
@@ -52,7 +52,7 @@
             <parameter name="NFA" uid="P8" type="uint16">
               <description>Number of Fixed Array parameters. Not used here and must be set to zero.</description>
             </parameter>
-          </group>
+          </repeater>
           <parameterRef uid="P21"/>
         </parameters>
       </telemetry>
@@ -137,12 +137,12 @@
         
         <parameters>
           <enumerationParameter name="Large Data Unit Id" uid="P4" enumeration="E0" />
-          <group name="NSID" uid="G3" type="uint8">
+          <repeater name="NSID" uid="G3" type="uint8">
             <parameter name="Sequence Number" uid="P10" type="uint32" />
-            <group name="N" uid="G4" type="uint16">
+            <repeater name="N" uid="G4" type="uint16">
               <parameter name="Service Data Unit Part" uid="P5" type="octet" />
-            </group>
-          </group>
+            </repeater>
+          </repeater>
         </parameters>
         
         <parameterValues>

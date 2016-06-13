@@ -299,7 +299,7 @@ class Parser:
     def _parseParameter(self, node, m, referenceParameters, enumerations):
         parameters = []
         uid = node.attrib.get("uid", "")
-        if node.tag == "parameter" or node.tag == "group":
+        if node.tag == "parameter" or node.tag == "repeater":
             name = node.attrib.get("name")
             description = self._parseText(node, "description", "")
 
@@ -321,7 +321,7 @@ class Parser:
 
                     parameter.calibration = m.calibrations[uid]
 
-            elif node.tag == "group":
+            elif node.tag == "repeater":
                 parameter = model.Group(name=name, uid=uid,
                                         description=description, parameterType=parameterType)
                 self._parseParameters(parameter, node, m, referenceParameters, enumerations)
@@ -384,14 +384,14 @@ class Parser:
         elif node.tag == lxml.etree.Comment:
             return None
         elif node.tag in ["description", "shortName"]:
-            # Description tags are already parsed for the group tags in their
+            # Description tags are already parsed for the repeater tags in their
             # handler. Nothing to do here.
             return None
         elif node.tag in ["fixed", "default", "range"]:
             return None
         else:
             raise ParserException("Unknown element '%s' found. Was expecting " \
-                                  "'parameter|group|enumerationParameter|parameterRef'" % node.tag)
+                                  "'parameter|repeater|enumerationParameter|parameterRef'" % node.tag)
 
         return parameters
 

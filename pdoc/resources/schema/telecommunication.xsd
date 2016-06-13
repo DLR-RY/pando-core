@@ -47,12 +47,12 @@
     
     <!-- check uniqueness of parameter identification -->
     <xsd:unique name="parameterUidUnique">
-      <xsd:selector xpath=".//parameter | .//enumerationParameter | .//group | .//list" />
+      <xsd:selector xpath=".//parameter | .//enumerationParameter | .//repeater | .//list" />
       <xsd:field xpath="@uid" />
     </xsd:unique>
 
     <xsd:key name="parameterUidKey">
-      <xsd:selector xpath="service/parameters/parameter | service/parameters/enumerationParameter | service/parameters/group | service/parameters/list" />
+      <xsd:selector xpath="service/parameters/parameter | service/parameters/enumerationParameter | service/parameters/repeater | service/parameters/list" />
       <xsd:field xpath="@uid" />
     </xsd:key>
 
@@ -62,7 +62,7 @@
     </xsd:keyref>
     
     <xsd:key name="parameterValueUidKey">
-      <xsd:selector xpath=".//parameter | .//enumerationParameter | .//group" />
+      <xsd:selector xpath=".//parameter | .//enumerationParameter | .//repeater" />
       <xsd:field xpath="@uid" />
     </xsd:key>
 
@@ -129,7 +129,7 @@
     </xsd:unique>
     
     <xsd:key name="parameterOnlyUidKey">
-      <xsd:selector xpath=".//parameter | .//enumerationParameter | .//group" />
+      <xsd:selector xpath=".//parameter | .//enumerationParameter | .//repeater" />
       <xsd:field xpath="@uid" />
     </xsd:key>
     

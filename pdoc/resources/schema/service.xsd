@@ -99,7 +99,7 @@ which are directly visible inside the SCOS during ground station contact.</xsd:d
       <xsd:choice>
         <xsd:element name="parameter" type="StandardParameterType" />
         <xsd:element name="enumerationParameter" type="EnumerationParameterType" />
-        <xsd:element name="group" type="GroupParameterType" />
+        <xsd:element name="repeater" type="RepeaterParameterType" />
         <xsd:element name="list" type="ListParameterType" />
       </xsd:choice>
     </xsd:sequence>
@@ -320,13 +320,13 @@ which are directly visible inside the SCOS during ground station contact.</xsd:d
     <xsd:annotation>
       <xsd:documentation>
         Groups all the parameters which may appear in a parameters tag of
-        a TM/TC packet or in a group within these parameters.
+        a TM/TC packet or in a repeater group within these parameters.
       </xsd:documentation>
     </xsd:annotation>
     
     <xsd:sequence>
       <xsd:choice minOccurs="0" maxOccurs="unbounded">
-        <xsd:element name="group" type="GroupParameterType" />
+        <xsd:element name="repeater" type="RepeaterParameterType" />
         <xsd:element name="parameter" type="StandardParameterType" />
         <xsd:element name="enumerationParameter" type="EnumerationParameterType" />
         
@@ -381,7 +381,7 @@ which are directly visible inside the SCOS during ground station contact.</xsd:d
       </xsd:annotation></xsd:attribute>
   </xsd:complexType>
 
-  <xsd:complexType name="GroupParameterType">
+  <xsd:complexType name="RepeaterParameterType">
     <xsd:complexContent>
       <xsd:extension base="ParameterType">
         <xsd:group ref="Parameters" />
