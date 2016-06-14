@@ -113,7 +113,7 @@ class Parameter:
     FIXED = 2
     RANGE = 3
 
-    def __init__(self, name, uid, description, parameterType):
+    def __init__(self, name, uid, description, parameter_type):
         self.name = name
         self.uid = uid
         self.description = description
@@ -122,7 +122,7 @@ class Parameter:
         self.shortName = ""
 
         # -> ParameterType
-        self.type = parameterType
+        self.type = parameter_type
 
         self.value = None
         self.valueType = self.NONE
@@ -164,8 +164,8 @@ class List:
 
 class Repeater(Parameter):
 
-    def __init__(self, name, uid, description, parameterType):
-        Parameter.__init__(self, name, uid, description, parameterType)
+    def __init__(self, name, uid, description, parameter_type):
+        Parameter.__init__(self, name, uid, description, parameter_type)
 
         self.parameters = []
         self.depth = 0

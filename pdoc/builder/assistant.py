@@ -31,12 +31,12 @@ class Assistant(builder.Builder):
             "parameters": parameters,
         }
     
-    def _getPartialSuggestion(self, packet, packetMapping):
-        unresolved, additional = self.modelValidator.getUnmappedParameters(packet, packetMapping)
+    def _getPartialSuggestion(self, packet, packet_mapping):
+        unresolved, additional = self.modelValidator.getUnmappedParameters(packet, packet_mapping)
         if len(unresolved) > 0 or len(additional) > 0:
             parameters = []
             lastSid = ""
-            for parameter, mapping in itertools.zip_longest(packet.getParametersAsFlattenedList(), packetMapping.parameters):
+            for parameter, mapping in itertools.zip_longest(packet.getParametersAsFlattenedList(), packet_mapping.parameters):
                 if parameter is not None:
                     if lastSid != "":
                         sidProposition = lastSid[0:4] + "%04i" % (int(lastSid[4:].lstrip('0')) + 1)
@@ -64,9 +64,9 @@ class Assistant(builder.Builder):
         telemetries = []
         for subsystem in self.model.subsystems.values():
             for application in subsystem.applications.values():
-                for packetMapping in application.getTelemetries():
-                    packet = packetMapping.telemetry
-                    suggestion = self._getPartialSuggestion(packet, packetMapping)
+                for packet_mapping in application.getTelemetries():
+                    packet = packet_mapping.telemetry
+                    suggestion = self._getPartialSuggestion(packet, packet_mapping)
                     if suggestion:
                         suggestion["apid"] = application.apid
                         suggestion["name"] = application.name
