@@ -31,5 +31,7 @@ class EnumerationParser:
         entry = pdoc.model.EnumerationEntry(node.attrib.get("name"),
                                             node.attrib.get("value"),
                                             description)
+
+        pdoc.parser.common.parse_short_name(entry, node)
         return entry
 

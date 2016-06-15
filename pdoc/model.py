@@ -319,6 +319,8 @@ class Enumeration:
         self.description = description
         self.width = width
 
+        self.shortName = None
+
         # -> EnumerationEntry
         self.entries = []
 
@@ -396,6 +398,8 @@ class EnumerationEntry:
         self.name = name
         self.value = value
         self.description = description
+
+        self.shortName = None
 
 class Subsystem:
 

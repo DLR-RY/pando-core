@@ -74,15 +74,17 @@ which are directly visible inside the SCOS during ground station contact.</xsd:d
 
   <xsd:complexType name="EnumerationEntryType">
     <xsd:sequence>
+      <xsd:element name="shortName" minOccurs="0" maxOccurs="1">
+        <xsd:simpleType>
+          <xsd:restriction base="xsd:string">
+            <xsd:minLength value="1"/>
+            <xsd:maxLength value="14"/>
+          </xsd:restriction>
+        </xsd:simpleType>
+      </xsd:element>
       <xsd:element name="description" type="xsd:string" minOccurs="0" maxOccurs="1" />
     </xsd:sequence>
-    <xsd:attribute name="name" use="required">
-      <xsd:simpleType>
-        <xsd:restriction base="xsd:string">
-          <xsd:minLength value="1"/>
-          <xsd:maxLength value="14"/>
-        </xsd:restriction>
-      </xsd:simpleType>
+    <xsd:attribute name="name" type="xsd:string" use="required">
     </xsd:attribute>
     <xsd:attribute name="value" use="required">
       <xsd:simpleType>
