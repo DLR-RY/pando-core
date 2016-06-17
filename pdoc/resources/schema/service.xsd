@@ -2,12 +2,24 @@
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <xsd:import namespace="http://www.w3.org/XML/1998/namespace"
               schemaLocation="http://www.w3.org/2001/xml.xsd" />
-  
+
   <xsd:include schemaLocation="calibration.xsd" />
+
+  <!-- Type for hex integers -->
+  <xsd:simpleType name="HexIntegerType">
+    <xsd:restriction base="xsd:string">
+      <xsd:pattern value="0x[0-9a-fA-F]+" />
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <!-- Type for integers in either decimal or hex -->
+  <xsd:simpleType name="DecOrHexIntegerType">
+    <xsd:union memberTypes="xsd:integer HexIntegerType" />
+  </xsd:simpleType>
   
   <xsd:element name="service" type="ServiceType">
   </xsd:element>
-  
+
   <xsd:complexType name="ServiceType">
     <xsd:sequence minOccurs="0" maxOccurs="unbounded">
       <xsd:choice>
@@ -16,13 +28,13 @@
         <xsd:element name="enumerations" type="EnumerationsType" />
         <xsd:element name="parameters" type="GlobalParametersType" >
           <xsd:annotation>
-            <xsd:documentation>List of all parameters which are used to create input values for the telecommands or to decode satellite telemetrie.
+            <xsd:documentation>List of all parameters which are used to create input values for the telecommands or to decode satellite telemetry.
 The parameters and their definition is only used inside the MIB they are not automatically used on board of the satellite.</xsd:documentation>
           </xsd:annotation></xsd:element>
         <xsd:element name="telemetries" type="TelemetriesType" >
           <xsd:annotation>
-            <xsd:documentation>List all telemetrie that is returned from the satellite to the SCOS.
-The telemetrie which is listed here can be used to create tables/plots etc. 
+            <xsd:documentation>List all telemetry that is returned from the satellite to the SCOS.
+The telemetry which is listed here can be used to create tables/plots etc. 
 which are directly visible inside the SCOS during ground station contact.</xsd:documentation>
           </xsd:annotation></xsd:element>
         <xsd:element name="telecommands" type="TelecommandsType" >
@@ -52,8 +64,11 @@ which are directly visible inside the SCOS during ground station contact.</xsd:d
   </xsd:complexType>
 
   <xsd:complexType name="EnumerationsType">
-    <xsd:sequence>
-      <xsd:element name="enumeration" type="EnumerationType" minOccurs="0" maxOccurs="unbounded" />
+    <xsd:sequence minOccurs="0" maxOccurs="unbounded">
+      <xsd:choice>
+        <xsd:element name="enumeration" type="EnumerationType" />
+        <xsd:element name="derivedEnumeration" type="DerivedEnumerationType" />
+      </xsd:choice>
     </xsd:sequence>
     <xsd:attribute ref="xml:base" use="optional" />
   </xsd:complexType>
@@ -68,6 +83,30 @@ which are directly visible inside the SCOS during ground station contact.</xsd:d
     <xsd:attribute name="width" type="xsd:integer" use="required">
       <xsd:annotation>
         <xsd:documentation>Width of the enumeration in bits.</xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+  </xsd:complexType>
+  
+  <xsd:complexType name="DerivedEnumerationType">
+    <xsd:sequence>
+      <xsd:element name="description" type="xsd:string" minOccurs="0" maxOccurs="1">
+        <xsd:annotation>
+          <xsd:documentation>
+            If a description is given it overwrites the base description, without
+            a description the description of the base enumeration is used.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="entry" type="EnumerationEntryType" minOccurs="0" maxOccurs="unbounded" />
+    </xsd:sequence>
+    <xsd:attribute name="name" type="xsd:string" use="required" />
+    <xsd:attribute name="uid" type="xsd:string" use="required" />
+    <xsd:attribute name="extends" type="xsd:string" use="required">
+      <xsd:annotation>
+        <xsd:documentation>
+          UID of the enumeration this derived enumeration is based upon. The
+          derived enumeration can extended the entries of base enumeration.
+        </xsd:documentation>
       </xsd:annotation>
     </xsd:attribute>
   </xsd:complexType>

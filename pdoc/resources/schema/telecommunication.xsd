@@ -31,18 +31,22 @@
     
     <!-- check uniqueness of enumerations codes -->
     <xsd:unique name="enumerationUidUnique">
-      <xsd:selector xpath=".//enumeration" />
+      <xsd:selector xpath=".//enumeration | .//derivedEnumeration" />
       <xsd:field xpath="@uid" />
     </xsd:unique>
 
     <xsd:key name="enumerationUidKey">
-      <xsd:selector xpath=".//enumeration" />
+      <xsd:selector xpath=".//enumeration | .//derivedEnumeration" />
       <xsd:field xpath="@uid" />
     </xsd:key>
-
     <xsd:keyref name="enumerationUidRef" refer="enumerationUidKey">
       <xsd:selector xpath=".//enumerationParameter" />
       <xsd:field xpath="@enumeration" />
+    </xsd:keyref>
+    
+    <xsd:keyref name="enumerationDerivedUidRef" refer="enumerationUidKey">
+      <xsd:selector xpath=".//derivedEnumeration" />
+      <xsd:field xpath="@extends" />
     </xsd:keyref>
     
     <!-- check uniqueness of parameter identification -->
@@ -55,7 +59,6 @@
       <xsd:selector xpath="service/parameters/parameter | service/parameters/enumerationParameter | service/parameters/repeater | service/parameters/list" />
       <xsd:field xpath="@uid" />
     </xsd:key>
-
     <xsd:keyref name="parameterUidRef" refer="parameterUidKey">
       <xsd:selector xpath=".//parameterRef | .//identificationParameter" />
       <xsd:field xpath="@uid" />
@@ -65,7 +68,6 @@
       <xsd:selector xpath=".//parameter | .//enumerationParameter | .//repeater" />
       <xsd:field xpath="@uid" />
     </xsd:key>
-
     <xsd:keyref name="parameterValueUidRef" refer="parameterValueUidKey">
       <xsd:selector xpath=".//parameterValue" />
       <xsd:field xpath="@uid" />
@@ -81,7 +83,6 @@
       <xsd:selector xpath="service/telemetries/telemetry" />
       <xsd:field xpath="@uid" />
     </xsd:key>
-
     <xsd:keyref name="telemetryUidRef" refer="telemetryUidKey">
       <xsd:selector xpath="service/telecommands/telecommand/relevantTelemetry/telemetryRef" />
       <xsd:field xpath="@uid" />
@@ -102,7 +103,6 @@
       <xsd:selector xpath="service/calibrations/telemetryInterpolation | service/calibrations/telecommandInterpolation | service/calibrations/polynom" />
       <xsd:field xpath="@uid" />
     </xsd:key>
-    
     <xsd:keyref name="calibrationUidRef" refer="calibrationUidKey">
       <xsd:selector xpath=".//calibrationRef" />
       <xsd:field xpath="@uid" />

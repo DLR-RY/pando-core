@@ -37,12 +37,12 @@ def parse_text(node, tag, default_value=None):
     return text
 
 
-def parse_short_name(packet, node):
-    packet.shortName = node.findtext("shortName", "")
+def parse_short_name(packet, node, default=""):
+    packet.shortName = node.findtext("shortName", default)
 
     if packet.shortName == "":
         packet.shortName = packet.name
 
 
-def parse_description(node):
-    return parse_text(node, "description", "")
+def parse_description(node, default=""):
+    return parse_text(node, "description", default)
