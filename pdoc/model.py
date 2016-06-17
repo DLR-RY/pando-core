@@ -118,6 +118,10 @@ class Parameter:
         self.uid = uid
         self.description = description
 
+        # see ParameterCollection
+        self.is_collection = False
+        self.is_parameter = True
+
         # Name limited to 16 characters
         self.shortName = ""
 
@@ -138,42 +142,17 @@ class Parameter:
     def __repr__(self):
         return self.uid
 
+class ParameterCollection:
 
-class List:
-    def __init__(self, name, uid, description):
-        self.name = name
-        self.uid = uid
-        self.description = description
-
-        self.parameters = []
-
-    def appendParameter(self, parameter):
-        self.parameters.append(parameter)
-
-    def getFlattenedMemberCount(self):
-        count = 0
-        for parameter in self.parameters:
-            if isinstance(parameter, List):
-                count += parameter.getFlattenedMemberCount()
-            else:
-                count += 1
-                if isinstance(parameter, Repeater):
-                    count += parameter.getFlattenedRepeaterMemberCount()
-        return count
-
-
-class Repeater(Parameter):
-
-    def __init__(self, name, uid, description, parameter_type):
-        Parameter.__init__(self, name, uid, description, parameter_type)
-
+    def __init__(self):
+        self.is_collection = True
         self.parameters = []
         self.depth = 0
 
     def appendParameter(self, parameter):
         self.parameters.append(parameter)
 
-    def getFlattenedRepeaterMemberCount(self):
+    def getFlattenedMemberCount(self):
         """
         Get the number of parameters belonging to this repeater.
 
@@ -181,21 +160,37 @@ class Repeater(Parameter):
         """
         count = 0
         for parameter in self.parameters:
-            if isinstance(parameter, List):
-                count += parameter.getFlattenedMemberCount()
-            else:
+            if parameter.is_parameter:
                 count += 1
-                if isinstance(parameter, Repeater):
-                    count += parameter.getFlattenedRepeaterMemberCount()
+
+            if parameter.is_collection:
+                count += parameter.getFlattenedMemberCount()
         return count
 
-    def updateRepeaterDepth(self):
-        if self.depth == 0:
-            self.depth = 1
-            for parameter in self.parameters:
-                if isinstance(parameter, Repeater):
-                    parameter.updateRepeaterDepth()
-                    self.depth = max(self.depth, parameter.depth + 1)
+    def updateDepth(self):
+        self.depth = 1
+        for parameter in self.parameters:
+            if isinstance(parameter, Repeater):
+                parameter.updateDepth()
+                self.depth = max(self.depth, parameter.depth + 1)
+
+
+class List(ParameterCollection):
+    def __init__(self, name, uid, description):
+        ParameterCollection.__init__(self)
+
+        self.is_parameter = False
+
+        self.name = name
+        self.uid = uid
+        self.description = description
+
+
+class Repeater(Parameter, ParameterCollection):
+
+    def __init__(self, name, uid, description, parameter_type):
+        Parameter.__init__(self, name, uid, description, parameter_type)
+        ParameterCollection.__init__(self)
 
 
 class Packet:
@@ -217,16 +212,16 @@ class Packet:
         # [('heading', 'text'), (..., ...), ...]
         self.additional = []
 
-        self._parameters = []
+        self.parameters = []
 
-        # Maximum nested repeater depth
+        # Maximum nested parameter depth
         self.depth = 0
 
     def appendParameter(self, parameter):
-        self._parameters.append(parameter)
+        self.parameters.append(parameter)
 
     def getParameters(self):
-        return self._parameters
+        return self.parameters
 
     def getParametersAsFlattenedList(self):
         """ Returns all parameters as a flat list.
@@ -236,30 +231,28 @@ class Packet:
         """
         parameters = []
 
-        def handleList(repeater):
-            for p in repeater.parameters:
-                handleParameter(p)
+        def handle_list(collection):
+            for p in collection.parameters:
+                handle_parameter(p)
 
-        def handleParameter(parameter):
-            if isinstance(parameter, List):
-                handleList(parameter)
-            else:
+        def handle_parameter(parameter):
+            if parameter.is_parameter:
                 parameters.append(parameter)
-                if isinstance(parameter, Repeater):
-                    handleList(parameter)
 
-        for p in self._parameters:
-            handleParameter(p)
+            if parameter.is_collection:
+                handle_list(parameter)
+
+        for p in self.parameters:
+            handle_parameter(p)
 
         return parameters
 
-    def updateRepeaterDepth(self):
-        if self.depth == 0:
-            self.depth = 1
-            for parameter in self._parameters:
-                if isinstance(parameter, Repeater):
-                    parameter.updateRepeaterDepth()
-                    self.depth = max(self.depth, parameter.depth + 1)
+    def updateDepth(self):
+        self.depth = 1
+        for parameter in self.parameters:
+            if parameter.is_collection:
+                parameter.updateDepth()
+                self.depth = max(self.depth, parameter.depth + 1)
 
     def __repr__(self):
         return self.uid

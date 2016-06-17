@@ -63,6 +63,10 @@
       <xsd:selector xpath=".//parameterRef | .//identificationParameter" />
       <xsd:field xpath="@uid" />
     </xsd:keyref>
+    <xsd:keyref name="overrideParameterUidRef" refer="parameterUidKey">
+      <xsd:selector xpath=".//overrideParameterRef" />
+      <xsd:field xpath="@overrides" />
+    </xsd:keyref>
     
     <xsd:key name="parameterValueUidKey">
       <xsd:selector xpath=".//parameter | .//enumerationParameter | .//repeater" />
@@ -75,23 +79,31 @@
 
     <!-- check uniqueness of telemetry and telecommand identification -->
     <xsd:unique name="telemetryUidUnique">
-      <xsd:selector xpath="service/telemetries/telemetry | service/telecommands/telecommand" />
+      <xsd:selector xpath="service/telemetries/telemetry | service/telemetries/derivedTelemetry | service/telecommands/telecommand | service/telecommands/derivedTelecommand" />
       <xsd:field xpath="@uid" />
     </xsd:unique>
     
     <xsd:key name="telemetryUidKey">
-      <xsd:selector xpath="service/telemetries/telemetry" />
+      <xsd:selector xpath="service/telemetries/telemetry | service/telemetries/derivedTelemetry" />
       <xsd:field xpath="@uid" />
     </xsd:key>
     <xsd:keyref name="telemetryUidRef" refer="telemetryUidKey">
       <xsd:selector xpath="service/telecommands/telecommand/relevantTelemetry/telemetryRef" />
       <xsd:field xpath="@uid" />
     </xsd:keyref>
+    <xsd:keyref name="derivedTelemetryUidRef" refer="telemetryUidKey">
+      <xsd:selector xpath=".//derivedTelemetry" />
+      <xsd:field xpath="@extends" />
+    </xsd:keyref>
     
     <xsd:key name="telecommandUidKey">
-      <xsd:selector xpath="service/telecommands/telecommand" />
+      <xsd:selector xpath="service/telecommands/telecommand | service/telecommands/derivedTelecommand" />
       <xsd:field xpath="@uid" />
     </xsd:key>
+    <xsd:keyref name="derivedTelecommandUidRef" refer="telecommandUidKey">
+      <xsd:selector xpath=".//derivedTelecommand" />
+      <xsd:field xpath="@extends" />
+    </xsd:keyref>
     
     <!-- Check uniqueness of calibration curves -->
     <xsd:unique name="calibrationUidUnique">

@@ -48,7 +48,7 @@ class EnumerationParser:
         enumeration.name = node.attrib.get("name", enumeration.name)
         enumeration.uid = node.attrib.get("uid")
         enumeration.description = pdoc.parser.common.parse_description(node, enumeration.description)
-        enumeration.shortName = pdoc.parser.common.parse_short_name(enumeration, node, enumeration.shortName)
+        pdoc.parser.common.parse_short_name(enumeration, node, enumeration.shortName)
 
         # FIXME overwrite existing parameters with the same value
         for entry in node.iterfind("entry"):
@@ -57,9 +57,14 @@ class EnumerationParser:
         return enumeration
 
     def _parse_enumeration_entry(self, node):
+        try:
+            value = str(int(node.attrib.get("value"), 0))
+        except ValueError:
+            value = node.attrib.get("value")
+        
         description = pdoc.parser.common.parse_description(node)
         entry = pdoc.model.EnumerationEntry(node.attrib.get("name"),
-                                            node.attrib.get("value"),
+                                            value,
                                             description)
 
         pdoc.parser.common.parse_short_name(entry, node)

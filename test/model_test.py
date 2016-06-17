@@ -123,10 +123,10 @@ class ModelTest(unittest.TestCase):
         packet = self._generatePacket(model)
 
         parameters = packet.getParametersAsFlattenedList()
-        self.assertEqual(parameters[1].getFlattenedRepeaterMemberCount(), 1)
+        self.assertEqual(parameters[1].getFlattenedMemberCount(), 1)
 
         packet2 = self._generatePacketWithNestedRepeaters(model)
 
         parameters2 = packet2.getParametersAsFlattenedList()
-        self.assertEqual(parameters2[1].getFlattenedRepeaterMemberCount(), 4)
-        self.assertEqual(parameters2[3].getFlattenedRepeaterMemberCount(), 2)
+        self.assertEqual(parameters2[1].getFlattenedMemberCount(), 4)
+        self.assertEqual(parameters2[3].getFlattenedMemberCount(), 2)

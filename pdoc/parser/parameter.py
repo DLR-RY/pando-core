@@ -26,7 +26,7 @@ class ParameterParser:
                 for parameter in parameters:
                     packet.appendParameter(parameter)
 
-    def parse_parameter(self, node, m, reference_parameters, enumerations):
+    def parse_parameter(self, node, model, reference_parameters, enumerations):
         parameters = []
         uid = node.attrib.get("uid", "")
         if node.tag == "parameter" or node.tag == "repeater":
@@ -48,17 +48,17 @@ class ParameterParser:
                     if calibration_ref_node is not None:
                         uid = calibration_ref_node.attrib.get("uid")
                     else:
-                        calibrations = CalibrationParser().parse_calibrations(calibration_node, m)
+                        calibrations = CalibrationParser().parse_calibrations(calibration_node, model)
                         uid = calibrations[0].uid
 
-                    parameter.calibration = m.calibrations[uid]
+                    parameter.calibration = model.calibrations[uid]
 
             elif node.tag == "repeater":
                 parameter = pdoc.model.Repeater(name=name,
                                                 uid=uid,
                                                 description=description,
                                                 parameter_type=parameter_type)
-                self.parse_parameters(parameter, node, m, reference_parameters, enumerations)
+                self.parse_parameters(parameter, node, model, reference_parameters, enumerations)
 
             pdoc.parser.common.parse_short_name(parameter, node)
 
@@ -107,7 +107,7 @@ class ParameterParser:
             description = pdoc.parser.common.parse_description(node)
 
             parameter = pdoc.model.List(name=name, uid=uid, description=description)
-            self.parse_parameters(parameter, node, m, reference_parameters, enumerations)
+            self.parse_parameters(parameter, node, model, reference_parameters, enumerations)
 
             reference_parameters[parameter.uid] = parameter
             parameters.append(parameter)

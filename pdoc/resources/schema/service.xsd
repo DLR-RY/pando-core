@@ -149,13 +149,23 @@ which are directly visible inside the SCOS during ground station contact.</xsd:d
 
   <xsd:complexType name="TelemetriesType">
     <xsd:sequence>
-      <xsd:element name="telemetry" type="TelemetryType" minOccurs="0" maxOccurs="unbounded">
-        <xsd:annotation>
-          <xsd:documentation>
-            Description of the structure of a telemetry packet.
-          </xsd:documentation>
-        </xsd:annotation>
-      </xsd:element>
+      <xsd:choice minOccurs="0" maxOccurs="unbounded">
+        <xsd:element name="telemetry" type="TelemetryType">
+          <xsd:annotation>
+            <xsd:documentation>
+              Description of the structure of a telemetry packet.
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        
+        <xsd:element name="derivedTelemetry" type="DerivedTelemetryType">
+          <xsd:annotation>
+            <xsd:documentation>
+              Create a new telemetry packet based on an existing one.
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+      </xsd:choice>
     </xsd:sequence>
     <xsd:attribute ref="xml:base" use="optional" />
   </xsd:complexType>
@@ -192,16 +202,74 @@ which are directly visible inside the SCOS during ground station contact.</xsd:d
     </xsd:attribute>
     <xsd:attribute name="uid" type="xsd:string" use="required" />
   </xsd:complexType>
+  
+  <xsd:complexType name="DerivedTelemetryType">
+    <xsd:annotation>
+      <xsd:documentation>
+        Derived telemetry can overwrite a previously defined telemetry packet
+        with new values.
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:all>
+      <xsd:element name="designators" type="DesignatorsType" minOccurs="0" />
+      <xsd:element name="description" type="xsd:string" minOccurs="0" />
+      <xsd:element name="shortName" minOccurs="0">
+        <xsd:simpleType>
+          <xsd:restriction base="xsd:string">
+            <xsd:minLength value="1"/>
+            <xsd:maxLength value="12"/>
+          </xsd:restriction>
+        </xsd:simpleType>
+      </xsd:element>
+      
+      <xsd:element name="serviceType" type="xsd:unsignedByte" minOccurs="0" />
+      <xsd:element name="serviceSubtype" type="xsd:unsignedByte" minOccurs="0" />
+      
+      <xsd:element name="parameters" type="DerivedParametersType" minOccurs="0" />
+      <xsd:element name="packetIdentification" type="PacketIdentificationType" minOccurs="0" />
+      <xsd:element name="note" type="AdditionalType" minOccurs="0" />
+      <xsd:element name="recommendation" type="AdditionalType" minOccurs="0" />
+      <xsd:element name="seeAlso" type="AdditionalType" minOccurs="0" />
+    </xsd:all>
+    <xsd:attribute name="name" use="optional">
+      <xsd:simpleType>
+        <xsd:restriction base="xsd:string">
+          <xsd:minLength value="1"/>
+          <xsd:maxLength value="64"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+    </xsd:attribute>
+    <xsd:attribute name="uid" type="xsd:string" use="required" />
+    <xsd:attribute name="extends" type="xsd:string" use="required">
+      <xsd:annotation>
+        <xsd:documentation>
+          UID of the telemetry this one is based upon. It is only
+          possible to override parameters which have been defined in the
+          base telemetry.
+        </xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+  </xsd:complexType>
 
   <xsd:complexType name="TelecommandsType">
     <xsd:sequence>
-      <xsd:element name="telecommand" type="TelecommandType" minOccurs="0" maxOccurs="unbounded">
-        <xsd:annotation>
-          <xsd:documentation>
-            Description of the structure of a telecommand packet.
-          </xsd:documentation>
-        </xsd:annotation>
-      </xsd:element>
+      <xsd:choice minOccurs="0" maxOccurs="unbounded">
+        <xsd:element name="telecommand" type="TelecommandType">
+          <xsd:annotation>
+            <xsd:documentation>
+              Description of the structure of a telecommand packet.
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        
+        <xsd:element name="derivedTelecommand" type="DerivedTelecommandType">
+          <xsd:annotation>
+            <xsd:documentation>
+              Create a new telecommand based on an existing one.
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+      </xsd:choice>
     </xsd:sequence>
     <xsd:attribute ref="xml:base" use="optional" />
   </xsd:complexType>
@@ -272,6 +340,85 @@ which are directly visible inside the SCOS during ground station contact.</xsd:d
     <xsd:attribute name="uid" type="xsd:string" use="required" >
       <xsd:annotation>
         <xsd:documentation>Unique identifier</xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+  </xsd:complexType>
+  
+  <xsd:complexType name="DerivedTelecommandType">
+    <xsd:all>
+      <xsd:element name="designators" type="DesignatorsType" minOccurs="0" />
+      <xsd:element name="description" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>General description of the telecomman</xsd:documentation>
+        </xsd:annotation></xsd:element>
+      
+      <xsd:element name="shortName" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>SCOS does not allow longer names</xsd:documentation>
+        </xsd:annotation>
+        <xsd:simpleType>
+          <xsd:restriction base="xsd:string">
+            <xsd:minLength value="1"/>
+            <xsd:maxLength value="24"/>
+          </xsd:restriction>
+        </xsd:simpleType>
+      </xsd:element>
+      
+      <xsd:element name="serviceType" type="xsd:unsignedByte" minOccurs="0" />
+      <xsd:element name="serviceSubtype" type="xsd:unsignedByte" minOccurs="0" />
+      
+      <xsd:element name="verification" type="VerificationType" minOccurs="0">
+        <!-- TODO perhaps this should be required -->
+      </xsd:element>
+      
+      <xsd:element name="parameters" type="DerivedParametersType" minOccurs="0" />
+      <xsd:element name="parameterValues" type="ParameterValuesType" minOccurs="0" />
+      <xsd:element name="critical" type="CriticalityType" minOccurs="0" />
+
+      <xsd:element name="failureIdentification" type="FailureIdentificationType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>
+            Used to specify which failure codes are generated (through PUS
+            service 1) by the telecommand to indicate a failure in executing the
+            telecommand.
+
+            Must match a previous definition of a failure code. Use the
+            description tag for a general description of the failure
+            handling that does not refer to a specify failure code.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="relevantTelemetry" type="RelevantTelemetryType" minOccurs="0" />
+
+      <xsd:element name="purpose" type="AdditionalType" minOccurs="0" />
+      <xsd:element name="note" type="AdditionalType" minOccurs="0" />
+      <xsd:element name="effects" type="AdditionalType" minOccurs="0" />
+      <xsd:element name="recommendation" type="AdditionalType" minOccurs="0" />
+      <xsd:element name="seeAlso" type="AdditionalType" minOccurs="0" />
+    </xsd:all>
+    <xsd:attribute name="name" use="optional">
+      <xsd:annotation>
+        <xsd:documentation>Readable name</xsd:documentation>
+      </xsd:annotation>
+      <xsd:simpleType>
+        <xsd:restriction base="xsd:string">
+          <xsd:minLength value="1"/>
+          <xsd:maxLength value="64"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+    </xsd:attribute>
+    <xsd:attribute name="uid" type="xsd:string" use="required" >
+      <xsd:annotation>
+        <xsd:documentation>Unique identifier</xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+    <xsd:attribute name="extends" type="xsd:string" use="required">
+      <xsd:annotation>
+        <xsd:documentation>
+          UID of the telecommand this one is based upon. It is only
+          possible to override parameters which have been defined in the
+          base telecommand.
+        </xsd:documentation>
       </xsd:annotation>
     </xsd:attribute>
   </xsd:complexType>
@@ -357,7 +504,7 @@ which are directly visible inside the SCOS during ground station contact.</xsd:d
     </xsd:restriction>
   </xsd:simpleType>
 
-  <xsd:group name="Parameters">
+  <xsd:group name="ParametersGroup">
     <xsd:annotation>
       <xsd:documentation>
         Groups all the parameters which may appear in a parameters tag of
@@ -375,10 +522,25 @@ which are directly visible inside the SCOS during ground station contact.</xsd:d
       </xsd:choice>
     </xsd:sequence>
   </xsd:group>
+  
+  <xsd:group name="DerivedParametersGroup">
+    <xsd:sequence>
+      <xsd:choice minOccurs="0" maxOccurs="unbounded">
+        <xsd:element name="overrideParameterRef" type="OverrideParameterRefType" />
+      </xsd:choice>
+    </xsd:sequence>
+  </xsd:group>
 
   <xsd:complexType name="ParametersType">
     <xsd:sequence>
-      <xsd:group ref="Parameters" />
+      <xsd:group ref="ParametersGroup" />
+    </xsd:sequence>
+  </xsd:complexType>
+  
+  <xsd:complexType name="DerivedParametersType">
+    <xsd:sequence>
+      <xsd:group ref="DerivedParametersGroup" />
+      <xsd:group ref="ParametersGroup" />
     </xsd:sequence>
   </xsd:complexType>
   
@@ -425,7 +587,7 @@ which are directly visible inside the SCOS during ground station contact.</xsd:d
   <xsd:complexType name="RepeaterParameterType">
     <xsd:complexContent>
       <xsd:extension base="ParameterType">
-        <xsd:group ref="Parameters" />
+        <xsd:group ref="ParametersGroup" />
         
         <xsd:attribute name="type" type="TypeType" use="required" />
         <xsd:attribute name="width" type="xsd:integer" use="optional" />
@@ -492,7 +654,7 @@ which are directly visible inside the SCOS during ground station contact.</xsd:d
     <xsd:sequence>
       <xsd:element name="description" type="xsd:string" minOccurs="0" maxOccurs="1" />
       
-      <xsd:group ref="Parameters" />
+      <xsd:group ref="ParametersGroup" />
     </xsd:sequence>
     <xsd:attribute name="name" type="xsd:string" use="required" />
     <xsd:attribute name="uid" type="xsd:string" use="required" />
@@ -500,6 +662,11 @@ which are directly visible inside the SCOS during ground station contact.</xsd:d
   
   <xsd:complexType name="ParameterRefType">
     <xsd:attribute name="uid" type="xsd:string" use="required" />
+  </xsd:complexType>
+  
+  <xsd:complexType name="OverrideParameterRefType">
+    <xsd:attribute name="uid" type="xsd:string" use="required" />
+    <xsd:attribute name="overrides" type="xsd:string" use="required" />
   </xsd:complexType>
   
   <xsd:complexType name="ParameterValuesType">
