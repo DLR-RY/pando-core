@@ -10,7 +10,7 @@ rootpath = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..")
 sys.path.append(rootpath)
 
 import pdoc
-import pdoc.model_validator
+import pdoc.model.validator
 
 logger = logging.getLogger('pdoc.verify')
 
@@ -31,7 +31,7 @@ args = arg.parse_args()
 parser = pdoc.parser.Parser()
 
 try:
-	modelValidator = pdoc.model_validator.ModelValidator(parser.parse(args.input))
+	modelValidator = pdoc.model.validator.ModelValidator(parser.parse(args.input))
 	
 	# Verify that all telecommands and telemetry packets in the
 	# mapping section define all the parameters defined in the structure.
@@ -68,7 +68,7 @@ try:
 	for additional in atc:
 		logger.error("Telecommand enumeration mapping '%s' for uid '%s' not used!" % (additional.sid, additional.enumeration.uid))
 		success = False
-	
+
 	atm, utm, atc, utc = modelValidator.getUnmappedCalibrations()
 	for unresolved, subsystem in utm:
 		logger.error("No telemetry calibration mapping found for uid '%s' in subsystem '%s'" % (unresolved.uid, subsystem.name))
@@ -82,7 +82,7 @@ try:
 	for additional in atc:
 		logger.error("Telecommand calibration mapping '%s' for uid '%s' not used!" % (additional.sid, additional.calibration.uid))
 		success = False
-	
+
 	# Verify that the combination of APID, STYPE, SSTYPE and the two
 	# identification fields is unique.
 	for packet in modelValidator.getAmbiguousTelemetryPackets():

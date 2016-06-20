@@ -10,6 +10,7 @@ documentation from the internal representation.
 class ModelException(Exception):
     pass
 
+
 class Model:
 
     def __init__(self):
@@ -86,6 +87,7 @@ class ParameterType:
     def __str__(self):
         return ParameterType.typeToString(self.identifier)
 
+
 class EnumerationType(ParameterType):
 
     def __init__(self, width, enumeration):
@@ -139,8 +141,14 @@ class Parameter:
         # -> Calibration object
         self.calibration = None
 
+        # -> Limit
+        self.limits = []
+        self.limit_samples = 0
+        self.limit_input = Limit.RAW
+
     def __repr__(self):
         return self.uid
+
 
 class ParameterCollection:
 
@@ -257,6 +265,7 @@ class Packet:
     def __repr__(self):
         return self.uid
 
+
 class Verification:
     """
     Verification of the execution stages of the telecommand.
@@ -270,6 +279,7 @@ class Verification:
         self.start = False
         self.progress = False
         self.completion = True
+
 
 class Telecommand(Packet):
 
@@ -304,6 +314,7 @@ class TelemetryIdentificationParameter:
     def __repr__(self):
         return "%s: %s" % (self.parameter, self.value)
 
+
 class Enumeration:
 
     def __init__(self, name, uid, width, description):
@@ -326,6 +337,7 @@ class Enumeration:
                 return entry
         return None
 
+
 class Calibration:
 
     INTERPOLATION_TELECOMMAND = 0
@@ -339,6 +351,7 @@ class Calibration:
         self.description = description
 
         self.unit = ""
+
 
 class Interpolation(Calibration):
 
@@ -374,6 +387,7 @@ class Interpolation(Calibration):
                                  "interpolation '%s'" % (parameterType, self.uid))
         return t
 
+
 class Polynom(Calibration):
 
     def __init__(self, name, uid, description):
@@ -385,6 +399,7 @@ class Polynom(Calibration):
         self.a3 = 0.0
         self.a4 = 0.0
 
+
 class EnumerationEntry:
 
     def __init__(self, name, value, description):
@@ -393,6 +408,22 @@ class EnumerationEntry:
         self.description = description
 
         self.shortName = None
+
+
+class Limit:
+
+    # 'U' in MIB
+    RAW = 0
+    # 'C' in MIB
+    CALIBRATED = 1
+
+    def __init__(self, lower_limit, upper_limit):
+        self.lower_limit = lower_limit
+        self.upper_limit = upper_limit
+
+        self.validity_parameter_sid = None
+        self.validity_parameter_value = None
+
 
 class Subsystem:
 
@@ -468,11 +499,13 @@ class EnumerationMapping:
         self.enumeration = enumeration
         self.subsystem = subsystem
 
+
 class CalibrationMapping:
     def __init__(self, sid, calibration, subsystem):
         self.sid = sid
         self.calibration = calibration
         self.subsystem = subsystem
+
 
 class TelemetryMapping:
     def __init__(self, sid, telemetry):

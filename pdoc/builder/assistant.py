@@ -6,14 +6,14 @@ import itertools
 from . import builder
 
 import pdoc
-import pdoc.model_validator
+import pdoc.model.validator
 
 class Assistant(builder.Builder):
     
     def __init__(self, model, templateFile=None):
         builder.Builder.__init__(self, model)
         
-        self.modelValidator = pdoc.model_validator.ModelValidator(model)
+        self.modelValidator = pdoc.model.validator.ModelValidator(model)
 
         if templateFile is None:
             templateFile = '#suggestions.tpl'
