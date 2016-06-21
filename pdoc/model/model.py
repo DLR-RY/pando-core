@@ -420,18 +420,23 @@ class Limits:
     # 'C' in MIB
     INPUT_CALIBRATED = 1
 
-    def __init__(self, input, samples):
+    def __init__(self, input, value_type, samples):
         self.input = input
+        self.value_type = value_type
         self.samples = samples
         
         # -> Limit
-        self.warnings = []
-        self.errors = []
+        self.checks = []
 
 
-class Limit:
+class Check:
 
-    def __init__(self, lower_limit, upper_limit, description):
+    SOFT_LIMIT = 0
+    HARD_LIMIT = 1
+
+    def __init__(self, limit_type, lower_limit, upper_limit, description):
+        self.limit_type = limit_type
+
         self.lower_limit = lower_limit
         self.upper_limit = upper_limit
         
