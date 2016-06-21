@@ -141,17 +141,20 @@ class Parameter:
         # -> Calibration object
         self.calibration = None
 
-        # -> Limit
-        self.limits = []
-        self.limit_samples = 0
-        self.limit_input = Limit.RAW
+        # -> Limits
+        self.limits = None
 
     def __repr__(self):
         return self.uid
 
 
 class ParameterCollection:
-
+    """
+    Base class for groups of parameters.
+    
+    Use in list and repeater parameters. Allows to calculate the nesting
+    depth of the group. 
+    """
     def __init__(self):
         self.is_collection = True
         self.parameters = []
@@ -410,16 +413,29 @@ class EnumerationEntry:
         self.shortName = None
 
 
-class Limit:
+class Limits:
 
     # 'U' in MIB
-    RAW = 0
+    INPUT_RAW = 0
     # 'C' in MIB
-    CALIBRATED = 1
+    INPUT_CALIBRATED = 1
 
-    def __init__(self, lower_limit, upper_limit):
+    def __init__(self, input, samples):
+        self.input = input
+        self.samples = samples
+        
+        # -> Limit
+        self.warnings = []
+        self.errors = []
+
+
+class Limit:
+
+    def __init__(self, lower_limit, upper_limit, description):
         self.lower_limit = lower_limit
         self.upper_limit = upper_limit
+        
+        self.description = description
 
         self.validity_parameter_sid = None
         self.validity_parameter_value = None

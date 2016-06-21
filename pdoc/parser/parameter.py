@@ -13,6 +13,12 @@ from .calibration import CalibrationParser
 class ParameterParser:
 
     def parse_service_parameter(self, service_node, m):
+        """
+        Parse all parameters defined for a serivce.
+        
+        Iterates over all parameter tags and adds them to the list of
+        parameters in the model.
+        """
         for parameters_node in service_node.iterfind('parameters'):
             for node in parameters_node.iterchildren():
                 self.parse_parameter(node, m, m.parameters, m.enumerations)
@@ -52,6 +58,8 @@ class ParameterParser:
                         uid = calibrations[0].uid
 
                     parameter.calibration = model.calibrations[uid]
+                
+                self._parse_parameter_limits(node, parameter)
 
             elif node.tag == "repeater":
                 parameter = pdoc.model.Repeater(name=name,
@@ -171,7 +179,48 @@ class ParameterParser:
 
             parameter_type = pdoc.model.ParameterType(typeid, width)
         return parameter_type
-
+    
+    @staticmethod
+    def _parse_parameter_limits(parameter_node, parameter):
+        limits_node = parameter_node.find('limits')
+        if limits_node is not None:
+            if limits_node.attrib["input"] == "calibrated":
+                input = pdoc.model.Limits.INPUT_CALIBRATED
+            else:
+                input = pdoc.model.Limits.INPUT_RAW
+            
+            limits = pdoc.model.Limits(input, int(limits_node.attrib["samples"], 0))
+            
+            for limit_node in limits_node.iterfind("warning"):
+                limit = ParameterParser._parse_parameter_limit(limit_node)
+                limits.warnings.append(limit)
+            
+            for limit_node in limits_node.iterfind("error"):
+                limit = ParameterParser._parse_parameter_limit(limit_node)
+                limits.errors.append(limit)
+            
+            parameter.limits = limits
+    
+    @staticmethod
+    def _parse_parameter_limit(limit_node):
+        """
+        Parse a single error or warning block.
+        
+        Both have the same semantic, therefore they are not differentiated here.
+        """
+        lower_limit = limit_node.attrib["lower"]
+        upper_limit = limit_node.attrib["upper"]
+        description = pdoc.parser.common.parse_description(limit_node)
+        
+        limit = pdoc.model.Limit(lower_limit, upper_limit, description)
+        
+        validity_node = limit_node.find("validIfEqual")
+        if validity_node is not None:
+            limit.validity_parameter_sid = validity_node.attrib["sid"]
+            limit.validity_parameter_value = validity_node.attrib["value"]
+        
+        return limit
+    
     @staticmethod
     def parse_parameter_value(node):
         value = None
