@@ -16,7 +16,7 @@ def parse_text(node, tag, default_value=None):
     checked. This helps e.g. for the following case:
     
         <description>This is some
-          text which is indentated only after
+          text which is indented only after
           the second line.</description>
     
     Keyword arguments:

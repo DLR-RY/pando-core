@@ -24,9 +24,9 @@ try:
 	model = parser.parse(args.input)
 	
 	assistant = pdoc.builder.assistant.Assistant(model)
-	assistant.printSuggestions()
+	assistant.print_suggestions()
 	if args.detailed:
-		assistant.printSuggestionsForUnusedPackets()
+		assistant.print_suggestions_for_unused_packets()
 except (pdoc.parser.ParserException, pdoc.model.ModelException) as e:
 	print("\nError: %s" % e)
 	exit(1)

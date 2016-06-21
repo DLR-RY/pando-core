@@ -202,23 +202,30 @@ class ParameterParser:
             
             for check_node in limits_node:
                 if check_node.tag == "warning":
-                    limit = ParameterParser._parse_parameter_check(pdoc.model.Check.SOFT_LIMIT, check_node)
+                    limit = ParameterParser._parse_parameter_check(pdoc.model.Check.SOFT_LIMIT,
+                                                                   value_type, check_node)
                     limits.checks.append(limit)
                 elif check_node.tag == "error":
-                    limit = ParameterParser._parse_parameter_check(pdoc.model.Check.HARD_LIMIT, check_node)
+                    limit = ParameterParser._parse_parameter_check(pdoc.model.Check.HARD_LIMIT,
+                                                                   value_type, check_node)
                     limits.checks.append(limit)
             
             parameter.limits = limits
     
     @staticmethod
-    def _parse_parameter_check(limit_type, check_node):
+    def _parse_parameter_check(limit_type, value_type, check_node):
         """
         Parse a single error or warning block.
         
         Both have the same semantic, therefore they are not differentiated here.
         """
-        lower_limit = check_node.attrib["lower"]
-        upper_limit = check_node.attrib["upper"]
+        if value_type == pdoc.model.ParameterType.REAL:
+            lower_limit = float(check_node.attrib["lower"])
+            upper_limit = float(check_node.attrib["upper"])
+        else:
+            lower_limit = int(check_node.attrib["lower"], 0)
+            upper_limit = int(check_node.attrib["upper"], 0)
+
         description = pdoc.parser.common.parse_description(check_node)
         
         check = pdoc.model.Check(limit_type, lower_limit, upper_limit, description)
