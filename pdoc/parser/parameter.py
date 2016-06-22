@@ -191,14 +191,17 @@ class ParameterParser:
         """
         limits_node = parameter_node.find('limits')
         if limits_node is not None:
+            sample_count = int(limits_node.attrib["samples"], 0)
             if limits_node.attrib["input"] == "calibrated":
-                input = pdoc.model.Limits.INPUT_CALIBRATED
                 value_type = calibration.outputType
+                limits = pdoc.model.Limits(input_type=pdoc.model.Limits.INPUT_CALIBRATED,
+                                           value_type=value_type,
+                                           samples=sample_count)
             else:
-                input = pdoc.model.Limits.INPUT_RAW
                 value_type = parameter.valueType
-            
-            limits = pdoc.model.Limits(input, value_type, samples=int(limits_node.attrib["samples"], 0))
+                limits = pdoc.model.Limits(input_type=pdoc.model.Limits.INPUT_RAW,
+                                           value_type=value_type,
+                                           samples=sample_count)
             
             for check_node in limits_node:
                 if check_node.tag == "warning":

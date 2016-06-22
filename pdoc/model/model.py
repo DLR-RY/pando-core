@@ -420,8 +420,8 @@ class Limits:
     # 'C' in MIB
     INPUT_CALIBRATED = 1
 
-    def __init__(self, input, value_type, samples):
-        self.input = input
+    def __init__(self, input_type, value_type, samples):
+        self.input = input_type
         self.value_type = value_type
         self.samples = samples
         
