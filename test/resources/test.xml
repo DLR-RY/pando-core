@@ -180,7 +180,7 @@
     </telecommands>
   </service>
   
-  <mapping subsystem="0">
+  <mapping name="test" subsystem="0">
     <enumerations>
       <telemetry>
         <enumerationMapping sid="0100" uid="E0" />

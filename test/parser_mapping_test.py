@@ -2,6 +2,7 @@
 import os
 import unittest
 import pdoc
+import pdoc.model.validator
 
 class ParserMappingTest(unittest.TestCase):
 
@@ -49,19 +50,21 @@ class ParserMappingTest(unittest.TestCase):
         self.assertEqual(tc.sid, "DHSC0001")
 
     def test_shouldContainACompleteMapping(self):
-        self.assertEqual(len(self.model.getUnmappedTelecommandParameters()), 0)
-        self.assertEqual(len(self.model.getUnmappedTelemetryParameters()), 0)
+        validator = pdoc.model.validator.ModelValidator(self.model)
+        self.assertEqual(len(validator.getUnmappedTelecommandParameters()), 0)
+        self.assertEqual(len(validator.getUnmappedTelemetryParameters()), 0)
 
-        additionalTc, unresolvedTc, additionalTm, unresolvedTm = self.model.getUnmappedEnumerations()
-        self.assertEqual(len(additionalTc), 0)
-        self.assertEqual(len(unresolvedTc), 0)
-        self.assertEqual(len(additionalTm), 0)
-        self.assertEqual(len(unresolvedTm), 0)
+        additional_tm, unresolved_tm, additional_tc, unresolved_tc = validator.getUnmappedEnumerations()
+        self.assertEqual(len(additional_tc), 0)
+        self.assertEqual(len(unresolved_tc), 0)
+        self.assertEqual(len(additional_tm), 0)
+        self.assertEqual(len(unresolved_tm), 0)
 
     def test_shouldHaveUnusedParameters(self):
-        self.assertEqual(len(self.model.getUnusedParameters()), 3)
-        self.assertEqual(len(self.model.getUnusedTelecommands()), 5)
-        self.assertEqual(len(self.model.getUnusedTelemetries()), 0)
+        validator = pdoc.model.validator.ModelValidator(self.model)
+        self.assertEqual(len(validator.getUnusedParameters()), 3)
+        self.assertEqual(len(validator.getUnusedTelecommands()), 5)
+        self.assertEqual(len(validator.getUnusedTelemetries()), 0)
 
 if __name__ == '__main__':
     unittest.main()

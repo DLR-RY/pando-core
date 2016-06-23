@@ -18,12 +18,12 @@ class ModelTest(unittest.TestCase):
         logger.setLevel(self.logLevel)
 
     def _createParameter(self, name, model):
-        p = pdoc.model.Parameter(name=name, uid=name.lower(), description=None, parameterType=None)
+        p = pdoc.model.Parameter(name=name, uid=name.lower(), description=None, parameter_type=None)
         model.parameters[p.uid] = p
         return p
 
     def _createRepeater(self, name, model):
-        p = pdoc.model.Repeater(name=name, uid=name.lower(), description=None, parameterType=None)
+        p = pdoc.model.Repeater(name=name, uid=name.lower(), description=None, parameter_type=None)
         model.parameters[p.uid] = p
         return p
 
@@ -72,51 +72,6 @@ class ModelTest(unittest.TestCase):
         self.assertEqual(parameters[1].uid, "p2")
         self.assertEqual(parameters[2].uid, "p3")
         self.assertEqual(parameters[3].uid, "p4")
-
-    def test_shouldVerifyPaketMappingIsComplete(self):
-        model = pdoc.model.Model()
-        self._generatePacket(model)
-
-        subsystem = model.getOrAddSubsystem(0)
-        subsystem.applications[0] = pdoc.model.ApplicationMapping(name="A1", apid=0, description="")
-        subsystem.applications[0].appendTelecommand(pdoc.model.TelecommandMapping("test", model.telecommands["test"]))
-
-        subsystem.telecommandParameters["p1"] = pdoc.model.ParameterMapping(sid="s1", parameter=model.parameters["p1"])
-        subsystem.telecommandParameters["p2"] = pdoc.model.ParameterMapping(sid="s2", parameter=model.parameters["p2"])
-        subsystem.telecommandParameters["p3"] = pdoc.model.ParameterMapping(sid="s3", parameter=model.parameters["p3"])
-        subsystem.telecommandParameters["p4"] = pdoc.model.ParameterMapping(sid="s4", parameter=model.parameters["p4"])
-
-        self.assertEqual(len(model.getUnmappedTelecommandParameters()), 0)
-
-    def test_shouldFailMappingCheckIfIsNotComplete(self):
-        model = pdoc.model.Model()
-        self._generatePacket(model)
-
-        subsystem = model.getOrAddSubsystem(0)
-        subsystem.applications[0] = pdoc.model.ApplicationMapping(name="A1", apid=0, description="")
-        subsystem.applications[0].appendTelecommand(pdoc.model.TelecommandMapping("test", model.telecommands["test"]))
-
-        subsystem.telecommandParameters["p1"] = pdoc.model.ParameterMapping(sid="s1", parameter=model.parameters["p1"])
-        subsystem.telecommandParameters["p2"] = pdoc.model.ParameterMapping(sid="s2", parameter=model.parameters["p2"])
-        subsystem.telecommandParameters["p3"] = pdoc.model.ParameterMapping(sid="s3", parameter=model.parameters["p3"])
-
-        self.assertEqual(len(model.getUnmappedTelecommandParameters()), 1)
-
-    def test_shouldBeFineIfParameterMappingHasToManyElements(self):
-        model = pdoc.model.Model()
-        self._generatePacket(model)
-
-        subsystem = model.getOrAddSubsystem(0)
-        subsystem.applications[0] = pdoc.model.ApplicationMapping(name="A1", apid=0, description="")
-        subsystem.applications[0].appendTelecommand(pdoc.model.TelecommandMapping("test", model.telecommands["test"]))
-
-        subsystem.telecommandParameters["p1"] = pdoc.model.ParameterMapping(sid="s1", parameter=model.parameters["p1"])
-        subsystem.telecommandParameters["p2"] = pdoc.model.ParameterMapping(sid="s2", parameter=model.parameters["p2"])
-        subsystem.telecommandParameters["p3"] = pdoc.model.ParameterMapping(sid="s3", parameter=model.parameters["p3"])
-        subsystem.telecommandParameters["p4"] = pdoc.model.ParameterMapping(sid="s4", parameter=model.parameters["p4"])
-        subsystem.telecommandParameters["p5"] = pdoc.model.ParameterMapping(sid="s5", parameter=model.parameters["p4"])
-
-        self.assertEqual(len(model.getUnmappedTelecommandParameters()), 0)
 
     def test_shouldHaveCorrectRepeaterMemberCount(self):
         model = pdoc.model.Model()

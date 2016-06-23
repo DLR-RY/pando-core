@@ -28,8 +28,8 @@ class ParserCalibrationTest(unittest.TestCase):
         self.assertEqual(4, len(self.model.calibrations))
 
     def test_shouldContainCalibrationMappings(self):
-        self.assertEqual(2, len(self.model.telemetryCalibrations))
-        self.assertEqual(1, len(self.model.telecommandCalibrations))
+        self.assertEqual(2, len(self.model.subsystems[0].telemetryCalibrations))
+        self.assertEqual(1, len(self.model.subsystems[0].telecommandCalibrations))
 
     def test_shouldHaveTelecommandParameterCalibration(self):
         packet = self.model.parameters["P7"]
@@ -66,17 +66,19 @@ class ParserCalibrationTest(unittest.TestCase):
         self.assertEqual(100.1, packet.calibration.a4)
 
     def test_shouldHaveUnmappedCalibrations(self):
-        additionalTc, unresolvedTc, additionalTm, unresolvedTm = self.model.getUnmappedCalibrations()
+        validator = pdoc.model.validator.ModelValidator(self.model)
+        additional_tm, unresolved_tm, additional_tc, unresolved_tc = validator.getUnmappedCalibrations()
 
-        self.assertEqual(0, len(additionalTc))
-        self.assertEqual(0, len(unresolvedTc))
-        self.assertEqual(1, len(additionalTm))
-        self.assertEqual(1, len(unresolvedTm))
+        self.assertEqual(0, len(additional_tc))
+        self.assertEqual(0, len(unresolved_tc))
+        self.assertEqual(1, len(additional_tm))
+        self.assertEqual(1, len(unresolved_tm))
 
-        self.assertEqual("0201", additionalTm[0].sid)
-        self.assertEqual("calibration_polynom2", additionalTm[0].calibration.uid)
+        self.assertEqual("0201", additional_tm[0].sid)
+        self.assertEqual("calibration_polynom2", additional_tm[0].calibration.uid)
 
-        self.assertIn("calibration_polynom", unresolvedTm)
+        tm, subsystem = unresolved_tm[0]
+        self.assertEqual("calibration_polynom", tm.uid)
 
 if __name__ == '__main__':
     unittest.main()
