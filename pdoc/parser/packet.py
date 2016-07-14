@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import copy
+import lxml
 
 import pdoc.model
 import pdoc.parser.common
@@ -157,12 +158,17 @@ class PacketParser:
         return packet
 
     def _parse_override_parameters(self, packet, node, model, reference_parameters, enumerations):
+        if node is None:
+            return
+
         for parameter_node in node:
             if parameter_node.tag == "overrideParameterRef":
                 parameter = reference_parameters[parameter_node.attrib["uid"]]
                 override_uid = parameter_node.attrib["overrides"]
 
                 self._replace_parameter_in_packet(packet, override_uid=override_uid, override_parameter=parameter)
+            elif node.tag == lxml.etree.Comment:
+                pass
             else:
                 parameters = ParameterParser().parse_parameter(parameter_node, model,
                                                                reference_parameters, enumerations)
