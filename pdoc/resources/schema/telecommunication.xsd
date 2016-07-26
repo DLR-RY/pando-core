@@ -84,7 +84,7 @@
     </xsd:unique>
     
     <xsd:key name="telemetryUidKey">
-      <xsd:selector xpath="service/telemetries/telemetry | service/telemetries/derivedTelemetry" />
+      <xsd:selector xpath="service/events/event | service/telemetries/telemetry | service/telemetries/derivedTelemetry" />
       <xsd:field xpath="@uid" />
     </xsd:key>
     <xsd:keyref name="telemetryUidRef" refer="telemetryUidKey">

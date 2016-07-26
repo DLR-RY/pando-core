@@ -14,17 +14,27 @@ class PacketParser:
     """
     Parse telemetry and telecommand packets.
     """
+    # EVENT_REPORT_ID_PARAMETER_UID = "event_report_id"
+    EVENT_REPORT_ID_PARAMETER_UID = "s5_report_id"
 
     def parse_service_packets(self, service_node, model):
-        for telemtries_node in service_node.iterfind('telemetries'):
-            for node in telemtries_node.iterchildren('telemetry'):
+        for events_node in service_node.iterfind('events'):
+            for node in events_node.iterchildren('event'):
+                event = self._parse_event(node,
+                                          model,
+                                          model.parameters,
+                                          model.enumerations)
+                model.appendTelemetryPacket(event)
+
+        for telemetries_node in service_node.iterfind('telemetries'):
+            for node in telemetries_node.iterchildren('telemetry'):
                 tm = self._parse_telemetry(node,
                                            model,
                                            model.parameters,
                                            model.enumerations)
                 model.appendTelemetryPacket(tm)
 
-            for node in telemtries_node.iterchildren('derivedTelemetry'):
+            for node in telemetries_node.iterchildren('derivedTelemetry'):
                 tm = self._parse_derived_telemetry(node,
                                                    model,
                                                    model.parameters,
@@ -49,6 +59,50 @@ class PacketParser:
                                                      model.telemetries,
                                                      model.telecommands)
                 model.appendTelecommandPacket(tc)
+
+    def _parse_event(self, node, model, reference_parameters, enumerations):
+        name = node.attrib["name"]
+        uid = node.attrib["uid"]
+        description = pdoc.parser.common.parse_description(node)
+
+        event = pdoc.model.Event(name=name, uid=uid, description=description)
+
+        pdoc.parser.common.parse_short_name(event, node)
+
+        self._parse_additional_packet_fields(event, node)
+
+        event.report_id = int(node.findtext("reportId"))
+        event.severity = {
+            "progress": pdoc.model.Event.PROGRESS,
+            "low": pdoc.model.Event.LOW_SEVERITY,
+            "medium": pdoc.model.Event.MEDIUM_SEVERITY,
+            "high": pdoc.model.Event.HIGH_SEVERITY,
+        }[node.findtext("severity")]
+
+        event.serviceType = 5
+        event.serviceSubtype = int(event.severity)
+
+        ParameterParser().parse_parameters(event,
+                                           node.find("parameters"),
+                                           model,
+                                           reference_parameters, enumerations)
+
+        # Copy all parameters as event parameters
+        for parameter in event.getParameters():
+            event.appendEventParameter(parameter)
+
+        # Add the report identifier before the other parameters
+        report_id_parameter = reference_parameters[self.EVENT_REPORT_ID_PARAMETER_UID]
+        event.getParameters().insert(0, report_id_parameter)
+
+        event.updateDepth()
+        event.updateEventParameterDepth()
+
+        identification_parameter = \
+            pdoc.model.TelemetryIdentificationParameter(parameter=report_id_parameter,
+                                                        value=str(event.report_id))
+        event.identificationParameter.append(identification_parameter)
+        return event
 
     def _parse_base_packet(self, cls, node, model, reference_parameters, enumerations):
         packet = cls(name=node.attrib["name"],

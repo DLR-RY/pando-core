@@ -52,7 +52,7 @@ class MappingParser:
 
         self._verify_calibrations(model)
 
-    def _parse_application_mapping(self, node, tmtcModel):
+    def _parse_application_mapping(self, node, model):
         """ Parse an application mapping.
 
         Returns a pdoc.model.ApplicationMapping class.
@@ -64,30 +64,47 @@ class MappingParser:
         application.namePrefix = node.attrib.get("namePrefix", "")
         application.nameSuffix = node.attrib.get("nameSuffix", "")
 
+        for telemetry_node in node.iterfind("events/event"):
+            telemetry_mapping = self._parse_telemetry_mapping(telemetry_node, pdoc.model.EventMapping, model)
+            application.appendTelemetry(telemetry_mapping)
+
         for telemetry_node in node.iterfind("telemetries/telemetry"):
-            uid, sid = self._parse_mapping(telemetry_node)
-
-            telemetry = tmtcModel.telemetries[uid]
-            telemetry_mapping = pdoc.model.TelemetryMapping(sid=sid, telemetry=telemetry)
-            for parameter_node in telemetry_node.findall("parameterMapping"):
-                uid, sid = self._parse_mapping(parameter_node)
-                try:
-                    parameter = tmtcModel.parameters[uid]
-                except KeyError:
-                    raise ParserException("Parameter '%s' not found in mapping of '%s'!"
-                                          % (uid, telemetry.uid))
-                telemetry_mapping.appendParameter(
-                    pdoc.model.ParameterMapping(sid=sid, parameter=parameter))
-
+            telemetry_mapping = self._parse_telemetry_mapping(telemetry_node, pdoc.model.TelemetryMapping, model)
             application.appendTelemetry(telemetry_mapping)
 
         for telecommand_node in node.iterfind("telecommands/telecommandMappingRef"):
             uid, sid = self._parse_mapping(telecommand_node)
-            telecommand = tmtcModel.telecommands[uid]
+            telecommand = model.telecommands[uid]
             application.appendTelecommand(
                 pdoc.model.TelecommandMapping(sid=sid, telecommand=telecommand))
 
         return application
+
+    def _parse_telemetry_mapping(self, node, cls, model):
+        uid, sid = self._parse_mapping(node)
+        telemetry = model.telemetries[uid]
+
+        telemetry_mapping = cls(sid=sid, telemetry=telemetry)
+
+        # FIXME check for Event mapping
+        if telemetry_mapping.packet_type != telemetry.packet_type:
+            packet_type = {
+                pdoc.model.Packet.TELEMETRY: "telemetry packet",
+                pdoc.model.Packet.EVENT: "event",
+            }[telemetry.packet_type]
+            raise ParserException("Mapping must be done as %s for '%s' (%s)!"
+                                  % (packet_type, uid, sid))
+
+        for parameter_node in node.findall("parameterMapping"):
+            uid, sid = self._parse_mapping(parameter_node)
+            try:
+                parameter = model.parameters[uid]
+            except KeyError:
+                raise ParserException("Parameter '%s' not found in mapping of '%s'!"
+                                      % (uid, telemetry.uid))
+            telemetry_mapping.appendParameter(
+                pdoc.model.ParameterMapping(sid=sid, parameter=parameter))
+        return telemetry_mapping
 
     @staticmethod
     def _parse_mapping(node):

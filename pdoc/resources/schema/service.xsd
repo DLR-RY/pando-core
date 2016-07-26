@@ -28,14 +28,31 @@
         <xsd:element name="enumerations" type="EnumerationsType" />
         <xsd:element name="parameters" type="GlobalParametersType" >
           <xsd:annotation>
-            <xsd:documentation>List of all parameters which are used to create input values for the telecommands or to decode satellite telemetry.
-The parameters and their definition is only used inside the MIB they are not automatically used on board of the satellite.</xsd:documentation>
-          </xsd:annotation></xsd:element>
+            <xsd:documentation>
+            List of all parameters which are used to create input values for
+            the telecommands or to decode satellite telemetry.
+            
+            The parameters and their definition is only used inside the MIB they
+            are not automatically used on board of the satellite.
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="events" type="EventsType">
+          <xsd:annotation>
+            <xsd:documentation>
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
         <xsd:element name="telemetries" type="TelemetriesType" >
           <xsd:annotation>
-            <xsd:documentation>List all telemetry that is returned from the satellite to the SCOS.
-The telemetry which is listed here can be used to create tables/plots etc. 
-which are directly visible inside the SCOS during ground station contact.</xsd:documentation>
+            <xsd:documentation>
+            List all telemetry that is returned from the satellite to the SCOS.
+            
+            The telemetry which is listed here can be used to create
+            tables/plots etc. which are directly visible inside the SCOS during
+            ground station contact. This applies only to fixed length telemetry
+            packet, e.g. packets without a repeater parameter.
+            </xsd:documentation>
           </xsd:annotation></xsd:element>
         <xsd:element name="telecommands" type="TelecommandsType" >
           <xsd:annotation>
@@ -831,5 +848,75 @@ which are directly visible inside the SCOS during ground station contact.</xsd:d
       <xsd:enumeration value="Relative Time CUC4.2" />
     </xsd:restriction>
   </xsd:simpleType>
+  
+  <xsd:complexType name="EventsType">
+    <xsd:sequence>
+      <xsd:choice minOccurs="0" maxOccurs="unbounded">
+        <xsd:element name="event" type="EventType">
+        </xsd:element>
+      </xsd:choice>
+    </xsd:sequence>
+    <xsd:attribute ref="xml:base" use="optional" />
+  </xsd:complexType>
+  
+  <xsd:complexType name="EventType">
+    <xsd:annotation>
+      <xsd:documentation>
+        Events are a special telemetry packet type.
+        
+        During the parsing step they are added as standard telemetry packets and
+        have to mapped in the same way as the normal telemetry packets.
+        
+        They allways have type 5 and their subtype depends on the severity
+        selection:
+         - progress is subtype 1
+         - low      is subtype 2
+         - medium   is subtype 3
+         - high     is subtype 4
+        
+        The report id parameter together with the "reportId" value are used
+        to define the additional telemetry identification field used to
+        identify the events on ground. 
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:all>
+      <xsd:element name="description" type="xsd:string" minOccurs="0" />
+      <xsd:element name="shortName" minOccurs="0">
+        <xsd:simpleType>
+          <xsd:restriction base="xsd:string">
+            <xsd:minLength value="1"/>
+            <xsd:maxLength value="12"/>
+          </xsd:restriction>
+        </xsd:simpleType>
+      </xsd:element>
+      
+      <xsd:element name="reportId" type="DecOrHexIntegerType" />
+      <xsd:element name="severity">
+        <xsd:simpleType>
+          <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="progress" />
+            <xsd:enumeration value="low" />
+            <xsd:enumeration value="medium" />
+            <xsd:enumeration value="high" />
+          </xsd:restriction>
+        </xsd:simpleType>
+      </xsd:element>
+      
+      <xsd:element name="reportIdParameterRef" type="xsd:string" default="event_report_id" minOccurs="0" />
+      
+      <xsd:element name="parameters" type="ParametersType" />
+      <xsd:element name="note" type="AdditionalType" minOccurs="0" />
+      <xsd:element name="seeAlso" type="AdditionalType" minOccurs="0" />
+    </xsd:all>
+    <xsd:attribute name="name" use="required">
+      <xsd:simpleType>
+        <xsd:restriction base="xsd:string">
+          <xsd:minLength value="1"/>
+          <xsd:maxLength value="64"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+    </xsd:attribute>
+    <xsd:attribute name="uid" type="xsd:string" use="required" />
+  </xsd:complexType>
 </xsd:schema>
   

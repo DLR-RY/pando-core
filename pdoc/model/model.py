@@ -206,7 +206,11 @@ class Repeater(Parameter, ParameterCollection):
 
 class Packet:
 
-    def __init__(self, name, uid, description):
+    TELECOMMAND = 0
+    TELEMETRY = 1
+    EVENT = 2
+
+    def __init__(self, name, uid, description, packet_type):
         self.name = name
         self.uid = uid
         self.description = description
@@ -224,6 +228,8 @@ class Packet:
         self.additional = []
 
         self.parameters = []
+
+        self.packet_type = packet_type
 
         # Maximum nested parameter depth
         self.depth = 0
@@ -286,8 +292,8 @@ class Verification:
 
 class Telecommand(Packet):
 
-    def __init__(self, name, uid, description):
-        Packet.__init__(self, name, uid, description)
+    def __init__(self, name, uid, description, packet_type=Packet.TELECOMMAND):
+        Packet.__init__(self, name, uid, description, packet_type)
 
         self.verification = Verification()
 
@@ -301,8 +307,8 @@ class Telecommand(Packet):
 
 class Telemetry(Packet):
 
-    def __init__(self, name, uid, description):
-        Packet.__init__(self, name, uid, description)
+    def __init__(self, name, uid, description, packet_type=Packet.TELEMETRY):
+        Packet.__init__(self, name, uid, description, packet_type)
 
         # -> TelemetryIdentificationParameter
         self.identificationParameter = []
@@ -316,6 +322,64 @@ class TelemetryIdentificationParameter:
 
     def __repr__(self):
         return "%s: %s" % (self.parameter, self.value)
+
+
+class Event(Telemetry):
+
+    # These values also define the telemetry packet sub-type
+    PROGRESS = 1
+    LOW_SEVERITY = 2
+    MEDIUM_SEVERITY = 3
+    HIGH_SEVERITY = 4
+
+    def __init__(self, name, uid, description):
+        Telemetry.__init__(self, name, uid, description, Packet.EVENT)
+
+        self.severity = None
+        self.reportId = None
+
+        self.event_parameters = []
+        self.event_parameters_depth = []
+
+    def appendEventParameter(self, parameter):
+        self.event_parameters.append(parameter)
+
+    def getEventParameters(self):
+        return self.event_parameters
+
+    def getEventParametersAsFlattenedList(self):
+        """ Returns all parameters as a flat list.
+
+        Removes the nesting of repeaters. Repeater parameters still contain their
+        embedded parameters.
+        """
+        parameters = []
+
+        def handle_list(collection):
+            for p in collection.parameters:
+                handle_parameter(p)
+
+        def handle_parameter(parameter):
+            if parameter.is_parameter:
+                parameters.append(parameter)
+
+            if parameter.is_collection:
+                handle_list(parameter)
+
+        for p in self.event_parameters:
+            handle_parameter(p)
+
+        return parameters
+
+    def updateEventParameterDepth(self):
+        self.depth = 1
+        for parameter in self.event_parameters:
+            if parameter.is_collection:
+                parameter.updateDepth()
+                self.depth = max(self.depth, parameter.depth + 1)
+
+    def __repr__(self):
+        return self.uid
 
 
 class Enumeration:
@@ -482,7 +546,6 @@ class ApplicationMapping:
         # -> TelecommandMapping
         self._telecommand = []
 
-
     def appendTelemetry(self, telemetry):
         self._telemetry.append(telemetry)
 
@@ -529,15 +592,23 @@ class CalibrationMapping:
 
 
 class TelemetryMapping:
-    def __init__(self, sid, telemetry):
+
+    def __init__(self, sid, telemetry, packet_type=Packet.TELEMETRY):
         self.sid = sid
         self.telemetry = telemetry
+
+        self.packet_type = packet_type
 
         # -> ParameterMapping
         self.parameters = []
 
     def appendParameter(self, parameter):
         self.parameters.append(parameter)
+
+
+class EventMapping(TelemetryMapping):
+    def __init__(self, sid, telemetry):
+        TelemetryMapping.__init__(self, sid, telemetry, Packet.EVENT)
 
 
 class ParameterMapping:
