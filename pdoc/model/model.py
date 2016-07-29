@@ -336,7 +336,7 @@ class Event(Telemetry):
         Telemetry.__init__(self, name, uid, description, Packet.EVENT)
 
         self.severity = None
-        self.reportId = None
+        self.report_id = None
 
         self.event_parameters = []
         self.event_parameters_depth = []

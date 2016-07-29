@@ -7,6 +7,21 @@
   </telecommandParameters>
 {% endif %}
 
+{% if events|length > 0 %}
+  <!-- Event mapping -->
+{% for event in events %}
+  <application name="{{ event.name }}" apid="{{ event.apid }}">
+    <events>
+      <event sid="" uid="{{ event.uid }}">
+{% for parameter in event.parameters %}
+        <parameterMapping sid="{{ parameter.sid }}" uid="{{ parameter.uid }}" />
+{% endfor %}
+      </event>
+    </events>
+  </application>
+
+{% endfor %}
+{% endif %}
 {% if telemetries|length > 0 %}
   <!-- Telemetry mapping -->
 {% for telemetry in telemetries %}

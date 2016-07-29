@@ -85,13 +85,18 @@ class Assistant(builder.Builder):
 
     def print_suggestions_for_unused_packets(self):
         parameters = self.model_validator.getUnusedParameters()
-
+        
+        events = []
         telemetries = []
         unused_telemetries = self.model_validator.getUnusedTelemetries()
         if len(unused_telemetries) > 0:
             for uid in unused_telemetries:
                 packet = self.model.telemetries[uid]
-                telemetries.append(self._get_suggestion(packet))
+                
+                if packet.packet_type == pdoc.model.Packet.EVENT:
+                    events.append(self._get_suggestion(packet))
+                else:
+                    telemetries.append(self._get_suggestion(packet))
 
         telecommands = []
         unused_telecommands = self.model_validator.getUnusedTelecommands()
@@ -102,6 +107,7 @@ class Assistant(builder.Builder):
 
         substitutions = {
             "parameters": sorted(parameters, key=pdoc.naturalkey),
+            "events": sorted(events, key=lambda p: pdoc.naturalkey(p["uid"])),
             "telemetries": sorted(telemetries, key=lambda p: pdoc.naturalkey(p["uid"])),
             "telecommands": sorted(telecommands, key=lambda p: pdoc.naturalkey(p["uid"])),
         }
