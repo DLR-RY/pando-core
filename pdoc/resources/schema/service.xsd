@@ -340,6 +340,7 @@
       <xsd:element name="purpose" type="AdditionalType" minOccurs="0" />
       <xsd:element name="note" type="AdditionalType" minOccurs="0" />
       <xsd:element name="effects" type="AdditionalType" minOccurs="0" />
+<!--       <xsd:element name="causesFailure" type="AdditionalType" minOccurs="0" /> -->
       <xsd:element name="recommendation" type="AdditionalType" minOccurs="0" />
       <xsd:element name="seeAlso" type="AdditionalType" minOccurs="0" />
     </xsd:all>

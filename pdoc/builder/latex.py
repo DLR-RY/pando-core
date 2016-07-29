@@ -45,6 +45,7 @@ class TableBuilder(builder.Builder):
     def __init__(self, model_, templateFile, imagePath):
         builder.Builder.__init__(self, model_)
 
+		
         if templateFile is None:
             templateFile = '#latex_table.tpl'
         self.templateFile = templateFile
@@ -62,13 +63,14 @@ class TableBuilder(builder.Builder):
         parameters = []
         self.state = self.State()
         for parameter in packet.parameters:
-            self._packetParameter(parameter, parameters)
+            self._packetParameter(packet, parameter, parameters)
 
         if self.imagePath is None:
             image = None
         else:
             image = os.path.join(self.imagePath, packet.uid)
 
+        packet.sid = self._getPacketSid(packet)
         substitutions = {
             'identifier': packet.uid,
             'parameters': parameters,
@@ -82,7 +84,7 @@ class TableBuilder(builder.Builder):
         template = self._template(self.templateFile, alternateMarking=True)
         self._write(filename, template.render(substitutions) + "\n")
 
-    def _packetParameter(self, parameter, parameters):
+    def _packetParameter(self, packet, parameter, parameters):
         if isinstance(parameter, model.List):
             self._packetParameter(parameter, parameters)
         else:
@@ -98,6 +100,7 @@ class TableBuilder(builder.Builder):
 
             parameters.append({
                 'name': parameter.name,
+                'sid' : self._getParameterSid(packet, parameter),
                 'description': parameter.description,
                 'shortName': parameter.shortName,
                 'type': str(parameter.type),
@@ -111,11 +114,47 @@ class TableBuilder(builder.Builder):
                 self.state.useMinMax = True
 
             if isinstance(parameter, model.Repeater):
-                self._packetRepeater(parameter, parameters)
+                self._packetRepeater(packet, parameter, parameters)
 
-    def _packetRepeater(self, repeater, parameters):
+    def _packetRepeater(self, packet, repeater, parameters):
         for parameter in repeater.parameters:
-            self._packetParameter(parameter, parameters)
+            self._packetParameter(packet, parameter, parameters)
+
+    def _getPacketSid(self, packet):
+        if type(packet) is model.Telemetry:
+            for sub in self.model.subsystems.values():
+                for app in sub.applications.values():
+                    for tm in app.getTelemetries():
+                        if tm.telemetry.uid == packet.uid:
+                              return tm.sid
+
+        elif type(packet) is model.Telecommand:
+            for sub in self.model.subsystems.values():
+                for app in sub.applications.values():
+                    for tc in app.getTelecommands():
+                        if tc.telecommand.uid == packet.uid:
+                            return tc.sid
+        else:
+            return None
+            
+    def _getParameterSid(self, packet, parameter):
+        if type(packet) is model.Telecommand:
+            for sub in self.model.subsystems.values():
+                for app in sub.applications.values():
+                    for tc in app.getTelecommands():
+                        if tc.telecommand.uid == packet.uid:
+                            return sub.telecommandParameters[parameter.uid].sid
+        
+        elif type(packet) is model.Telemetry:
+            for sub in self.model.subsystems.values():
+                for app in sub.applications.values():
+                    for tm in app.getTelemetries():
+                        if tm.telemetry.uid == packet.uid:
+                            for param in tm.parameters:
+                                if param.parameter.uid == parameter.uid:
+                                    return param.sid
+        else:
+            return None
 
 
 class OverviewBuilder(builder.Builder):
