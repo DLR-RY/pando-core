@@ -271,6 +271,23 @@ class Packet:
                 parameter.updateDepth()
                 self.depth = max(self.depth, parameter.depth + 1)
 
+    def get_accumulated_parameter_length(self):
+        """
+        Calculate the accumulated length of all parameters in bits.
+        
+        Return:
+        The accumulated length in bits or 'None' if packet contains repeater
+        parameters.
+        """
+        packet_size = 0
+        for parameter in self.getParametersAsFlattenedList():
+            if parameter.is_collection or parameter.type.width == 0:
+                packet_size = None
+                break
+            else:
+                packet_size += parameter.type.width
+        return packet_size
+
     def __repr__(self):
         return self.uid
 
