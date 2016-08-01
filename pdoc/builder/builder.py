@@ -18,11 +18,14 @@ class Builder:
 
     def __init__(self, model):
         self.model = model
-
+        
+        def _abort_helper(msg):
+            raise BuilderException(msg)
+        
         self.globals = {
             'time': datetime.datetime.utcfromtimestamp(time.time()).isoformat(),
+            'abort': _abort_helper,
         }
-
 
     def _write(self, filename, data):
         # Create path if it does not exist
@@ -40,7 +43,6 @@ class Builder:
             error_message = "Could not write to file '%s': %s" % (filename, e)
             print(error_message, file=sys.stderr)
             sys.exit(1)
-
 
     def _template(self, filename, filters=None, alternateMarking=False):
         """ Open a template file
