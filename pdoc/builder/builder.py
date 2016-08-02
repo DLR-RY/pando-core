@@ -11,20 +11,18 @@ import time
 import datetime
 import textwrap
 
+
 class BuilderException(Exception):
     pass
+
 
 class Builder:
 
     def __init__(self, model):
         self.model = model
         
-        def _abort_helper(msg):
-            raise BuilderException(msg)
-        
         self.globals = {
             'time': datetime.datetime.utcfromtimestamp(time.time()).isoformat(),
-            'abort': _abort_helper,
         }
 
     def _write(self, filename, data):
@@ -52,6 +50,8 @@ class Builder:
             return '\n\n'.join([textwrap.fill(str, width) for str in value.split('\n\n')])
         def filter_indent(value, level=0, prefix=""):
             return ('\n' + '\t' * level + prefix).join(value.split('\n'))
+        def global_abort_helper(msg):
+            raise BuilderException(msg)
 
         if filename.startswith('#'):
             name = filename[1:]
@@ -80,6 +80,7 @@ class Builder:
                 # lstrip_blocks=True,
 
                 loader=loader,
+                undefined=jinja2.StrictUndefined,
                 extensions=["jinja2.ext.loopcontrols"])
         else:
             environment = jinja2.Environment(
@@ -90,9 +91,12 @@ class Builder:
                 line_comment_prefix='###',
 
                 loader=loader,
+                undefined=jinja2.StrictUndefined,
                 extensions=["jinja2.ext.loopcontrols"])
         environment.filters['xpcc.wordwrap'] = filter_wordwrap
         environment.filters['xpcc.indent'] = filter_indent
+        
+        environment.globals['abort'] = global_abort_helper
         if filters:
             environment.filters.update(filters)
         template = environment.get_template(name, globals=self.globals)
