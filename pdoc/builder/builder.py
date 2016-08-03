@@ -76,7 +76,7 @@ class Builder:
                 line_statement_prefix='##',
                 line_comment_prefix='###',
 
-                trim_blocks=True,
+                # trim_blocks=True,
                 # lstrip_blocks=True,
 
                 loader=loader,
@@ -84,7 +84,7 @@ class Builder:
                 extensions=["jinja2.ext.loopcontrols"])
         else:
             environment = jinja2.Environment(
-                trim_blocks=True,
+                # trim_blocks=True,
                 # lstrip_blocks=True,
 
                 line_statement_prefix='##',
