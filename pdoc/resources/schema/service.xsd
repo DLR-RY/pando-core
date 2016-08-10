@@ -804,6 +804,7 @@
 
   <xsd:simpleType name="TypeType">
     <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="boolean" />
       <xsd:enumeration value="uint1" />
       <xsd:enumeration value="uint4" />
       <xsd:enumeration value="int4" />

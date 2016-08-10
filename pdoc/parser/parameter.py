@@ -154,7 +154,10 @@ class ParameterParser:
                 parameter_type = pdoc.model.ParameterType(typeid, width)
                 break
         else:
-            if typeattrib == "octet":
+            if typeattrib == "boolean":
+                typeid = pdoc.model.ParameterType.BOOLEAN
+                width = 1
+            elif typeattrib == "octet":
                 typeid = pdoc.model.ParameterType.OCTET_STRING
                 # convert width from bytes to bits
                 width = int(node.attrib.get("width", 0)) * 8
