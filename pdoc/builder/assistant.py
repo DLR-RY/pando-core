@@ -29,6 +29,8 @@ class Assistant(builder.Builder):
             })
         return {
             "uid": packet.uid,
+            "name": packet.name,
+            "apid": "",
             "parameters": parameters,
         }
 
@@ -77,7 +79,9 @@ class Assistant(builder.Builder):
 
         substitutions = {
             "parameters": sorted(parameters, key=pdoc.naturalkey),
+            "events": [],
             "telemetries": sorted(telemetries, key=lambda p: pdoc.naturalkey(p["uid"])),
+            "telecommands": [],
         }
 
         template = self._template(self.template_file)
