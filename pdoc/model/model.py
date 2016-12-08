@@ -151,9 +151,9 @@ class Parameter:
 class ParameterCollection:
     """
     Base class for groups of parameters.
-    
+
     Use in list and repeater parameters. Allows to calculate the nesting
-    depth of the group. 
+    depth of the group.
     """
     def __init__(self):
         self.is_collection = True
@@ -274,7 +274,7 @@ class Packet:
     def get_accumulated_parameter_length(self):
         """
         Calculate the accumulated length of all parameters in bits.
-        
+
         Return:
         The accumulated length in bits or 'None' if packet contains repeater
         parameters.
@@ -505,7 +505,7 @@ class Limits:
         self.input = input_type
         self.value_type = value_type
         self.samples = samples
-        
+
         # -> Limit
         self.checks = []
 
@@ -520,7 +520,7 @@ class Check:
 
         self.lower_limit = lower_limit
         self.upper_limit = upper_limit
-        
+
         self.description = description
 
         self.validity_parameter_sid = None
@@ -571,7 +571,7 @@ class ApplicationMapping:
 
     def getTelemetryByUid(self, uid):
         for t in self._telemetry:
-            if t.uid == uid:
+            if t.telemetry.uid == uid:
                 return t
         return None
 
