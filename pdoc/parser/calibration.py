@@ -14,17 +14,17 @@ class CalibrationParser:
 
     def parse_calibrations(self, node, m):
         calibrations = []
-        for calibration_node in node.iterchildren('telemetryInterpolation'):
+        for calibration_node in node.iterchildren('telemetryLinearInterpolation'):
             calibration = self._parse_calibration_interpolation_telemetry(calibration_node)
             m.calibrations[calibration.uid] = calibration
             calibrations.append(calibration)
 
-        for calibration_node in node.iterchildren('telecommandInterpolation'):
+        for calibration_node in node.iterchildren('telecommandLinearInterpolation'):
             calibration = self._parse_calibration_interpolation_telecommand(calibration_node)
             m.calibrations[calibration.uid] = calibration
             calibrations.append(calibration)
 
-        for calibration_node in node.iterchildren('polynom'):
+        for calibration_node in node.iterchildren('telemetryPolynomInterpolation'):
             calibration = self._parse_calibration_polynom(calibration_node)
             m.calibrations[calibration.uid] = calibration
             calibrations.append(calibration)

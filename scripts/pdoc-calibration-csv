@@ -42,7 +42,7 @@ def xml2csv(input, output):
     rootnode = parse_xml(input)
     
     calibrations = []
-    for calibrationNode in rootnode.iterfind('telemetryInterpolation'):
+    for calibrationNode in rootnode.iterfind('telemetryLinearInterpolation'):
         values = []
         for pointNode in calibrationNode.iterfind('point'):
             x = pointNode.get('x')
@@ -77,9 +77,9 @@ def csv2xml(input, output):
 {calibration}
 </calibrations>
 """
-    calibrationTemplate = """  <telemetryInterpolation name="{name}" uid="{uid}" unit="{unit}" outputType="{type}">
+    calibrationTemplate = """  <telemetryLinearInterpolation name="{name}" uid="{uid}" unit="{unit}" outputType="{type}">
 {points}
-  </telemetryInterpolation>"""
+  </telemetryLinearInterpolation>"""
     pointTemplate = """    <point x="{x}" y="{y}"/>"""
     
     calibrations = []

@@ -121,7 +121,7 @@ class Parser:
     def _verify_telemetry_calibration(self, calibration, parameter):
         if calibration.type == model.Calibration.INTERPOLATION_TELECOMMAND:
             raise ParserException("Invalid calibration for parameter '%s' (%s). " \
-                                  "'telecommandInterpolation' is invalid for " \
+                                  "'telecommandLinearInterpolation' is invalid for " \
                                   "telemetry parameter!"
                                   % (parameter.name, parameter.uid))
         elif calibration.type == model.Calibration.INTERPOLATION_TELEMETRY:
@@ -139,7 +139,7 @@ class Parser:
     def _verify_telecommand_calibration(self, calibration, parameter):
         if calibration.type != model.Calibration.INTERPOLATION_TELECOMMAND:
             raise ParserException("Invalid calibration for parameter '%s' (%s). " \
-                                  "Only 'telecommandInterpolation' is available " \
+                                  "Only 'telecommandLinearInterpolation' is available " \
                                   "for telecommand parameter!"
                                   % (parameter.name, parameter.uid))
         else:
@@ -398,15 +398,15 @@ class Parser:
 
     def _parseCalibrations(self, node, m):
         calibrations = []
-        for calibrationNode in node.iterchildren('telemetryInterpolation'):
+        for calibrationNode in node.iterchildren('telemetryLinearInterpolation'):
             calibration = self._parseCalibrationInterpolationTelemetry(calibrationNode)
             m.calibrations[calibration.uid] = calibration
             calibrations.append(calibration)
-        for calibrationNode in node.iterchildren('telecommandInterpolation'):
+        for calibrationNode in node.iterchildren('telecommandLinearInterpolation'):
             calibration = self._parseCalibrationInterpolationTelecommand(calibrationNode)
             m.calibrations[calibration.uid] = calibration
             calibrations.append(calibration)
-        for calibrationNode in node.iterchildren('polynom'):
+        for calibrationNode in node.iterchildren('telemetryPolynomInterpolation'):
             calibration = self._parseCalibrationPolynom(calibrationNode)
             m.calibrations[calibration.uid] = calibration
             calibrations.append(calibration)

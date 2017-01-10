@@ -9,9 +9,9 @@
   <xsd:complexType name="CalibrationsType">
     <xsd:sequence minOccurs="0" maxOccurs="unbounded">
       <xsd:choice>
-        <xsd:element name="telemetryInterpolation" type="TelemetryInterpolationType" />
-        <xsd:element name="telecommandInterpolation" type="TelecommandInterpolationType" />
-        <xsd:element name="polynom" type="PolynomialCalibrationType" />
+        <xsd:element name="telemetryLinearInterpolation" type="TelemetryInterpolationType" />
+        <xsd:element name="telecommandLinearInterpolation" type="TelecommandInterpolationType" />
+        <xsd:element name="telemetryPolynomInterpolation" type="PolynomialCalibrationType" />
       </xsd:choice>
     </xsd:sequence>
     
@@ -19,15 +19,20 @@
   </xsd:complexType>
   
   <xsd:complexType name="InterpolationType">
-    <xsd:sequence minOccurs="2" maxOccurs="unbounded">
-      <xsd:element name="point">
-        <xsd:complexType>
-          <xsd:attribute name="x" type="xsd:double" use="required" />
-          <xsd:attribute name="y" type="xsd:double" use="required" />
-        </xsd:complexType>
-      </xsd:element>
+    <xsd:sequence>
+      <xsd:sequence minOccurs="0" maxOccurs="1">
+        <xsd:element name="description" type="xsd:string" />
+      </xsd:sequence>
+      <xsd:sequence minOccurs="2" maxOccurs="unbounded">
+        <xsd:element name="point">
+          <xsd:complexType>
+            <xsd:attribute name="x" type="xsd:double" use="required" />
+            <xsd:attribute name="y" type="xsd:double" use="required" />
+          </xsd:complexType>
+        </xsd:element>
+      </xsd:sequence>
     </xsd:sequence>
-    
+
     <xsd:attribute name="name" use="required">
       <xsd:simpleType>
         <xsd:restriction base="xsd:string">
@@ -40,12 +45,11 @@
     <xsd:attribute name="extrapolate" type="xsd:boolean" default="true">
       <xsd:annotation>
         <xsd:documentation>
-If a raw value outside the calibration curve
-is received, a valid engineering value is calculated by
-extrapolating the first two calibration points (in case the raw
-value is outside the calibration range on the lower side) or the
-last two calibration points (in case the raw value is outside
-the calibration range on the upper side)
+If a raw value outside the calibration curve is received, a valid engineering
+value is calculated by extrapolating the first two calibration points (in case
+the raw value is outside the calibration range on the lower side) or the last
+two calibration points (in case the raw value is outside the calibration range
+on the upper side).
         </xsd:documentation>
       </xsd:annotation>
     </xsd:attribute>
@@ -68,7 +72,7 @@ Invalid input types are rejected in the external verification step.
           <xsd:annotation>
             <xsd:documentation>
 Unit of the output type. Available for consistency checking against the
-parameter unit.
+parameter unit. Must be the same as the parameter unit!
             </xsd:documentation>
           </xsd:annotation>
           <xsd:simpleType>
@@ -110,14 +114,29 @@ Invalid output types are rejected in the external verification step.
   <xsd:complexType name="PolynomialCalibrationType">
     <xsd:annotation>
       <xsd:documentation>
-        The polynomial calibration is only available for telemetry parameters.
-        
-        SCOS-2000 will calculate the engineering value 'Y' corresponding to the
-        raw value 'X' of a parameter using the following formula:
-        
-        Y = a0 + a1 * X + a2 * X^2 + a3 * X^3 + a4 * X^4
+The polynomial calibration is only available for telemetry parameters.
+
+SCOS-2000 will calculate the engineering value 'Y' corresponding to the
+raw value 'X' of a parameter using the following formula:
+
+Y = a0 + a1 * X + a2 * X^2 + a3 * X^3 + a4 * X^4
+
+The values a0..4 are double values and can use the either decimal notation
+(no exponent) or scientific notation ("e"/"E" notation).
+
+E.g.
+a0 = "6.23e-2" = "0.0623"
+
+The engineering value is always of type REAL. The type of the input value
+depends on the parameter being calibrated and uses the definition of that
+parameter.
       </xsd:documentation>
     </xsd:annotation>
+    
+    <xsd:sequence>
+      <xsd:element name="description" type="xsd:string" minOccurs="0" maxOccurs="1" />
+    </xsd:sequence>
+
     <xsd:attribute name="name" use="required">
       <xsd:simpleType>
         <xsd:restriction base="xsd:string">

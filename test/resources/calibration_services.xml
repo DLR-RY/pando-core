@@ -31,13 +31,13 @@
         <parameters>
           <parameter name="SID" uid="P100" type="float32">
             <calibration>
-              <telemetryInterpolation name="test2"
+              <telemetryLinearInterpolation name="test2"
                                       uid="calibration_parameter"
                                       outputType="Signed Integer"
                                       extrapolate="false">
                 <point x="100.12" y="-2" />
                 <point x="200.5" y="-1" />
-              </telemetryInterpolation>
+              </telemetryLinearInterpolation>
             </calibration>
           </parameter>
           <parameter name="D" uid="P101" type="uint8">

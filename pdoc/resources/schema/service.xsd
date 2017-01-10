@@ -625,9 +625,9 @@
             <xsd:complexType>
               <xsd:choice minOccurs="0" maxOccurs="1">
                 <xsd:element name="calibrationRef" type="CalibrationReferenceType" />
-                <xsd:element name="telemetryInterpolation" type="TelemetryInterpolationType" />
-                <xsd:element name="telecommandInterpolation" type="TelecommandInterpolationType" />
-                <xsd:element name="polynom" type="PolynomialCalibrationType" />
+                <xsd:element name="telemetryLinearInterpolation" type="TelemetryInterpolationType" />
+                <xsd:element name="telecommandLinearInterpolation" type="TelecommandInterpolationType" />
+                <xsd:element name="telemetryPolynomInterpolation" type="PolynomialCalibrationType" />
               </xsd:choice>
             </xsd:complexType>
           </xsd:element>

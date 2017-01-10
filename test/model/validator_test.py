@@ -29,7 +29,8 @@ class ModelTest(unittest.TestCase):
         return p
 
     def _generatePacket(self, model):
-        packet = pdoc.model.Packet(name="Test", uid="test", description="")
+        packet = pdoc.model.Packet(name="Test", uid="test", description="",
+                                   packet_type=pdoc.model.Packet.TELECOMMAND)
 
         packet.appendParameter(self._createParameter("P1", model))
 
@@ -43,7 +44,8 @@ class ModelTest(unittest.TestCase):
         return packet
 
     def _generatePacketWithNestedRepeaters(self, model):
-        packet = pdoc.model.Packet(name="Test", uid="test", description="")
+        packet = pdoc.model.Packet(name="Test", uid="test", description="",
+                                   packet_type=pdoc.model.Packet.TELECOMMAND)
 
         packet.appendParameter(self._createParameter("P1", model))
 

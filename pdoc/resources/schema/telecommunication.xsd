@@ -107,12 +107,12 @@
     
     <!-- Check uniqueness of calibration curves -->
     <xsd:unique name="calibrationUidUnique">
-      <xsd:selector xpath=".//interpolation | .//polynom" />
+      <xsd:selector xpath=".//interpolation | .//telemetryPolynomInterpolation" />
       <xsd:field xpath="@uid" />
     </xsd:unique>
 
     <xsd:key name="calibrationUidKey">
-      <xsd:selector xpath="service/calibrations/telemetryInterpolation | service/calibrations/telecommandInterpolation | service/calibrations/polynom" />
+      <xsd:selector xpath="service/calibrations/telemetryLinearInterpolation | service/calibrations/telecommandLinearInterpolation | service/calibrations/telemetryPolynomInterpolation" />
       <xsd:field xpath="@uid" />
     </xsd:key>
     <xsd:keyref name="calibrationUidRef" refer="calibrationUidKey">

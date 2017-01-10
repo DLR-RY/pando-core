@@ -4,14 +4,14 @@
   xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance"
   xsd:noNamespaceSchemaLocation="https://svn.dlr.de/eucropis-ops/prod/MIB/trunk/tools/p.doc/pdoc/resources/schema/calibration.xsd">
 
-  <telecommandInterpolation name="test" uid="calibration_test" inputType="Unsigned Integer">
+  <telecommandLinearInterpolation name="test" uid="calibration_test" inputType="Unsigned Integer">
     <point x="0" y="10" />
     <point x="2" y="100" />
     <point x="4" y="101" />
     <point x="5" y="200" />
     <point x="29" y="100" />
-  </telecommandInterpolation>
+  </telecommandLinearInterpolation>
   
-  <polynom name="Polynom" uid="calibration_polynom" a0="1" a1="2" a2="3.5" a3="7" a4="100.1" />
-  <polynom name="Polynom2" uid="calibration_polynom2" a0="0" a1="5" a2="0" a3="0" a4="0" />
+  <telemetryPolynomInterpolation name="Polynom" uid="calibration_polynom" a0="1" a1="2" a2="3.5" a3="7" a4="100.1" />
+  <telemetryPolynomInterpolation name="Polynom2" uid="calibration_polynom2" a0="0" a1="5" a2="0" a3="0" a4="0" />
 </calibrations>

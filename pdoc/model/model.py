@@ -229,6 +229,7 @@ class Packet:
 
         self.parameters = []
 
+        # Packet.TELECOMMAND, Packet.TELEMETRY or Packet.EVENT
         self.packet_type = packet_type
 
         # Maximum nested parameter depth

@@ -131,7 +131,7 @@ class MappingParser:
     def _verify_telemetry_calibration(calibration, parameter):
         if calibration.type == pdoc.model.Calibration.INTERPOLATION_TELECOMMAND:
             raise ParserException("Invalid calibration for parameter '%s' (%s). " \
-                                  "'telecommandInterpolation' is invalid for " \
+                                  "'telecommandLinearInterpolation' is invalid for " \
                                   "telemetry parameter!"
                                   % (parameter.name, parameter.uid))
         elif calibration.type == pdoc.model.Calibration.INTERPOLATION_TELEMETRY:
@@ -150,7 +150,7 @@ class MappingParser:
     def _verify_telecommand_calibration(calibration, parameter):
         if calibration.type != pdoc.model.Calibration.INTERPOLATION_TELECOMMAND:
             raise ParserException("Invalid calibration for parameter '%s' (%s). " \
-                                  "Only 'telecommandInterpolation' is available " \
+                                  "Only 'telecommandLinearInterpolation' is available " \
                                   "for telecommand parameter!"
                                   % (parameter.name, parameter.uid))
         else:
