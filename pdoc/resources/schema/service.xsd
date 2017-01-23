@@ -36,6 +36,11 @@
             are not automatically used on board of the satellite.
             </xsd:documentation>
           </xsd:annotation>
+          
+          <xsd:key name="parameterUidKey">
+            <xsd:selector xpath=".//parameter | .//enumerationParameter | .//repeater | .//list" />
+            <xsd:field xpath="@uid" />
+          </xsd:key>
         </xsd:element>
         <xsd:element name="events" type="EventsType">
           <xsd:annotation>
