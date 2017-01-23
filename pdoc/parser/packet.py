@@ -26,6 +26,14 @@ class PacketParser:
                                           model.enumerations)
                 model.appendTelemetryPacket(event)
 
+            for node in events_node.iterchildren('derivedEvent'):
+                event = self._parse_derived_event(node,
+                                                  model,
+                                                  model.parameters,
+                                                  model.enumerations,
+                                                  model.telemetries)
+                model.appendTelemetryPacket(event)
+
         for telemetries_node in service_node.iterfind('telemetries'):
             for node in telemetries_node.iterchildren('telemetry'):
                 tm = self._parse_telemetry(node,
@@ -60,6 +68,21 @@ class PacketParser:
                                                      model.telecommands)
                 model.appendTelecommandPacket(tc)
 
+    def _parse_severity(self, node, default=None):
+        """
+        Parse the severity field of an event definition.
+        """
+        severity = {
+            "progress": pdoc.model.Event.PROGRESS,
+            "low": pdoc.model.Event.LOW_SEVERITY,
+            "medium": pdoc.model.Event.MEDIUM_SEVERITY,
+            "high": pdoc.model.Event.HIGH_SEVERITY,
+            # Only used for derived events
+            "default": default,
+        }[node.findtext("severity", "default")]
+
+        return severity
+
     def _parse_event(self, node, model, reference_parameters, enumerations):
         name = node.attrib["name"]
         uid = node.attrib["uid"]
@@ -72,12 +95,7 @@ class PacketParser:
         self._parse_additional_packet_fields(event, node)
 
         event.report_id = int(node.findtext("reportId"))
-        event.severity = {
-            "progress": pdoc.model.Event.PROGRESS,
-            "low": pdoc.model.Event.LOW_SEVERITY,
-            "medium": pdoc.model.Event.MEDIUM_SEVERITY,
-            "high": pdoc.model.Event.HIGH_SEVERITY,
-        }[node.findtext("severity")]
+        event.severity = self._parse_severity(node)
 
         event.serviceType = 5
         event.serviceSubtype = int(event.severity)
@@ -104,6 +122,41 @@ class PacketParser:
         event.identificationParameter.append(identification_parameter)
         return event
 
+    def _parse_derived_event(self, node, model, reference_parameters, enumerations, telemetries):
+        base_uid = node.attrib["extends"]
+        event = copy.deepcopy(telemetries[base_uid])
+
+        event.uid = node.attrib["uid"]
+        event.name = node.attrib.get("name", event.name)
+        event.description = pdoc.parser.common.parse_description(node, event.description)
+        pdoc.parser.common.parse_short_name(event, node, event.shortName)
+
+        if event.packet_type != pdoc.model.Packet.EVENT:
+            raise ParserException("{} is not an event!".format(event.uid))
+
+        event.report_id = int(node.findtext("reportId", event.report_id))
+        event.severity = self._parse_severity(node, event.severity)
+
+        event.serviceType = 5
+        event.serviceSubtype = int(event.severity)
+
+        self._parse_additional_packet_fields(event, node)
+        self._parse_override_parameters(event,
+                                        node.find("parameters"),
+                                        model,
+                                        reference_parameters,
+                                        enumerations)
+
+        event.updateDepth()
+        event.updateEventParameterDepth()
+
+        # Update the telemetry identification parameter
+        for parameter in event.identificationParameter:
+            if parameter.parameter.uid == self.EVENT_REPORT_ID_PARAMETER_UID:
+                parameter.value = str(event.report_id)
+
+        return event
+
     def _parse_base_packet(self, cls, node, model, reference_parameters, enumerations):
         packet = cls(name=node.attrib["name"],
                      uid=node.attrib["uid"],
@@ -113,7 +166,7 @@ class PacketParser:
         self._parse_designators(packet, node)
         self._parse_service_type(packet, node)
         self._parse_additional_packet_fields(packet, node)
-        
+
         ParameterParser().parse_parameters(packet,
                                            node.find("parameters"),
                                            model,
@@ -138,25 +191,25 @@ class PacketParser:
                                          model,
                                          reference_parameters,
                                          enumerations)
-        
+
         self._parse_parameter_values(packet, node, enumerations)
         self._parse_telecommand_verification(packet, node)
-        
+
         critical = pdoc.parser.common.parse_text(node, "critical", "No")
         packet.critical = {"Yes": True, "No": False}[critical]
-        
+
         for telemetry_uid in node.iterfind("relevantTelemetry/telemetryRef"):
             uid = telemetry_uid.attrib["uid"]
             telemetry = telemetries[uid]
             packet.relevantTelemetry.append(telemetry)
-        
+
         # TODO failureIdentification
         return packet
 
     def _parse_base_derived_packet(self, base_list, node, model, reference_parameters, enumerations):
         base_uid = node.attrib["extends"]
         packet = copy.deepcopy(base_list[base_uid])
-        
+
         packet.uid = node.attrib["uid"]
         packet.name = node.attrib.get("name", packet.name)
         packet.description = pdoc.parser.common.parse_description(node, packet.description)
@@ -194,7 +247,7 @@ class PacketParser:
                                                  model,
                                                  reference_parameters,
                                                  enumerations)
-        
+
         self._parse_parameter_values(packet, node, enumerations)
         self._parse_telecommand_verification(packet, node)
 
@@ -212,15 +265,35 @@ class PacketParser:
         return packet
 
     def _parse_override_parameters(self, packet, node, model, reference_parameters, enumerations):
+        """
+        Parses the override parameters section.
+
+        New parameters are added after the previous parameters while override
+        parameters are replaced with the new values. Replacing a collection
+        parameter (list or repeater) will replace all its child-parameters.
+
+        Keyword arguments:
+        packet -- packet which will be extended
+        node -- XML node of the parameters sections
+        model -- Python model of the communication system. Used for lookup
+                 of new parameters.
+        reference_parameters -- Previously defined parameters. Used for reference lookup.
+        enumerations -- Previously defined enumerations. Used for reference lookup.
+        """
         if node is None:
             return
+
+        is_event = (packet.packet_type == pdoc.model.Packet.EVENT)
 
         for parameter_node in node:
             if parameter_node.tag == "overrideParameterRef":
                 parameter = reference_parameters[parameter_node.attrib["uid"]]
                 override_uid = parameter_node.attrib["overrides"]
 
-                self._replace_parameter_in_packet(packet, override_uid=override_uid, override_parameter=parameter)
+                self._replace_parameter_in_packet(packet,
+                                                  override_uid=override_uid,
+                                                  override_parameter=parameter,
+                                                  is_event=is_event)
             elif node.tag == lxml.etree.Comment:
                 pass
             else:
@@ -230,8 +303,12 @@ class PacketParser:
                     for parameter in parameters:
                         packet.appendParameter(parameter)
 
-    def _replace_parameter_in_packet(self, packet, override_uid, override_parameter):
-        
+                        if is_event:
+                            # Append to the event parameters as well.
+                            packet.appendEventParameter(parameter)
+
+    def _replace_parameter_in_packet(self, packet, override_uid, override_parameter, is_event):
+
         def handle_collection(collection, override_uid, override_parameter):
             for key, parameter in enumerate(collection.parameters):
                 if parameter.uid == override_uid:
@@ -241,7 +318,20 @@ class PacketParser:
                     handle_collection(parameter, override_uid, override_parameter)
             return False
 
+        def handle_event_collection(collection, override_uid, override_parameter):
+            for key, parameter in enumerate(collection.event_parameters):
+                if parameter.uid == override_uid:
+                    collection.event_parameters[key] = override_parameter
+                    return True
+                elif parameter.is_collection:
+                    handle_collection(parameter, override_uid, override_parameter)
+            return False
+
         handle_collection(packet, override_uid, override_parameter)
+
+        if is_event:
+            # Re-run the replacement in the event parameters
+            handle_event_collection(packet, override_uid, override_parameter)
 
     def _parse_parameter_values(self, packet, node, enumerations):
         parameters = packet.getParametersAsFlattenedList()

@@ -856,6 +856,8 @@
       <xsd:choice minOccurs="0" maxOccurs="unbounded">
         <xsd:element name="event" type="EventType">
         </xsd:element>
+        <xsd:element name="derivedEvent" type="DerivedEventType">
+        </xsd:element>
       </xsd:choice>
     </xsd:sequence>
     <xsd:attribute ref="xml:base" use="optional" />
@@ -919,6 +921,56 @@
       </xsd:simpleType>
     </xsd:attribute>
     <xsd:attribute name="uid" type="xsd:string" use="required" />
+  </xsd:complexType>
+  
+  <xsd:complexType name="DerivedEventType">
+    <xsd:all>
+      <xsd:element name="description" type="xsd:string" minOccurs="0" />
+      <xsd:element name="shortName" minOccurs="0">
+        <xsd:simpleType>
+          <xsd:restriction base="xsd:string">
+            <xsd:minLength value="1"/>
+            <xsd:maxLength value="12"/>
+          </xsd:restriction>
+        </xsd:simpleType>
+      </xsd:element>
+      
+      <xsd:element name="reportId" type="DecOrHexIntegerType" minOccurs="0" />
+      <xsd:element name="severity" minOccurs="0">
+        <xsd:simpleType>
+          <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="progress" />
+            <xsd:enumeration value="low" />
+            <xsd:enumeration value="medium" />
+            <xsd:enumeration value="high" />
+          </xsd:restriction>
+        </xsd:simpleType>
+      </xsd:element>
+      
+      <xsd:element name="reportIdParameterRef" type="xsd:string" default="event_report_id" minOccurs="0" />
+      
+      <xsd:element name="parameters" type="DerivedParametersType" minOccurs="0" />
+      <xsd:element name="note" type="AdditionalType" minOccurs="0" />
+      <xsd:element name="seeAlso" type="AdditionalType" minOccurs="0" />
+    </xsd:all>
+    <xsd:attribute name="name" use="optional">
+      <xsd:simpleType>
+        <xsd:restriction base="xsd:string">
+          <xsd:minLength value="1"/>
+          <xsd:maxLength value="64"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+    </xsd:attribute>
+    <xsd:attribute name="uid" type="xsd:string" use="required" />
+    <xsd:attribute name="extends" type="xsd:string" use="required">
+      <xsd:annotation>
+        <xsd:documentation>
+          UID of the telecommand this one is based upon. It is only
+          possible to override parameters which have been defined in the
+          base telecommand.
+        </xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
   </xsd:complexType>
 </xsd:schema>
   
