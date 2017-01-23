@@ -56,7 +56,7 @@
     </xsd:unique>
 
     <xsd:key name="parameterUidKey">
-      <xsd:selector xpath="service/parameters/parameter | service/parameters/enumerationParameter | service/parameters/repeater | service/parameters/list" />
+      <xsd:selector xpath=".//parameter | .//enumerationParameter | .//repeater | .//list" />
       <xsd:field xpath="@uid" />
     </xsd:key>
     <xsd:keyref name="parameterUidRef" refer="parameterUidKey">
