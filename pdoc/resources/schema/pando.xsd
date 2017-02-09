@@ -7,7 +7,7 @@
   <xsd:import namespace="http://www.w3.org/XML/1998/namespace"
               schemaLocation="http://www.w3.org/2001/xml.xsd" />
 
-  <xsd:element name="telecommunication" type="RootType">
+  <xsd:element name="pando" type="RootType">
     <!-- check uniqueness of failure codes -->
     <xsd:unique name="failureCodeUnique">
       <xsd:selector xpath="service/failureCodes/failureCode" />
@@ -172,5 +172,6 @@
     <xsd:element name="service" type="ServiceType" minOccurs="1" maxOccurs="unbounded" />
     <xsd:element name="mapping" type="MappingType" minOccurs="0" maxOccurs="unbounded" />
   </xsd:sequence>
+  <xsd:attribute name="version" type="xsd:string" use="required" />
   </xsd:complexType>
 </xsd:schema>

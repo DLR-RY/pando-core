@@ -25,6 +25,9 @@ import pdoc.parser.common
 
 class Parser:
 
+    ROOTNODE = "pando"
+    DATA_STRUCTURE_VERSION = "1.0.0"
+
     def parse(self, filename, xsdfile=None):
         rootnode = self._validate_and_parse_xml(filename, xsdfile)
 
@@ -34,7 +37,7 @@ class Parser:
         calibration = CalibrationParser()
         parameter = ParameterParser()
         packet = PacketParser()
-        
+
         for service_node in rootnode.iterfind('service'):
             enumeration.parse_service_enumeration(service_node, model)
             calibration.parse_service_calibration(service_node, model)
@@ -57,7 +60,7 @@ class Parser:
             xmlroot.xinclude()
 
             if xsdfile is None:
-                xsdfile = pkg.get_filename('pdoc', 'resources/schema/telecommunication.xsd')
+                xsdfile = pkg.get_filename('pdoc', 'resources/schema/pando.xsd')
 
             xmlschema = lxml.etree.parse(xsdfile, parser=parser)
 
@@ -74,8 +77,14 @@ class Parser:
             raise ParserException("While parsing '%s': %s"
                                   % (error.error_log.last_error.filename, error))
 
-        if rootnode.tag != "telecommunication":
-            raise ParserException("Expected rootnode 'telecommunication', got '%s' in file '%s'"
-                                  % (rootnode.tag, filename))
+        if rootnode.tag != Parser.ROOTNODE:
+            raise ParserException("Expected rootnode '{}', got '{}' in file '{}'"
+                                  .format(Parser.ROOTNODE, rootnode.tag, filename))
+
+        version = rootnode.attrib["version"]
+        if version != Parser.DATA_STRUCTURE_VERSION:
+            raise ParserException("Invalid file structure version. Parser requires '{}' "
+                                  "but the given file uses '{}'"
+                                  .format(Parser.DATA_STRUCTURE_VERSION, version))
 
         return rootnode
