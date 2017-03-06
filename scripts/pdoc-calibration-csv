@@ -19,15 +19,15 @@ def parse_xml(filename, xsdfile=None):
         parser = lxml.etree.XMLParser(no_network=True)
         xmlroot = lxml.etree.parse(filename, parser=parser)
         xmlroot.xinclude()
-        
+
         if xsdfile is None:
             xsdfile = pdoc.pkg.get_filename('pdoc', 'resources/schema/calibration.xsd')
-    
+
         xmlschema = lxml.etree.parse(xsdfile, parser=parser)
-        
+
         schema = lxml.etree.XMLSchema(xmlschema)
         schema.assertValid(xmlroot)
-    
+
         rootnode = xmlroot.getroot()
     except OSError as e:
         raise ParserException(e)
@@ -35,22 +35,22 @@ def parse_xml(filename, xsdfile=None):
         raise ParserException("While parsing '%s': %s" % (e.error_log[0].filename, e))
     except lxml.etree.XIncludeError as e:
         raise ParserException("While including '%s': %s" % (e.error_log[0].filename, e))
-    
+
     return rootnode
 
 def xml2csv(input, output):
     rootnode = parse_xml(input)
-    
+
     calibrations = []
     for calibrationNode in rootnode.iterfind('telemetryLinearInterpolation'):
         values = []
         for pointNode in calibrationNode.iterfind('point'):
             x = pointNode.get('x')
             y = pointNode.get('y')
-        
+
             values.append(x)
             values.append(y)
-        
+
         calibration = {
            'name': calibrationNode.get('name'),
            'uid':  calibrationNode.get('uid'),
@@ -58,9 +58,9 @@ def xml2csv(input, output):
            'type': calibrationNode.get('outputType'),
            'values': values
         }
-        
+
         calibrations.append(calibration)
-    
+
     with open(output, 'w') as file:
         for calibration in calibrations:
             s = [calibration['name'], calibration['uid'], calibration['unit'], calibration['type']]
@@ -77,17 +77,17 @@ def csv2xml(input, output):
 {calibration}
 </calibrations>
 """
-    calibrationTemplate = """  <telemetryLinearInterpolation name="{name}" uid="{uid}" unit="{unit}" outputType="{type}">
+    calibrationTemplate = """  <telemetryLinearInterpolation name="{name}" uid="{uid}" unit="{unit}" outputType="{type}" extrapolate="true">
 {points}
   </telemetryLinearInterpolation>"""
     pointTemplate = """    <point x="{x}" y="{y}"/>"""
-    
+
     calibrations = []
     with open(input, 'r') as file:
         for line in file.readlines():
             line = line.rstrip('\n\r')
             t = line.split('\t')
-            
+
             calibration = {
                'name': t[0],
                'uid':  t[1],
@@ -98,31 +98,31 @@ def csv2xml(input, output):
             if len(values) % 2 == 1:
                 print("Invalid number of calibration points")
                 sys.exit(1)
-            
+
             valuePairs = []
             for i in range(0, len(values), 2):
                 valuePairs.append({
                     'x': values[i],
-                    'y': values[i+1]
+                    'y': values[i + 1]
                 })
-            
+
             calibration['values'] = valuePairs
             calibrations.append(calibration)
-    
+
     c = []
     for calibration in calibrations:
         points = []
         for value in calibration['values']:
             points.append(str.format(pointTemplate, **value))
-        
+
         c.append(calibrationTemplate.format(points="\n".join(points), **calibration))
-    
+
     with open(output, 'w') as file:
         file.write(fileTemplate.format(calibration="\n\n".join(c)))
 
 
 arg = argparse.ArgumentParser(description='p.doc Convert a CSV calibration to XML and back.')
-arg.add_argument('-i', '--input',  dest='input',  required=True, help='Input table. Can be XML or CSV.')
+arg.add_argument('-i', '--input', dest='input', required=True, help='Input table. Can be XML or CSV.')
 arg.add_argument('-o', '--output', dest='output', required=True, help='Output table. Can be XML or CSV.')
 
 args = arg.parse_args()
