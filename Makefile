@@ -3,6 +3,11 @@
 test:
 	@python3 -m unittest discover -p *test.py
 
+coverage:
+	@coverage run --source=pdoc -m unittest discover -p *test.py
+	@coverage report
+	@coverage html -d build/coverage
+
 test-verify:
 	@./scripts/pdoc-verify -i test/resources/test.xml
 

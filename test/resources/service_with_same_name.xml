@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pando
+  version="1.0.0"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance"
+  xsd:noNamespaceSchemaLocation="https://svn.dlr.de/eucropis-ops/prod/MIB/trunk/tools/p.doc/pdoc/resources/schema/pando.xsd">
+
+  <service name="Foo">
+    <parameters>
+      <parameter name="P1" uid="P1" type="uint8" />
+    </parameters>
+    
+    <telecommands>
+      <telecommand name="Test1" uid="test1">
+        <serviceType>0</serviceType>
+        <serviceSubtype>0</serviceSubtype>
+        
+        <parameters>
+          <parameterRef uid="P1" />
+        </parameters>
+      </telecommand>
+    </telecommands>
+  </service>
+  
+  <service name="Foo">
+    <telecommands>
+      <telecommand name="Test2" uid="test2">
+        <serviceType>0</serviceType>
+        <serviceSubtype>0</serviceSubtype>
+        
+        <parameters>
+          <parameterRef uid="P1" />
+        </parameters>
+      </telecommand>
+    </telecommands>
+  </service>
+</pando>
