@@ -103,6 +103,10 @@ def csv2xml(input, output, service_name):
 
             valuePairs = []
             for i in range(0, len(values), 2):
+                # Ignore empty lines
+                if values[i] == "" and values[i + 1] == "":
+                    continue
+
                 valuePairs.append({
                     'x': values[i],
                     'y': values[i + 1]
