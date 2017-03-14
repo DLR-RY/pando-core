@@ -10,11 +10,12 @@
       <!-- Required for the Event definition -->
       <parameter name="Report ID" uid="s5_report_id" type="uint16" />
     </parameters>
-  
+    
     <events>
       <event name="Event" uid="event">
         <reportId>0</reportId>
         <severity>low</severity>
+        <packetClass>Event</packetClass>
         <parameters></parameters>
       </event>
     </events>
@@ -23,10 +24,7 @@
       <telemetry name="Telemetry Packet" uid="tm1">
         <serviceType>0</serviceType>
         <serviceSubtype>0</serviceSubtype>
-        <generation>
-          <periodic interval="PT2S"/>
-        </generation>
-        
+        <packetClass>Housekeeping</packetClass>
         <parameters>
         </parameters>
       </telemetry>
@@ -54,27 +52,22 @@
       </events>
       
       <telemetries>
-        <!-- Packet generation is set in packet definition -->
+        <!-- Packet class is set in packet definition -->
         <telemetry uid="tm1" sid="TM1A">
         </telemetry>
         
-        <!-- Packet generation is set in packet definition and overwritten
+        <!-- Packet class is set in packet definition and overwritten
              during mapping -->
         <telemetry uid="tm1" sid="TM1B">
-          <generation>
-            <response/>
-          </generation>
+          <packetClass>Extended Housekeeping</packetClass>
         </telemetry>
         
-        <!-- Packet generation is only added during mapping -->
+        <!-- Packet class is only added during mapping -->
         <telemetry uid="tm2" sid="TM2A">
-          <generation>
-            <event/>
-            <response/>
-          </generation>
+          <packetClass>Extended Housekeeping</packetClass>
         </telemetry>
-        
-        <!-- No packet generation information -->
+
+        <!-- No packet class information -->
         <telemetry uid="tm2" sid="TM2B">
           <generation>
           </generation>

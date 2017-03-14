@@ -8,6 +8,7 @@ documentation from the internal representation.
 """
 
 import datetime
+import collections
 
 
 class ModelException(Exception):
@@ -32,6 +33,12 @@ class Model:
 
         # id -> Subsystem
         self.subsystems = {}
+
+    def get_packets_by_packet_class(self, packet_class):
+        packets = []
+        for subsystem in self.subsystems.values():
+            packets.extend(subsystem.get_packets_by_packet_class(packet_class))
+        return packets
 
     def appendTelemetryPacket(self, packet):
         self.telemetries[packet.uid] = packet
@@ -297,6 +304,7 @@ class Packet:
 
         # Packet.TELECOMMAND, Packet.TELEMETRY or Packet.EVENT
         self.packet_type = packet_type
+        self.packet_class = None
 
         # Maximum nested parameter depth
         self.depth = 0
@@ -619,6 +627,12 @@ class Subsystem:
         # uid -> ParameterMapping
         self.telecommandParameters = {}
 
+        # string -> Telecommand-/TelemetryMapping
+        self.packets_by_packet_class = collections.defaultdict(list)
+
+    def get_packets_by_packet_class(self, packet_class):
+        return self.packets_by_packet_class.get(packet_class, [])
+
 
 class ApplicationMapping:
 
@@ -687,6 +701,7 @@ class TelemetryMapping:
         self.telemetry = telemetry
 
         self.packet_type = packet_type
+        self.packet_class = None
 
         # -> ParameterMapping
         self.parameters = []
@@ -718,3 +733,6 @@ class TelecommandMapping:
     def __init__(self, sid, telecommand):
         self.sid = sid
         self.telecommand = telecommand
+
+        self.packet_type = Packet.TELECOMMAND
+        self.packet_class = None

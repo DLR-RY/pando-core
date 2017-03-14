@@ -196,6 +196,7 @@
   <xsd:complexType name="TelemetryType">
     <xsd:all>
       <xsd:element name="generation" type="TelemetryGenerationType" minOccurs="0" />
+      <xsd:element name="packetClass" type="PacketClassType" minOccurs="0" />
       <xsd:element name="ancillaryData" type="AncillaryDataType" minOccurs="0" />
       <xsd:element name="designators" type="DesignatorsType" minOccurs="0" />
       <xsd:element name="description" type="xsd:string" minOccurs="0" />
@@ -237,6 +238,7 @@
     </xsd:annotation>
     <xsd:all>
       <xsd:element name="generation" type="TelemetryGenerationType" minOccurs="0" />
+      <xsd:element name="packetClass" type="PacketClassType" minOccurs="0" />
       <xsd:element name="ancillaryData" type="AncillaryDataType" minOccurs="0" />
       <xsd:element name="designators" type="DesignatorsType" minOccurs="0" />
       <xsd:element name="description" type="xsd:string" minOccurs="0" />
@@ -303,6 +305,7 @@
 
   <xsd:complexType name="TelecommandType">
     <xsd:all>
+      <xsd:element name="packetClass" type="PacketClassType" minOccurs="0" />
       <xsd:element name="designators" type="DesignatorsType" minOccurs="0" />
       <xsd:element name="description" type="xsd:string" minOccurs="0" >
         <xsd:annotation>
@@ -358,7 +361,7 @@
     </xsd:all>
     <xsd:attribute name="name" use="required">
       <xsd:annotation>
-        <xsd:documentation>Readable name</xsd:documentation>
+        <xsd:documentation>Readable name.</xsd:documentation>
       </xsd:annotation>
       <xsd:simpleType>
         <xsd:restriction base="xsd:string">
@@ -369,13 +372,14 @@
     </xsd:attribute>
     <xsd:attribute name="uid" type="xsd:string" use="required" >
       <xsd:annotation>
-        <xsd:documentation>Unique identifier</xsd:documentation>
+        <xsd:documentation>Unique identifier.</xsd:documentation>
       </xsd:annotation>
     </xsd:attribute>
   </xsd:complexType>
   
   <xsd:complexType name="DerivedTelecommandType">
     <xsd:all>
+      <xsd:element name="packetClass" type="PacketClassType" minOccurs="0" />
       <xsd:element name="designators" type="DesignatorsType" minOccurs="0" />
       <xsd:element name="description" type="xsd:string" minOccurs="0">
         <xsd:annotation>
@@ -898,6 +902,7 @@
       </xsd:documentation>
     </xsd:annotation>
     <xsd:all>
+      <xsd:element name="packetClass" type="PacketClassType" minOccurs="0" />
       <xsd:element name="description" type="xsd:string" minOccurs="0" />
       <xsd:element name="shortName" minOccurs="0">
         <xsd:simpleType>
@@ -939,6 +944,7 @@
   
   <xsd:complexType name="DerivedEventType">
     <xsd:all>
+      <xsd:element name="packetClass" type="PacketClassType" minOccurs="0" />
       <xsd:element name="description" type="xsd:string" minOccurs="0" />
       <xsd:element name="shortName" minOccurs="0">
         <xsd:simpleType>
