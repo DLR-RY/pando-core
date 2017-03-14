@@ -100,7 +100,7 @@ class PacketParser:
         event.serviceType = 5
         event.serviceSubtype = int(event.severity)
 
-        event.packet_class = pdoc.parser.common.parse_text(node, "packetClass", None)
+        event.packet_class = pdoc.parser.common.parse_packet_classes(node, None)
 
         event.packet_generation = pdoc.parser.common.parse_packet_generation(node, event)
         if event.packet_generation is None:
@@ -176,7 +176,7 @@ class PacketParser:
         self._parse_designators(packet, node)
         self._parse_service_type(packet, node)
         self._parse_additional_packet_fields(packet, node)
-        packet.packet_class = pdoc.parser.common.parse_text(node, "packetClass", None)
+        packet.packet_class = pdoc.parser.common.parse_packet_classes(node, None)
 
         ParameterParser().parse_parameters(packet,
                                            node.find("parameters"),
@@ -233,7 +233,7 @@ class PacketParser:
                                  packet.serviceType,
                                  packet.serviceSubtype)
         self._parse_additional_packet_fields(packet, node)
-        packet.packet_class = pdoc.parser.common.parse_text(node, "packetClass", packet.packet_class)
+        packet.packet_class = pdoc.parser.common.parse_packet_classes(node, packet.packet_class)
 
         self._parse_override_parameters(packet,
                                         node.find("parameters"),

@@ -52,10 +52,10 @@ class ParserTest(unittest.TestCase):
         tm2b = application.getTelemetryBySid("TM2B")
         event = application.getTelemetryBySid("Event")
 
-        self.assertEqual("Housekeeping", tm1a.packet_class)
-        self.assertEqual("Extended Housekeeping", tm1b.packet_class)
-        self.assertEqual("Extended Housekeeping", tm2a.packet_class)
-        self.assertEqual("Event", event.packet_class)
+        self.assertEqual(["Housekeeping"], tm1a.packet_class)
+        self.assertEqual(["Extended Housekeeping", "Realtime"], tm1b.packet_class)
+        self.assertEqual(["Extended Housekeeping"], tm2a.packet_class)
+        self.assertEqual(["Event"], event.packet_class)
 
     def test_should_provide_packets_by_class(self):
         housekeepings = self.model.get_packets_by_packet_class("Extended Housekeeping")

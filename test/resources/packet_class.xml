@@ -15,7 +15,9 @@
       <event name="Event" uid="event">
         <reportId>0</reportId>
         <severity>low</severity>
-        <packetClass>Event</packetClass>
+        <packetClasses>
+          <class>Event</class>
+        </packetClasses>
         <parameters></parameters>
       </event>
     </events>
@@ -24,7 +26,9 @@
       <telemetry name="Telemetry Packet" uid="tm1">
         <serviceType>0</serviceType>
         <serviceSubtype>0</serviceSubtype>
-        <packetClass>Housekeeping</packetClass>
+        <packetClasses>
+          <class>Housekeeping</class>
+        </packetClasses>
         <parameters>
         </parameters>
       </telemetry>
@@ -59,12 +63,17 @@
         <!-- Packet class is set in packet definition and overwritten
              during mapping -->
         <telemetry uid="tm1" sid="TM1B">
-          <packetClass>Extended Housekeeping</packetClass>
+          <packetClasses>
+            <class>Extended Housekeeping</class>
+            <class>Realtime</class>
+          </packetClasses>
         </telemetry>
         
         <!-- Packet class is only added during mapping -->
         <telemetry uid="tm2" sid="TM2A">
-          <packetClass>Extended Housekeeping</packetClass>
+          <packetClasses>
+            <class>Extended Housekeeping</class>
+          </packetClasses>
         </telemetry>
 
         <!-- No packet class information -->

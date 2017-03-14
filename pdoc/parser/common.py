@@ -55,6 +55,18 @@ def parse_text(node, tag, default_value=None):
     return text
 
 
+def parse_packet_classes(node, default=None):
+    packet_classes = []
+    for class_node in node.findall("packetClasses/class"):
+        packet_classes.append(class_node.text)
+
+    if len(packet_classes) == 0:
+        # No packet class definitions found, use default value
+        return default
+    else:
+        return packet_classes
+
+
 def parse_packet_generation(packet_node, packet):
     generation_node = packet_node.find("generation")
     if generation_node is not None:

@@ -66,20 +66,28 @@ class MappingParser:
 
         for telemetry_node in node.iterfind("events/event"):
             telemetry_mapping = self._parse_telemetry_mapping(telemetry_node, pdoc.model.EventMapping, model)
-            subsystem.packets_by_packet_class[telemetry_mapping.packet_class].append(telemetry_mapping)
+            self._add_packet_classes(subsystem, telemetry_mapping)
             application.appendTelemetry(telemetry_mapping)
 
         for telemetry_node in node.iterfind("telemetries/telemetry"):
             telemetry_mapping = self._parse_telemetry_mapping(telemetry_node, pdoc.model.TelemetryMapping, model)
-            subsystem.packets_by_packet_class[telemetry_mapping.packet_class].append(telemetry_mapping)
+            self._add_packet_classes(subsystem, telemetry_mapping)
             application.appendTelemetry(telemetry_mapping)
 
         for telecommand_node in node.iterfind("telecommands/telecommandMappingRef"):
             telecommand_mapping = self._parse_telecommand_mapping(telecommand_node, model)
-            subsystem.packets_by_packet_class[telecommand_mapping.packet_class].append(telecommand_mapping)
+            self._add_packet_classes(subsystem, telecommand_mapping)
             application.appendTelecommand(telecommand_mapping)
 
         return application
+
+    @staticmethod
+    def _add_packet_classes(subsystem, mapping):
+        if mapping.packet_class is None:
+            subsystem.packets_by_packet_class[None].append(mapping)
+        else:
+            for packet_class in mapping.packet_class:
+                subsystem.packets_by_packet_class[packet_class].append(mapping)
 
     def _parse_telemetry_mapping(self, node, cls, model):
         uid, sid = self._parse_mapping(node)
@@ -103,7 +111,7 @@ class MappingParser:
             telemetry_mapping.packet_generation = telemetry.packet_generation
 
         telemetry_mapping.packet_class = \
-            pdoc.parser.common.parse_text(node, "packetClass", telemetry.packet_class)
+            pdoc.parser.common.parse_packet_classes(node, telemetry.packet_class)
 
         for parameter_node in node.findall("parameterMapping"):
             uid, sid = self._parse_mapping(parameter_node)
@@ -126,7 +134,7 @@ class MappingParser:
 
         telecommand_mapping = pdoc.model.TelecommandMapping(sid=sid, telecommand=telecommand)
         telecommand_mapping.packet_class = \
-            pdoc.parser.common.parse_text(node, "packetClass", telecommand.packet_class)
+            pdoc.parser.common.parse_packet_classes(node, telecommand.packet_class)
         return telecommand_mapping
 
     def _verify_calibrations(self, m):

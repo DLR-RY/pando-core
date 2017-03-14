@@ -95,6 +95,8 @@ class ReportBuilder(builder.Builder):
     def _get_frame_overheade(self, packet_size):
         frame_overhead = 16
         frame_application_data_length = 1028
+        frame_uncertainty = 20
 
-        size = (frame_overhead * packet_size) / frame_application_data_length
+        size = (frame_overhead * packet_size) / frame_application_data_length \
+                + frame_uncertainty
         return int(math.ceil(size))
