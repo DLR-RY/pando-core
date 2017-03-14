@@ -7,6 +7,9 @@ The model class can than be forwarded to the different builders to create
 documentation from the internal representation.
 """
 
+import datetime
+
+
 class ModelException(Exception):
     pass
 
@@ -204,6 +207,69 @@ class Repeater(Parameter, ParameterCollection):
         ParameterCollection.__init__(self)
 
 
+class PacketGeneration:
+
+    def __init__(self, event=False, periodic=False, response=False):
+        self.event = event
+        self.periodic = periodic
+        self.response = response
+
+        self.periodic_interval = datetime.timedelta(0)
+
+    def __eq__(self, other):
+        same_type = (self.event == other.event
+                     and self.periodic == other.periodic
+                     and self.response == other.response)
+
+        if same_type and self.periodic is True:
+            if self.periodic_interval != other.periodic_interval:
+                same_type = False
+
+        return same_type
+
+    def __repr__(self):
+        response_string = "+Response" if self.response else ""
+        if self.event is True:
+            return "<PacketGeneration: Event{}>".format(response_string)
+        elif self.periodic is True:
+            return "<PacketGeneration: Periodic{}, Interval={}>" \
+                   .format(response_string, self.periodic_interval)
+        elif self.response is True:
+            return "<PacketGeneration: Response>"
+        else:
+            return "<PacketGeneration: None>"
+
+
+class EventPacketGeneration(PacketGeneration):
+
+    def __init__(self, response=False):
+        PacketGeneration.__init__(self, event=True, periodic=False, response=response)
+
+
+class PeriodicPacketGeneration(PacketGeneration):
+
+    def __init__(self, interval, response=False):
+        """
+        Periodic packet generation.
+
+        Args:
+            interval (datetime.timedelta): Interval in which the packets
+                will be generated.
+            response: Packet will be additionally be generated as a response
+                to a direct request.
+        """
+        PacketGeneration.__init__(self, event=False, periodic=True, response=response)
+        self.periodic_interval = interval
+
+
+class ResponsePacketGeneration(PacketGeneration):
+    """
+    Packet will only be generated as a response.
+    """
+    def __init__(self):
+        PacketGeneration.__init__(self, event=False, periodic=False, response=True)
+
+
 class Packet:
 
     TELECOMMAND = 0
@@ -234,6 +300,8 @@ class Packet:
 
         # Maximum nested parameter depth
         self.depth = 0
+
+        self.ancillary_data = None
 
     def appendParameter(self, parameter):
         self.parameters.append(parameter)
@@ -330,6 +398,9 @@ class Telemetry(Packet):
 
         # -> TelemetryIdentificationParameter
         self.identificationParameter = []
+
+        # -> PacketGeneration
+        self.packet_generation = None
 
 
 class TelemetryIdentificationParameter:
@@ -619,6 +690,9 @@ class TelemetryMapping:
 
         # -> ParameterMapping
         self.parameters = []
+
+        # -> PacketGeneration
+        self.packet_generation = None
 
     def appendParameter(self, parameter):
         self.parameters.append(parameter)

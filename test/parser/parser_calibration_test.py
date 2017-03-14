@@ -9,7 +9,7 @@ class ParserCalibrationTest(unittest.TestCase):
         self.model = self.parseFile("resources/calibration_services.xml")
 
     def parseFile(self, filename):
-        filepath = os.path.join(os.path.dirname(os.path.realpath(__file__)), filename)
+        filepath = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", filename)
         parser = pdoc.parser.Parser()
         model = parser.parse(filepath)
 

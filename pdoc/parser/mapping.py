@@ -95,6 +95,12 @@ class MappingParser:
             raise ParserException("Mapping must be done as %s for '%s' (%s)!"
                                   % (packet_type, uid, sid))
 
+        packet_generation = pdoc.parser.common.parse_packet_generation(node, telemetry_mapping)
+        if packet_generation:
+            telemetry_mapping.packet_generation = packet_generation
+        else:
+            telemetry_mapping.packet_generation = telemetry.packet_generation
+
         for parameter_node in node.findall("parameterMapping"):
             uid, sid = self._parse_mapping(parameter_node)
             try:

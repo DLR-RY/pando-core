@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pando
+  version="1.1.0"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance"
+  xsd:noNamespaceSchemaLocation="https://svn.dlr.de/eucropis-ops/prod/MIB/trunk/tools/p.doc/pdoc/resources/schema/pando.xsd">
+
+  <service name="test">
+    <parameters>
+      <parameter name="Report ID" uid="s5_report_id" type="uint16">
+        <description>
+          The Report ID (RID), together with the application process ID (APID),
+          implicitly defines the presence, structure and interpretation of the
+          associated following parameters.
+        </description>
+      </parameter>
+    </parameters>
+  
+    <events>
+      <event name="Event" uid="event">
+        <reportId>0</reportId>
+        <severity>low</severity>
+        <parameters></parameters>
+      </event>
+    </events>
+    
+    <telemetries>
+      <telemetry name="Telemetry Packet" uid="tm1">
+        <serviceType>0</serviceType>
+        <serviceSubtype>0</serviceSubtype>
+        <generation>
+          <periodic interval="PT2S"/>
+        </generation>
+        
+        <parameters>
+        </parameters>
+      </telemetry>
+      
+      <telemetry name="Telemetry Packet" uid="tm2">
+        <serviceType>0</serviceType>
+        <serviceSubtype>0</serviceSubtype>
+        
+        <parameters>
+        </parameters>
+      </telemetry>
+    </telemetries>
+    
+    <telecommands>
+    </telecommands>
+  </service>
+
+  <mapping name="test" subsystem="0">
+    <telecommandParameters>
+    </telecommandParameters>
+    
+    <application name="Test Application" apid="0x1">
+      <events>
+        <event sid="Event" uid="event" />
+      </events>
+      
+      <telemetries>
+        <!-- Packet generation is set in packet definition -->
+        <telemetry uid="tm1" sid="TM1A">
+        </telemetry>
+        
+        <!-- Packet generation is set in packet definition and overwritten
+             during mapping -->
+        <telemetry uid="tm1" sid="TM1B">
+          <generation>
+            <response/>
+          </generation>
+        </telemetry>
+        
+        <!-- Packet generation is only added during mapping -->
+        <telemetry uid="tm2" sid="TM2A">
+          <generation>
+            <event/>
+            <response/>
+          </generation>
+        </telemetry>
+        
+        <!-- No packet generation information -->
+        <telemetry uid="tm2" sid="TM2B">
+          <generation>
+          </generation>
+        </telemetry>
+      </telemetries>
+      
+      <telecommands>
+      </telecommands>
+    </application>
+  </mapping>
+</pando>

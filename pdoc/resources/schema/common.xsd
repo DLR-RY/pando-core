@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <xsd:import namespace="http://www.w3.org/XML/1998/namespace"
+              schemaLocation="http://www.w3.org/2001/xml.xsd" />
+              
+  <xsd:complexType name="TelemetryGenerationPeriodicType">
+    <xsd:attribute name="interval" type="xsd:duration">
+      <xsd:annotation>
+        <xsd:documentation>
+          Default interval in which the packets are generated.
+          To specify e.g. a interval of 20 milliseconds use: "PT0.02S"
+        </xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+  </xsd:complexType>
+ 
+  <xsd:complexType name="TelemetryGenerationResponseType">
+  </xsd:complexType>
+ 
+  <xsd:complexType name="TelemetryGenerationEventType">
+  </xsd:complexType>
+
+  <xsd:complexType name="TelemetryGenerationType">
+    <xsd:annotation>
+      <xsd:documentation>
+        Defines how the telemetry packets are generated. Packets can either
+        be periodic or events. Additionally they can be generated 
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:choice minOccurs="1" maxOccurs="unbounded">
+      <xsd:choice minOccurs="0" maxOccurs="1">
+        <xsd:element name="periodic" type="TelemetryGenerationPeriodicType" minOccurs="0" maxOccurs="1"/>
+        <xsd:element name="event" type="TelemetryGenerationEventType" minOccurs="0" maxOccurs="1"/>
+      </xsd:choice>
+      <xsd:element name="response" type="TelemetryGenerationResponseType" minOccurs="0" maxOccurs="1"/>
+    </xsd:choice>
+  </xsd:complexType>
+  
+  <xsd:complexType name="AncillaryDataType">
+    <xsd:sequence>
+      <xsd:any />
+    </xsd:sequence>
+  </xsd:complexType>
+</xsd:schema>

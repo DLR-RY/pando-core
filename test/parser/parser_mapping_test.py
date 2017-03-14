@@ -7,7 +7,7 @@ import pdoc.model.validator
 class ParserMappingTest(unittest.TestCase):
 
     def setUp(self):
-        filepath = os.path.join(os.path.dirname(os.path.realpath(__file__)), "resources/test.xml")
+        filepath = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "resources/test.xml")
         self.parser = pdoc.parser.Parser()
         self.model = self.parser.parse(filepath)
 

@@ -100,6 +100,10 @@ class PacketParser:
         event.serviceType = 5
         event.serviceSubtype = int(event.severity)
 
+        event.packet_generation = pdoc.parser.common.parse_packet_generation(node, event)
+        if event.packet_generation is None:
+            event.packet_generation = pdoc.model.EventPacketGeneration()
+
         ParameterParser().parse_parameters(event,
                                            node.find("parameters"),
                                            model,
@@ -139,6 +143,10 @@ class PacketParser:
 
         event.serviceType = 5
         event.serviceSubtype = int(event.severity)
+
+        packet_generation = pdoc.parser.common.parse_packet_generation(node, event)
+        if packet_generation is not None:
+            event.packet_generation = packet_generation
 
         self._parse_additional_packet_fields(event, node)
         self._parse_override_parameters(event,
@@ -180,6 +188,8 @@ class PacketParser:
                                          model,
                                          reference_parameters,
                                          enumerations)
+
+        packet.packet_generation = pdoc.parser.common.parse_packet_generation(node, packet)
 
         parameters = packet.getParametersAsFlattenedList()
         self._parse_telemetry_identification_parameter(packet, node, parameters)
@@ -235,6 +245,10 @@ class PacketParser:
                                                  model,
                                                  reference_parameters,
                                                  enumerations)
+
+        packet_generation = pdoc.parser.common.parse_packet_generation(node, packet)
+        if packet_generation:
+            packet.packet_generation = packet_generation
 
         parameters = packet.getParametersAsFlattenedList()
         self._parse_telemetry_identification_parameter(packet, node, parameters)

@@ -9,7 +9,7 @@ class ParserTest(unittest.TestCase):
         self.model = self.parseFile("resources/test.xml")
 
     def parseFile(self, filename):
-        filepath = os.path.join(os.path.dirname(os.path.realpath(__file__)), filename)
+        filepath = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", filename)
         parser = pdoc.parser.Parser()
         model = parser.parse(filepath)
 
@@ -46,10 +46,10 @@ class ParserTest(unittest.TestCase):
         self.assertEqual(2, len(enum.entries))
 
         self.assertEqual("Key0", enum.entries[0].name)
-        self.assertEqual("10",   enum.entries[0].value)
+        self.assertEqual("10", enum.entries[0].value)
 
         self.assertEqual("Key1", enum.entries[1].name)
-        self.assertEqual("213",  enum.entries[1].value)
+        self.assertEqual("213", enum.entries[1].value)
 
     def test_shouldContainPackets(self):
         self.assertGreater(len(self.model.telemetries), 0)
@@ -169,6 +169,7 @@ class ParserTest(unittest.TestCase):
         self.assertEqual(parameters[2].uid, "p2")
         self.assertEqual(parameters[3].uid, "p3")
         self.assertEqual(parameters[4].uid, "p4")
+
 
 if __name__ == '__main__':
     unittest.main()

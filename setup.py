@@ -4,18 +4,18 @@
 from distutils.core import setup
 
 setup(
-    name = 'pdoc',
-    packages = ['pdoc', 'pdoc.builder'],
+    name='pdoc',
+    packages=['pdoc', 'pdoc.builder'],
     package_dir={'pdoc': 'pdoc'},
     package_data={'pdoc': ['resources/*']},
-    requires=['lxml', 'jinja2'],
+    requires=['lxml', 'jinja2', 'isodate'],
     scripts=['scripts/pdoc'],
-    version = '0.1',
-    description = 'Packet Documentation Generator',
+    version='0.1',
+    description='Packet Documentation Generator',
     author='Fabian Greif',
     author_email='fabian.greif@dlr.de',
-    url = "http://www.dlr.de/",
-    classifiers = [
+    url="http://www.dlr.de/",
+    classifiers=[
     	"Programming Language :: Python",
 		"Programming Language :: Python :: 3",
 		"License :: OSI Approved :: BSD License",

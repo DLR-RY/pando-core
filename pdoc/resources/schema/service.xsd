@@ -2,7 +2,8 @@
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <xsd:import namespace="http://www.w3.org/XML/1998/namespace"
               schemaLocation="http://www.w3.org/2001/xml.xsd" />
-
+  
+  <xsd:include schemaLocation="common.xsd" />
   <xsd:include schemaLocation="calibration.xsd" />
 
   <!-- Type for hex integers -->
@@ -194,6 +195,8 @@
   
   <xsd:complexType name="TelemetryType">
     <xsd:all>
+      <xsd:element name="generation" type="TelemetryGenerationType" minOccurs="0" />
+      <xsd:element name="ancillaryData" type="AncillaryDataType" minOccurs="0" />
       <xsd:element name="designators" type="DesignatorsType" minOccurs="0" />
       <xsd:element name="description" type="xsd:string" minOccurs="0" />
       <xsd:element name="shortName" minOccurs="0">
@@ -233,6 +236,8 @@
       </xsd:documentation>
     </xsd:annotation>
     <xsd:all>
+      <xsd:element name="generation" type="TelemetryGenerationType" minOccurs="0" />
+      <xsd:element name="ancillaryData" type="AncillaryDataType" minOccurs="0" />
       <xsd:element name="designators" type="DesignatorsType" minOccurs="0" />
       <xsd:element name="description" type="xsd:string" minOccurs="0" />
       <xsd:element name="shortName" minOccurs="0">
@@ -301,8 +306,10 @@
       <xsd:element name="designators" type="DesignatorsType" minOccurs="0" />
       <xsd:element name="description" type="xsd:string" minOccurs="0" >
         <xsd:annotation>
-          <xsd:documentation>General description of the telecomman</xsd:documentation>
-        </xsd:annotation></xsd:element>
+          <xsd:documentation>General description of the telecommand.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="ancillaryData" type="AncillaryDataType" minOccurs="0" />
       
       <xsd:element name="shortName" minOccurs="0">
         <xsd:annotation>
@@ -372,8 +379,10 @@
       <xsd:element name="designators" type="DesignatorsType" minOccurs="0" />
       <xsd:element name="description" type="xsd:string" minOccurs="0">
         <xsd:annotation>
-          <xsd:documentation>General description of the telecomman</xsd:documentation>
-        </xsd:annotation></xsd:element>
+          <xsd:documentation>General description of the telecommand.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="ancillaryData" type="AncillaryDataType" minOccurs="0" />
       
       <xsd:element name="shortName" minOccurs="0">
         <xsd:annotation>

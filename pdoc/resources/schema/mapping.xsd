@@ -2,6 +2,7 @@
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <xsd:import namespace="http://www.w3.org/XML/1998/namespace"
               schemaLocation="http://www.w3.org/2001/xml.xsd" />
+  <xsd:include schemaLocation="common.xsd" />
 
   <xsd:element name="mapping" type="MappingType">
     <xsd:annotation>
@@ -141,7 +142,6 @@
   <xsd:complexType name="EventsMappingType">
   <xsd:annotation>
     <xsd:documentation>
-      
     </xsd:documentation>
   </xsd:annotation>
   <xsd:sequence>
@@ -151,7 +151,7 @@
   
   <xsd:complexType name="TelecommandsMappingReferenceType">
   <xsd:sequence>
-    <xsd:element name="telecommandMappingRef" type="MappingElementType" minOccurs="0" maxOccurs="unbounded" />
+    <xsd:element name="telecommandMappingRef" type="TelecommandMappingType" minOccurs="0" maxOccurs="unbounded" />
   </xsd:sequence>
   </xsd:complexType>
   
@@ -160,7 +160,19 @@
       <xsd:extension base="MappingElementType">
         <xsd:sequence>
          <xsd:element name="description" type="xsd:string" minOccurs="0" maxOccurs="1" />
+         <xsd:element name="generation" type="TelemetryGenerationType" minOccurs="0" />
+         <xsd:element name="ancillaryData" type="AncillaryDataType" minOccurs="0" />
          <xsd:element name="parameterMapping" type="MappingElementType" minOccurs="0" maxOccurs="unbounded" />
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  
+  <xsd:complexType name="TelecommandMappingType">
+    <xsd:complexContent>
+      <xsd:extension base="MappingElementType">
+        <xsd:sequence>
+         <xsd:element name="ancillaryData" type="AncillaryDataType" minOccurs="0" />
         </xsd:sequence>
       </xsd:extension>
     </xsd:complexContent>
