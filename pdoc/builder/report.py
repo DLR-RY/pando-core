@@ -58,10 +58,12 @@ class ReportBuilder(builder.Builder):
 
         print()
         housekeeping_data_rate = 0
-        housekeepings = self.model.get_packets_by_packet_class("Housekeeping")
+        housekeepings = self.model.get_packets_by_packet_class("Realtime")
         for mapping in housekeepings:
             if mapping.packet_type == pdoc.model.Packet.TELECOMMAND:
                 print("Invalid packet '{}'".format(mapping.sid))
+                continue
+            if mapping.packet_generation.periodic is False:
                 continue
 
             packet = mapping.telemetry
@@ -69,7 +71,7 @@ class ReportBuilder(builder.Builder):
 
             data_rate = size / mapping.packet_generation.periodic_interval.total_seconds()
             housekeeping_data_rate += data_rate
-            print(packet.uid, data_rate)
+            print(packet.uid, size, data_rate)
 
         print()
         print("Housekeeping data rate {:.3f} kbps".format(housekeeping_data_rate / 1000))
@@ -88,7 +90,13 @@ class ReportBuilder(builder.Builder):
         is only valid if the frames are completely filled.
         """
         packet_header = 16
-        packet_size = packet_header + packet.get_accumulated_parameter_length() // 8
+        parameter_length = packet.get_accumulated_parameter_length()
+        if parameter_length is None:
+            if packet.uid == "pl2_data_report":
+                parameter_length = 1024 * 8
+            else:
+                print("Error in {}".format(packet.uid))
+        packet_size = packet_header + parameter_length // 8
         size = packet_size + self._get_frame_overheade(packet_size)
         return size
 
