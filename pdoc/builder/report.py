@@ -72,9 +72,23 @@ class ReportBuilder(builder.Builder):
             data_rate = size / mapping.packet_generation.periodic_interval.total_seconds()
             housekeeping_data_rate += data_rate
             print(packet.uid, size, data_rate)
-
         print()
         print("Housekeeping data rate {:.3f} kbps".format(housekeeping_data_rate / 1000))
+
+        print()
+        extended_housekeeping_size = 0
+        housekeepings = self.model.get_packets_by_packet_class("Extended Housekeeping")
+        for mapping in housekeepings:
+            if mapping.packet_type == pdoc.model.Packet.TELECOMMAND:
+                print("Invalid packet '{}'".format(mapping.sid))
+                continue
+
+            packet = mapping.telemetry
+            size = self._calculate_frame_size(packet)
+            extended_housekeeping_size += size
+            print(packet.uid, size)
+        print()
+        print("Extended housekeeping size {:.3f} kB".format(extended_housekeeping_size / 1000))
 
         # for packet in self.model.telecommands.values():
         #   filename = os.path.join(outpath, "%s.svg" % packet.uid)
@@ -92,7 +106,10 @@ class ReportBuilder(builder.Builder):
         packet_header = 16
         parameter_length = packet.get_accumulated_parameter_length()
         if parameter_length is None:
+            # FIXME move to ancillary data
             if packet.uid == "pl2_data_report":
+                parameter_length = 1024 * 8
+            elif packet.uid == "s190_10_logging_data_report":
                 parameter_length = 1024 * 8
             else:
                 print("Error in {}".format(packet.uid))
