@@ -77,9 +77,10 @@ class ReportBuilder(builder.Builder):
         print("- TM Parameter {} {}".format(total_tm_parameter, total_tm_filterted_parameter))
         print("- TC {}".format(total_tc_count))
 
+        max_test_length = 40
         print()
         housekeeping_data_rate = 0
-        housekeepings = self.model.get_packets_by_packet_class("Realtime")
+        housekeepings = sorted(self.model.get_packets_by_packet_class("Realtime"), key=lambda x: x.sid)
         for mapping in housekeepings:
             if mapping.packet_type == pdoc.model.Packet.TELECOMMAND:
                 print("Invalid packet '{}'".format(mapping.sid))
@@ -90,15 +91,18 @@ class ReportBuilder(builder.Builder):
             packet = mapping.telemetry
             size = self._calculate_frame_size(packet)
 
-            data_rate = size / mapping.packet_generation.periodic_interval.total_seconds()
+            data_rate = (size * 8) / mapping.packet_generation.periodic_interval.total_seconds()
             housekeeping_data_rate += data_rate
-            print(packet.uid, size, data_rate)
+            print("{}  {}  {:>5} byte  {:8.0f} bps".format(mapping.sid,
+                                                           self._limit_length(packet.uid, max_test_length),
+                                                           size,
+                                                           math.ceil(data_rate)))
         print()
-        print("Housekeeping data rate {:.3f} kbps".format(housekeeping_data_rate * 8 / 1000))
+        print("Housekeeping data rate {:.3f} kbps".format(housekeeping_data_rate / 1000))
 
         print()
         extended_housekeeping_size = 0
-        housekeepings = self.model.get_packets_by_packet_class("Extended Housekeeping")
+        housekeepings = sorted(self.model.get_packets_by_packet_class("Extended Housekeeping"), key=lambda x: x.sid)
         for mapping in housekeepings:
             if mapping.packet_type == pdoc.model.Packet.TELECOMMAND:
                 print("Invalid packet '{}'".format(mapping.sid))
@@ -107,13 +111,22 @@ class ReportBuilder(builder.Builder):
             packet = mapping.telemetry
             size = self._calculate_frame_size(packet)
             extended_housekeeping_size += size
-            print(packet.uid, size)
+            print("{}  {}  {:>5} byte".format(mapping.sid,
+                                              self._limit_length(packet.uid, max_test_length),
+                                              size))
         print()
         print("Extended housekeeping size {:.3f} kB".format(extended_housekeeping_size / 1000))
 
         # for packet in self.model.telecommands.values():
         #   filename = os.path.join(outpath, "%s.svg" % packet.uid)
         #   self._write(filename, self.generatePacket(packet) + "\n")
+
+    @staticmethod
+    def _limit_length(text, max_length):
+        text_limited = text[:max_length - 1]
+        if len(text_limited) == max_length - 1:
+            text_limited += "~"
+        return "{0:{1}}".format(text_limited, max_length)
 
     def _calculate_frame_size(self, packet):
         """
