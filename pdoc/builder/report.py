@@ -27,6 +27,10 @@ class ReportBuilder(builder.Builder):
 #             print(application.apid, application.name)
         total_tm_count = 0
         total_tm_generation_count = 0
+        total_tm_parameter = 0
+        total_tm_filterted_parameter = 0
+
+        total_tc_count = 0
         applications = []
         for subsystem in self.model.subsystems.values():
             for application in sorted(subsystem.applications.values(), key=lambda x: x.apid):
@@ -43,6 +47,15 @@ class ReportBuilder(builder.Builder):
                     else:
                         missing_packets.append(packet)
 
+                    for parameter in packet.telemetry.getParametersAsFlattenedList():
+                        total_tm_parameter += 1
+
+                        if not parameter.uid.startswith("s1_") and not parameter.uid.startswith("s5_") \
+                                and not parameter.uid.startswith("s13_") \
+                                and not parameter.uid == "s8_function_id":
+                            # print(parameter.uid)
+                            total_tm_filterted_parameter += 1
+
 
                 if len(missing_packets) > 0:
                     print(application.apid, application.name)
@@ -52,9 +65,17 @@ class ReportBuilder(builder.Builder):
                 total_tm_count += tm_count
                 total_tm_generation_count += tm_generation_count
 
+                tc_count = 0
+                for telecommandMapping in application.getTelecommands():
+                    tc_count += 1
+
+                total_tc_count += tc_count
+
         print()
         print("Total")
-        print("- TM {} {}".format(total_tm_count, total_tm_generation_count))
+        print("- TM Packets {} {}".format(total_tm_count, total_tm_generation_count))
+        print("- TM Parameter {} {}".format(total_tm_parameter, total_tm_filterted_parameter))
+        print("- TC {}".format(total_tc_count))
 
         print()
         housekeeping_data_rate = 0
@@ -73,7 +94,7 @@ class ReportBuilder(builder.Builder):
             housekeeping_data_rate += data_rate
             print(packet.uid, size, data_rate)
         print()
-        print("Housekeeping data rate {:.3f} kbps".format(housekeeping_data_rate / 1000))
+        print("Housekeeping data rate {:.3f} kbps".format(housekeeping_data_rate * 8 / 1000))
 
         print()
         extended_housekeeping_size = 0
