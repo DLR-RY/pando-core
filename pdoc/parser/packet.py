@@ -382,11 +382,15 @@ class PacketParser:
         designators_node = node.find("designators")
         if designators_node is not None:
             for designator in designators_node.iterfind("designator"):
-                # FIXME overwrite exsisting ones
-                packet.designators.append({
-                    "name":  designator.attrib["name"],
-                    "value": designator.attrib["value"],
-                })
+                for index, designators in enumerate(packet.designators):
+                    if packet.designators[index]["name"] == designator.attrib["name"]:
+                        packet.designators[index]["value"] = designator.attrib["value"]
+                        break
+                else:
+                    packet.designators.append({
+                        "name":  designator.attrib["name"],
+                        "value": designator.attrib["value"],
+                    })
 
     def _parse_service_type(self, packet, node, default_type=None, default_subtype=None):
         packet.serviceType = int(node.findtext("serviceType", str(default_type)))
@@ -425,5 +429,9 @@ class PacketParser:
                                      ('seeAlso', 'See Also'), ]:
             text = pdoc.parser.common.parse_text(node, key)
             if text is not None:
-                # FIXME overwrite exisiting entries
-                packet.additional.append((default_heading, text))
+                for index, additional in enumerate(packet.additional):
+                    if packet.additional[index][0] == default_heading:
+                        packet.additional[index][1] = text
+                        break
+                else:
+                    packet.additional.append([default_heading, text])
