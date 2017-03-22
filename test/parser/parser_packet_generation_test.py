@@ -8,9 +8,9 @@ import pdoc
 class ParserTest(unittest.TestCase):
 
     def setUp(self):
-        self.model = self.parseFile("resources/packet_generation.xml")
+        self.model = self.parse_file("resources/packet_generation.xml")
 
-    def parseFile(self, filename):
+    def parse_file(self, filename):
         filepath = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", filename)
         parser = pdoc.parser.Parser()
         model = parser.parse(filepath)

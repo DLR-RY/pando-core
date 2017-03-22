@@ -21,12 +21,12 @@ class ParserMappingTest(unittest.TestCase):
         self.assertGreater(len(self.model.subsystems[0].telecommandEnumerations), 0)
         self.assertGreater(len(self.model.subsystems[0].telemetryEnumerations), 0)
 
-    def test_shouldContainTelemetryForApplication(self):
+    def test_should_contain_telemetry_for_application(self):
         app = self.model.subsystems[0].applications[0x123]
 
         self.assertGreater(len(app.getTelemetries()), 0)
 
-    def test_shouldContainSpecificTelemetryMapping(self):
+    def test_should_contain_specific_telemetry_mapping(self):
         app = self.model.subsystems[0].applications[0x123]
 
         telemetries = app.getTelemetries()
@@ -40,7 +40,7 @@ class ParserMappingTest(unittest.TestCase):
         self.assertIsNotNone(t)
         self.assertEqual(len(t.parameters), 2)
 
-    def test_shouldContainTelecommandMapping(self):
+    def test_should_contain_telecommand_mapping(self):
         app = self.model.subsystems[0].applications[0x123]
 
         self.assertGreater(len(app.getTelecommands()), 0)
@@ -49,7 +49,7 @@ class ParserMappingTest(unittest.TestCase):
         self.assertEqual(tc.telecommand.uid, "TEST03")
         self.assertEqual(tc.sid, "DHSC0001")
 
-    def test_shouldContainACompleteMapping(self):
+    def test_should_contain_a_complete_mapping(self):
         validator = pdoc.model.validator.ModelValidator(self.model)
         self.assertEqual(len(validator.getUnmappedTelecommandParameters()), 0)
         self.assertEqual(len(validator.getUnmappedTelemetryParameters()), 0)
@@ -60,7 +60,7 @@ class ParserMappingTest(unittest.TestCase):
         self.assertEqual(len(additional_tm), 0)
         self.assertEqual(len(unresolved_tm), 0)
 
-    def test_shouldHaveUnusedParameters(self):
+    def test_should_have_unused_parameters(self):
         validator = pdoc.model.validator.ModelValidator(self.model)
         self.assertEqual(len(validator.getUnusedParameters()), 3)
         self.assertEqual(len(validator.getUnusedTelecommands()), 5)
