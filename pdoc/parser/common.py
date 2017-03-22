@@ -67,7 +67,7 @@ def parse_packet_classes(node, default=None):
         return packet_classes
 
 
-def parse_packet_generation(packet_node, packet):
+def parse_packet_generation(packet_node):
     generation_node = packet_node.find("generation")
     if generation_node is not None:
         packet_generation = pdoc.model.PacketGeneration()

@@ -4,8 +4,6 @@
 import pdoc.model
 import pdoc.parser.common
 
-from .common import ParserException
-
 class CalibrationParser:
 
     def parse_service_calibration(self, service_node, m):

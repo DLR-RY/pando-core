@@ -20,12 +20,13 @@ class Builder:
 
     def __init__(self, model):
         self.model = model
-        
+
         self.globals = {
             'time': datetime.datetime.utcfromtimestamp(time.time()).isoformat(),
         }
 
-    def _write(self, filename, data):
+    @staticmethod
+    def _write(filename, data):
         # Create path if it does not exist
         directory = os.path.dirname(filename)
         if not os.path.isdir(directory):
@@ -57,7 +58,7 @@ class Builder:
             name = filename[1:]
             loader = jinja2.PackageLoader('pdoc', 'resources')
         else:
-            #if not os.path.isabs(filename):
+            # if not os.path.isabs(filename):
             #   relpath = os.path.dirname(os.path.abspath(__file__))
             #   path = os.path.join(relpath, path)
             path = os.path.dirname(filename)
@@ -95,7 +96,7 @@ class Builder:
                 extensions=["jinja2.ext.loopcontrols"])
         environment.filters['xpcc.wordwrap'] = filter_wordwrap
         environment.filters['xpcc.indent'] = filter_indent
-        
+
         environment.globals['abort'] = global_abort_helper
         if filters:
             environment.filters.update(filters)

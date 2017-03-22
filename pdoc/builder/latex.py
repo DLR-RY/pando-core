@@ -45,7 +45,7 @@ class TableBuilder(builder.Builder):
     def __init__(self, model_, templateFile, imagePath):
         builder.Builder.__init__(self, model_)
 
-		
+
         if templateFile is None:
             templateFile = '#latex_table.tpl'
         self.templateFile = templateFile
@@ -86,6 +86,7 @@ class TableBuilder(builder.Builder):
 
     def _packetParameter(self, packet, parameter, parameters):
         if isinstance(parameter, model.List):
+            # FIXME, missing parameter in function call!
             self._packetParameter(parameter, parameters)
         else:
             if parameter.valueType == model.Parameter.RANGE:
@@ -126,7 +127,7 @@ class TableBuilder(builder.Builder):
                 for app in sub.applications.values():
                     for tm in app.getTelemetries():
                         if tm.telemetry.uid == packet.uid:
-                              return tm.sid
+                            return tm.sid
 
         elif type(packet) is model.Telecommand:
             for sub in self.model.subsystems.values():
@@ -136,7 +137,7 @@ class TableBuilder(builder.Builder):
                             return tc.sid
         else:
             return None
-            
+
     def _getParameterSid(self, packet, parameter):
         if type(packet) is model.Telecommand:
             for sub in self.model.subsystems.values():
@@ -144,7 +145,7 @@ class TableBuilder(builder.Builder):
                     for tc in app.getTelecommands():
                         if tc.telecommand.uid == packet.uid:
                             return sub.telecommandParameters[parameter.uid].sid
-        
+
         elif type(packet) is model.Telemetry:
             for sub in self.model.subsystems.values():
                 for app in sub.applications.values():

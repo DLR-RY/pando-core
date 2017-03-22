@@ -104,7 +104,7 @@ class MappingParser:
             raise ParserException("Mapping must be done as %s for '%s' (%s)!"
                                   % (packet_type, uid, sid))
 
-        packet_generation = pdoc.parser.common.parse_packet_generation(node, telemetry_mapping)
+        packet_generation = pdoc.parser.common.parse_packet_generation(node)
         if packet_generation:
             telemetry_mapping.packet_generation = packet_generation
         else:

@@ -68,7 +68,8 @@ class PacketParser:
                                                      model.telecommands)
                 model.appendTelecommandPacket(tc)
 
-    def _parse_severity(self, node, default=None):
+    @staticmethod
+    def _parse_severity(node, default=None):
         """
         Parse the severity field of an event definition.
         """
@@ -102,9 +103,10 @@ class PacketParser:
 
         event.packet_class = pdoc.parser.common.parse_packet_classes(node, None)
 
-        event.packet_generation = pdoc.parser.common.parse_packet_generation(node, event)
         if event.packet_generation is None:
             event.packet_generation = pdoc.model.EventPacketGeneration()
+        else:
+            event.packet_generation = pdoc.parser.common.parse_packet_generation(node)
 
         ParameterParser().parse_parameters(event,
                                            node.find("parameters"),
@@ -146,7 +148,7 @@ class PacketParser:
         event.serviceType = 5
         event.serviceSubtype = int(event.severity)
 
-        packet_generation = pdoc.parser.common.parse_packet_generation(node, event)
+        packet_generation = pdoc.parser.common.parse_packet_generation(node)
         if packet_generation is not None:
             event.packet_generation = packet_generation
 
@@ -192,7 +194,7 @@ class PacketParser:
                                          reference_parameters,
                                          enumerations)
 
-        packet.packet_generation = pdoc.parser.common.parse_packet_generation(node, packet)
+        packet.packet_generation = pdoc.parser.common.parse_packet_generation(node)
 
         parameters = packet.getParametersAsFlattenedList()
         self._parse_telemetry_identification_parameter(packet, node, parameters)
@@ -250,7 +252,7 @@ class PacketParser:
                                                  reference_parameters,
                                                  enumerations)
 
-        packet_generation = pdoc.parser.common.parse_packet_generation(node, packet)
+        packet_generation = pdoc.parser.common.parse_packet_generation(node)
         if packet_generation:
             packet.packet_generation = packet_generation
 
@@ -325,7 +327,8 @@ class PacketParser:
                             # Append to the event parameters as well.
                             packet.appendEventParameter(parameter)
 
-    def _replace_parameter_in_packet(self, packet, override_uid, override_parameter, is_event):
+    @staticmethod
+    def _replace_parameter_in_packet(packet, override_uid, override_parameter, is_event):
 
         def handle_collection(collection, override_uid, override_parameter):
             for key, parameter in enumerate(collection.parameters):
@@ -351,7 +354,8 @@ class PacketParser:
             # Re-run the replacement in the event parameters
             handle_event_collection(packet, override_uid, override_parameter)
 
-    def _parse_parameter_values(self, packet, node, enumerations):
+    @staticmethod
+    def _parse_parameter_values(packet, node, enumerations):
         parameters = packet.getParametersAsFlattenedList()
 
         for parameter_node in node.iterfind("parameterValues/parameterValue"):
@@ -378,11 +382,12 @@ class PacketParser:
                                           "Parameter '%s' not found in telecommand '%s'!"
                                           % (uid, packet.uid))
 
-    def _parse_designators(self, packet, node):
+    @staticmethod
+    def _parse_designators(packet, node):
         designators_node = node.find("designators")
         if designators_node is not None:
             for designator in designators_node.iterfind("designator"):
-                for index, designators in enumerate(packet.designators):
+                for index, _ in enumerate(packet.designators):
                     if packet.designators[index]["name"] == designator.attrib["name"]:
                         packet.designators[index]["value"] = designator.attrib["value"]
                         break
@@ -392,11 +397,13 @@ class PacketParser:
                         "value": designator.attrib["value"],
                     })
 
-    def _parse_service_type(self, packet, node, default_type=None, default_subtype=None):
+    @staticmethod
+    def _parse_service_type(packet, node, default_type=None, default_subtype=None):
         packet.serviceType = int(node.findtext("serviceType", str(default_type)))
         packet.serviceSubtype = int(node.findtext("serviceSubtype", str(default_subtype)))
 
-    def _parse_telecommand_verification(self, packet, node):
+    @staticmethod
+    def _parse_telecommand_verification(packet, node):
         v = node.find("verification")
 
         if v is not None:
@@ -405,7 +412,8 @@ class PacketParser:
             packet.verification.progress = True if (v.findtext("progress") == "true") else False
             packet.verification.completion = True if (v.findtext("completion") == "true") else False
 
-    def _parse_telemetry_identification_parameter(self, packet, node, parameters):
+    @staticmethod
+    def _parse_telemetry_identification_parameter(packet, node, parameters):
         for parameter_node in node.iterfind("packetIdentification/identificationParameter"):
             value = parameter_node.attrib["value"]
             uid = parameter_node.attrib["uid"]
@@ -420,8 +428,8 @@ class PacketParser:
 
             packet.identificationParameter.append(parameter)
 
-
-    def _parse_additional_packet_fields(self, packet, node):
+    @staticmethod
+    def _parse_additional_packet_fields(packet, node):
         for key, default_heading in [('purpose', 'Purpose'),
                                      ('effects', 'Effects'),  # only for telecommand
                                      ('recommendation', 'Recommendation'),
@@ -429,7 +437,7 @@ class PacketParser:
                                      ('seeAlso', 'See Also'), ]:
             text = pdoc.parser.common.parse_text(node, key)
             if text is not None:
-                for index, additional in enumerate(packet.additional):
+                for index, _ in enumerate(packet.additional):
                     if packet.additional[index][0] == default_heading:
                         packet.additional[index][1] = text
                         break
