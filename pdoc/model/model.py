@@ -118,6 +118,12 @@ class ParameterValueRange:
         self.max = maximum
 
 
+class ByteOrder:
+
+    BIG_ENDIAN = 0
+    LITTLE_ENDIAN = 1
+
+
 class Parameter:
 
     NONE = 0
@@ -136,6 +142,8 @@ class Parameter:
 
         # Name limited to 16 characters
         self.shortName = ""
+
+        self.byte_order = ByteOrder.BIG_ENDIAN
 
         # -> ParameterType
         self.type = parameter_type

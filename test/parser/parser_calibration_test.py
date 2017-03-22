@@ -72,5 +72,6 @@ class ParserCalibrationTest(unittest.TestCase):
         tm, subsystem = unresolved_tm[0]
         self.assertEqual("calibration_polynom", tm.uid)
 
+
 if __name__ == '__main__':
     unittest.main()

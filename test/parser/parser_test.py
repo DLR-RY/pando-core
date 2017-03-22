@@ -24,13 +24,13 @@ class ParserTest(unittest.TestCase):
             self.fail("Parameter '%s' not found" % uid)
         return None
 
-    def test_should_Contain_Enumerations(self):
+    def test_should_contain_enumerations(self):
         self.assertEqual(len(self.model.enumerations), 2)
 
         self.assertTrue("E0" in self.model.enumerations.keys())
         self.assertTrue("E1" in self.model.enumerations.keys())
 
-    def test_should_Have_Correct_Enumeration_Data(self):
+    def test_should_have_correct_enumeration_data(self):
         enum = self.model.enumerations["E0"]
 
         self.assertEqual("Large Data Unit Id", enum.name)

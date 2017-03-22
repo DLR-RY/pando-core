@@ -15,7 +15,7 @@ class ParameterParser:
     def parse_service_parameter(self, service_node, m):
         """
         Parse all parameters defined for a serivce.
-        
+
         Iterates over all parameter tags and adds them to the list of
         parameters in the model.
         """
@@ -58,7 +58,7 @@ class ParameterParser:
                         uid = calibrations[0].uid
 
                     parameter.calibration = model.calibrations[uid]
-                
+
                 self._parse_parameter_limits(node, parameter, parameter.calibration)
 
             elif node.tag == "repeater":
@@ -69,6 +69,7 @@ class ParameterParser:
                 self.parse_parameters(parameter, node, model, reference_parameters, enumerations)
 
             pdoc.parser.common.parse_short_name(parameter, node)
+            self._parse_and_update_byte_order(node, parameter)
 
             value, value_type, value_range = self.parse_parameter_value(node)
             if value_type is not None:
@@ -90,6 +91,7 @@ class ParameterParser:
                                              parameter_type=parameter_type)
 
             pdoc.parser.common.parse_short_name(parameter, node)
+            self._parse_and_update_byte_order(node, parameter)
 
             value, value_type, value_range = self.parse_parameter_value(node)
             if value_type is not None:
@@ -127,7 +129,7 @@ class ParameterParser:
             parameters.append(parameter)
         elif node.tag == lxml.etree.Comment:
             return None
-        elif node.tag in ["description", "shortName"]:
+        elif node.tag in ["description", "shortName", "byteOrder"]:
             # Description tags are already parsed for the repeater tags in their
             # handler. Nothing to do here.
             return None
@@ -135,7 +137,7 @@ class ParameterParser:
             return None
         else:
             raise ParserException("Unknown element '%s' found. Was expecting " \
-                                  "'parameter|repeater|enumerationParameter|parameterRef'" % node.tag)
+                                  "'byteOrder|parameter|repeater|enumerationParameter|parameterRef'" % node.tag)
 
         return parameters
 
@@ -182,15 +184,15 @@ class ParameterParser:
 
             parameter_type = pdoc.model.ParameterType(typeid, width)
         return parameter_type
-    
+
     @staticmethod
     def _parse_parameter_limits(parameter_node, parameter, calibration):
         """
         Parse the telemetry parameter limits.
-        
+
         Has to be done after the calibration for the parameter has been set,
         because the output type of the calibration is required if the limit
-        input depends on the calibrated parameter value. 
+        input depends on the calibrated parameter value.
         """
         limits_node = parameter_node.find('limits')
         if limits_node is not None:
@@ -205,7 +207,7 @@ class ParameterParser:
                 limits = pdoc.model.Limits(input_type=pdoc.model.Limits.INPUT_RAW,
                                            value_type=value_type,
                                            samples=sample_count)
-            
+
             for check_node in limits_node:
                 if check_node.tag == "warning":
                     limit = ParameterParser._parse_parameter_check(pdoc.model.Check.SOFT_LIMIT,
@@ -215,14 +217,14 @@ class ParameterParser:
                     limit = ParameterParser._parse_parameter_check(pdoc.model.Check.HARD_LIMIT,
                                                                    value_type, check_node)
                     limits.checks.append(limit)
-            
+
             parameter.limits = limits
-    
+
     @staticmethod
     def _parse_parameter_check(limit_type, value_type, check_node):
         """
         Parse a single error or warning block.
-        
+
         Both have the same semantic, therefore they are not differentiated here.
         """
         if value_type == pdoc.model.ParameterType.REAL:
@@ -233,16 +235,16 @@ class ParameterParser:
             upper_limit = int(check_node.attrib["upper"], 0)
 
         description = pdoc.parser.common.parse_description(check_node)
-        
+
         check = pdoc.model.Check(limit_type, lower_limit, upper_limit, description)
-        
+
         validity_node = check_node.find("validIfEqual")
         if validity_node is not None:
             check.validity_parameter_sid = validity_node.attrib["sid"]
             check.validity_parameter_value = validity_node.attrib["value"]
-        
+
         return check
-    
+
     @staticmethod
     def parse_parameter_value(node):
         value = None
@@ -266,3 +268,11 @@ class ParameterParser:
                         maximum=value_node.attrib.get("max"))
 
         return (value, value_type, value_range)
+
+    @staticmethod
+    def _parse_and_update_byte_order(node, parameter):
+        for byte_order_node in node.findall("byteOrder"):
+            parameter.byte_order = {
+                "big-endian": pdoc.model.ByteOrder.BIG_ENDIAN,
+                "little-endian": pdoc.model.ByteOrder.LITTLE_ENDIAN,
+            }[byte_order_node.text]

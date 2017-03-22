@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pando
+  version="1.2.0"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance"
+  xsd:noNamespaceSchemaLocation="https://svn.dlr.de/eucropis-ops/prod/MIB/trunk/tools/p.doc/pdoc/resources/schema/pando.xsd">
+
+  <service name="test">
+    <enumerations>
+      <enumeration name="Enum" uid="test_enum" width="8" />
+    </enumerations>
+    
+    <parameters>
+      <parameter name="Default Byte Order" uid="parameter_default" type="uint16" />
+      
+      <parameter name="Big Endian" uid="parameter_big_endian" type="uint16">
+        <byteOrder>big-endian</byteOrder>
+      </parameter>
+      
+      <parameter name="Little Endian" uid="parameter_little_endian" type="uint16">
+        <byteOrder>little-endian</byteOrder>
+      </parameter>
+      
+      <enumerationParameter name="Enumeration Little Endian" uid="enumeration_little_endian" enumeration="test_enum">
+        <byteOrder>little-endian</byteOrder>
+      </enumerationParameter>
+      
+      <repeater name="Repeater Little Endian" uid="repeater_little_endian" type="uint8">
+        <byteOrder>little-endian</byteOrder>
+        
+        <parameterRef uid="parameter_big_endian"/>
+      </repeater>
+    </parameters>
+  </service>
+</pando>

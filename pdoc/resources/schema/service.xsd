@@ -533,6 +533,24 @@
     </xsd:sequence>
   </xsd:complexType>
 
+  <xsd:simpleType name="ByteOrderType">
+    <xsd:annotation>
+      <xsd:documentation>
+        Order of bytes within the parameter.
+        
+        For "big-endian" the most significant byte (byte containing the most
+        significant bit) is stored/transmitted first. The following bytes are
+        then stored with decreasing significance.
+        With "little-endian" this order is reversed, which means the least
+        significant byte is stored first.
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="big-endian" />
+      <xsd:enumeration value="little-endian" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  
   <xsd:simpleType name="CriticalityType">
     <xsd:restriction base="xsd:string">
       <xsd:enumeration value="No" />
@@ -593,7 +611,7 @@
           </xsd:documentation>
         </xsd:annotation>
         <xsd:simpleType>
-            <xsd:restriction base="xsd:string">
+          <xsd:restriction base="xsd:string">
             <xsd:minLength value="1"/>
             <xsd:maxLength value="16"/>
           </xsd:restriction>
@@ -604,6 +622,7 @@
           <xsd:documentation>General description of the parameter.</xsd:documentation>
         </xsd:annotation>
       </xsd:element>
+      <xsd:element name="byteOrder" type="ByteOrderType" minOccurs="0" maxOccurs="1"/>
       
       <xsd:choice minOccurs="0">
         <xsd:element name="fixed" type="FixedValueType" />

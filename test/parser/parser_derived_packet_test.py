@@ -27,5 +27,6 @@ class ParserTest(unittest.TestCase):
         self.assertNotIn(['See Also', 'See also text.'], tm1_d.additional)
         self.assertIn(['See Also', 'Derived see also text.'], tm1_d.additional)
 
+
 if __name__ == '__main__':
     unittest.main()
