@@ -1,13 +1,13 @@
 
 import os
 import unittest
-import pdoc
+import pando
 
 class ParserTest(unittest.TestCase):
 
     def parse_file(self, filename):
         filepath = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", filename)
-        parser = pdoc.parser.Parser()
+        parser = pando.parser.Parser()
         model = parser.parse(filepath)
 
         self.assertIsNotNone(model)

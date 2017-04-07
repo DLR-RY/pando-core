@@ -56,7 +56,7 @@ class Builder:
 
         if filename.startswith('#'):
             name = filename[1:]
-            loader = jinja2.PackageLoader('pdoc', 'resources')
+            loader = jinja2.PackageLoader('pando', 'resources')
         else:
             # if not os.path.isabs(filename):
             #   relpath = os.path.dirname(os.path.abspath(__file__))

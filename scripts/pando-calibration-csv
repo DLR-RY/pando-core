@@ -8,8 +8,8 @@ import sys
 rootpath = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..")
 sys.path.append(rootpath)
 
-import pdoc
-import pdoc.pkg
+import pando
+import pando.pkg
 
 import lxml.etree
 
@@ -21,7 +21,7 @@ def parse_xml(filename, xsdfile=None):
         xmlroot.xinclude()
 
         if xsdfile is None:
-            xsdfile = pdoc.pkg.get_filename('pdoc', 'resources/schema/service.xsd')
+            xsdfile = pando.pkg.get_filename('pando', 'resources/schema/service.xsd')
 
         xmlschema = lxml.etree.parse(xsdfile, parser=parser)
 
@@ -73,7 +73,7 @@ def csv2xml(input, output, service_name):
 <service name="{service}"
          xmlns:xi="http://www.w3.org/2001/XInclude"
          xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance"
-         xsd:noNamespaceSchemaLocation="https://svn.dlr.de/eucropis-ops/prod/MIB/trunk/tools/p.doc/pdoc/resources/schema/service.xsd">
+         xsd:noNamespaceSchemaLocation="https://svn.dlr.de/eucropis-ops/prod/MIB/trunk/tools/p.doc/pando/resources/schema/service.xsd">
   <calibrations>
 {calibration}
   </calibrations>

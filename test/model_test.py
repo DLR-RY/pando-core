@@ -2,34 +2,34 @@
 import unittest
 import logging
 
-import pdoc
+import pando
 
 class ModelTest(unittest.TestCase):
 
     def setUp(self):
         # Store an disable logging for the model
-        logger = logging.getLogger('pdoc.model')
+        logger = logging.getLogger('pando.model')
         self.logLevel = logger.getEffectiveLevel()
         logger.setLevel(logging.CRITICAL)
 
     def tearDown(self):
         # Restore previous log level
-        logger = logging.getLogger('pdoc.model')
+        logger = logging.getLogger('pando.model')
         logger.setLevel(self.logLevel)
 
     def _create_parameter(self, name, model):
-        p = pdoc.model.Parameter(name=name, uid=name.lower(), description=None, parameter_type=None)
+        p = pando.model.Parameter(name=name, uid=name.lower(), description=None, parameter_type=None)
         model.parameters[p.uid] = p
         return p
 
     def _create_repeater(self, name, model):
-        p = pdoc.model.Repeater(name=name, uid=name.lower(), description=None, parameter_type=None)
+        p = pando.model.Repeater(name=name, uid=name.lower(), description=None, parameter_type=None)
         model.parameters[p.uid] = p
         return p
 
     def _generate_packet(self, model):
-        packet = pdoc.model.Packet(name="Test", uid="test", description="",
-                                   packet_type=pdoc.model.Packet.TELECOMMAND)
+        packet = pando.model.Packet(name="Test", uid="test", description="",
+                                   packet_type=pando.model.Packet.TELECOMMAND)
 
         packet.appendParameter(self._create_parameter("P1", model))
 
@@ -43,8 +43,8 @@ class ModelTest(unittest.TestCase):
         return packet
 
     def _generate_packet_with_nested_repeaters(self, model):
-        packet = pdoc.model.Packet(name="Test", uid="test", description="",
-                                   packet_type=pdoc.model.Packet.TELECOMMAND)
+        packet = pando.model.Packet(name="Test", uid="test", description="",
+                                   packet_type=pando.model.Packet.TELECOMMAND)
 
         packet.appendParameter(self._create_parameter("P1", model))
 
@@ -63,7 +63,7 @@ class ModelTest(unittest.TestCase):
         return packet
 
     def test_should_flatten_parameters(self):
-        m = pdoc.model.Model()
+        m = pando.model.Model()
         packet = self._generate_packet(m)
 
         parameters = packet.getParametersAsFlattenedList()
@@ -76,7 +76,7 @@ class ModelTest(unittest.TestCase):
         self.assertEqual(parameters[3].uid, "p4")
 
     def test_should_have_correct_repeater_member_count(self):
-        model = pdoc.model.Model()
+        model = pando.model.Model()
         packet = self._generate_packet(model)
 
         parameters = packet.getParametersAsFlattenedList()

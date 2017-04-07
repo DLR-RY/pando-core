@@ -9,10 +9,10 @@ import argparse
 rootpath = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..")
 sys.path.append(rootpath)
 
-import pdoc
-import pdoc.model.validator
+import pando
+import pando.model.validator
 
-logger = logging.getLogger('pdoc.verify')
+logger = logging.getLogger('pando.verify')
 
 def _printUnmappedParameters(packet, unresolved, additional):
 	for parameter in unresolved:
@@ -28,10 +28,10 @@ arg.add_argument('-d', '--detailed',
 				help='Detailed analysis about all unused (without mapping) TM/TC packets and parameters.')
 args = arg.parse_args()
 
-parser = pdoc.parser.Parser()
+parser = pando.parser.Parser()
 
 try:
-	modelValidator = pdoc.model.validator.ModelValidator(parser.parse(args.input))
+	modelValidator = pando.model.validator.ModelValidator(parser.parse(args.input))
 	
 	# Verify that all telecommands and telemetry packets in the
 	# mapping section define all the parameters defined in the structure.
@@ -106,7 +106,7 @@ try:
 		success = False
 	
 	if not success:
-		raise pdoc.parser.ParserException("Incomplete mapping. Please add/remove the requested elements!")
+		raise pando.parser.ParserException("Incomplete mapping. Please add/remove the requested elements!")
 	else:
 		if args.detailed:
 			parameters = modelValidator.getUnusedParameters()
@@ -128,7 +128,7 @@ try:
 					print("-", telecommand)
 		else:
 			print("Verify Ok!")
-except (pdoc.parser.ParserException, pdoc.model.ModelException) as e:
+except (pando.parser.ParserException, pando.model.ModelException) as e:
 	print("\nError: %s" % e)
 	exit(1)
 

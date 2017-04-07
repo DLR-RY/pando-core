@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import pdoc.model
-import pdoc.parser.common
+import pando.model
+import pando.parser.common
 
 class CalibrationParser:
 
@@ -30,8 +30,8 @@ class CalibrationParser:
         return calibrations
 
     def _parse_calibration_interpolation_telemetry(self, node):
-        description = pdoc.parser.common.parse_description(node)
-        c = pdoc.model.Interpolation(pdoc.model.Calibration.INTERPOLATION_TELEMETRY,
+        description = pando.parser.common.parse_description(node)
+        c = pando.model.Interpolation(pando.model.Calibration.INTERPOLATION_TELEMETRY,
                                      name=node.attrib.get("name"),
                                      uid=node.attrib.get("uid"),
                                      description=description)
@@ -46,8 +46,8 @@ class CalibrationParser:
         return c
 
     def _parse_calibration_interpolation_telecommand(self, node):
-        description = pdoc.parser.common.parse_description(node)
-        c = pdoc.model.Interpolation(pdoc.model.Calibration.INTERPOLATION_TELECOMMAND,
+        description = pando.parser.common.parse_description(node)
+        c = pando.model.Interpolation(pando.model.Calibration.INTERPOLATION_TELECOMMAND,
                                      name=node.attrib.get("name"),
                                      uid=node.attrib.get("uid"),
                                      description=description)
@@ -62,8 +62,8 @@ class CalibrationParser:
 
     @staticmethod
     def _parse_calibration_polynom(node):
-        description = pdoc.parser.common.parse_description(node)
-        c = pdoc.model.Polynom(name=node.attrib.get("name"),
+        description = pando.parser.common.parse_description(node)
+        c = pando.model.Polynom(name=node.attrib.get("name"),
                                uid=node.attrib.get("uid"),
                                description=description)
 
@@ -82,13 +82,13 @@ class CalibrationParser:
     @staticmethod
     def _to_interpolation_type(type_string):
         return {
-            "Unsigned Integer": pdoc.model.Interpolation.UNSIGNED_INTEGER,
-            "Signed Integer": pdoc.model.Interpolation.SIGNED_INTEGER,
-            "Float": pdoc.model.Interpolation.REAL
+            "Unsigned Integer": pando.model.Interpolation.UNSIGNED_INTEGER,
+            "Signed Integer": pando.model.Interpolation.SIGNED_INTEGER,
+            "Float": pando.model.Interpolation.REAL
         }[type_string]
 
     @staticmethod
     def _parse_calibration_interpolation_point(node):
-        p = pdoc.model.Interpolation.Point(float(node.attrib.get("x")),
+        p = pando.model.Interpolation.Point(float(node.attrib.get("x")),
                                            float(node.attrib.get("y")))
         return p

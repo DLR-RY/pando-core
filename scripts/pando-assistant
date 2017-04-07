@@ -8,7 +8,7 @@ import sys
 rootpath = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..")
 sys.path.append(rootpath)
 
-import pdoc.builder.assistant
+import pando.builder.assistant
 
 arg = argparse.ArgumentParser(description='p.doc Mapping suggestions based on missing packets and parameters')
 arg.add_argument('-i', '--input', dest='input', required=True, help='XML packet description ')
@@ -18,15 +18,15 @@ arg.add_argument('-d', '--detailed',
 				help='Detailed analysis about all unused (without mapping) TM/TC packets and parameters.')
 args = arg.parse_args()
 
-parser = pdoc.parser.Parser()
+parser = pando.parser.Parser()
 
 try:
 	model = parser.parse(args.input)
 	
-	assistant = pdoc.builder.assistant.Assistant(model)
+	assistant = pando.builder.assistant.Assistant(model)
 	assistant.print_suggestions()
 	if args.detailed:
 		assistant.print_suggestions_for_unused_packets()
-except (pdoc.parser.ParserException, pdoc.model.ModelException) as e:
+except (pando.parser.ParserException, pando.model.ModelException) as e:
 	print("\nError: %s" % e)
 	exit(1)

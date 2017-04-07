@@ -5,7 +5,7 @@ import re
 import lxml
 import isodate
 
-import pdoc.model
+import pando.model
 
 
 class ParserException(Exception):
@@ -70,7 +70,7 @@ def parse_packet_classes(node, default=None):
 def parse_packet_generation(packet_node):
     generation_node = packet_node.find("generation")
     if generation_node is not None:
-        packet_generation = pdoc.model.PacketGeneration()
+        packet_generation = pando.model.PacketGeneration()
 
         for node in generation_node:
             if node.tag == "response":

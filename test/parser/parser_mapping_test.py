@@ -1,14 +1,14 @@
 
 import os
 import unittest
-import pdoc
-import pdoc.model.validator
+import pando
+import pando.model.validator
 
 class ParserMappingTest(unittest.TestCase):
 
     def setUp(self):
         filepath = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "resources/test.xml")
-        self.parser = pdoc.parser.Parser()
+        self.parser = pando.parser.Parser()
         self.model = self.parser.parse(filepath)
 
         self.assertIsNotNone(self.model)
@@ -50,7 +50,7 @@ class ParserMappingTest(unittest.TestCase):
         self.assertEqual(tc.sid, "DHSC0001")
 
     def test_should_contain_a_complete_mapping(self):
-        validator = pdoc.model.validator.ModelValidator(self.model)
+        validator = pando.model.validator.ModelValidator(self.model)
         self.assertEqual(len(validator.getUnmappedTelecommandParameters()), 0)
         self.assertEqual(len(validator.getUnmappedTelemetryParameters()), 0)
 
@@ -61,7 +61,7 @@ class ParserMappingTest(unittest.TestCase):
         self.assertEqual(len(unresolved_tm), 0)
 
     def test_should_have_unused_parameters(self):
-        validator = pdoc.model.validator.ModelValidator(self.model)
+        validator = pando.model.validator.ModelValidator(self.model)
         self.assertEqual(len(validator.getUnusedParameters()), 3)
         self.assertEqual(len(validator.getUnusedTelecommands()), 5)
         self.assertEqual(len(validator.getUnusedTelemetries()), 0)

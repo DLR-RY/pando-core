@@ -4,23 +4,23 @@ test:
 	@python3 -m unittest discover -p *test.py
 
 coverage:
-	@coverage run --source=pdoc -m unittest discover -p *test.py
+	@coverage run --source=pando -m unittest discover -p *test.py
 	@coverage report
 	@coverage html -d build/coverage
 
 test-verify:
-	@./scripts/pdoc-verify -i test/resources/test.xml
+	@./scripts/pando-verify -i test/resources/test.xml
 
 test-images:
-	@./scripts/pdoc-svg -i test/resources/test.xml --svg-path=build/images
+	@./scripts/pando-svg -i test/resources/test.xml --svg-path=build/images
 
 test-latex:
-	@./scripts/pdoc-latex -i test/resources/test.xml \
+	@./scripts/pando-latex -i test/resources/test.xml \
 		--latex-path=build/latex \
 		--latex-overview-target=overview.tex
 
 pylint-gui:
-	@cd pdoc; pylint-gui
+	@cd pando; pylint-gui
 
 dist:
 	@python3 setup.py sdist --formats=zip

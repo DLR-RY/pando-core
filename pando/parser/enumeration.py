@@ -3,8 +3,8 @@
 
 import copy
 
-import pdoc.model
-import pdoc.parser.common
+import pando.model
+import pando.parser.common
 
 class EnumerationParser:
 
@@ -19,13 +19,13 @@ class EnumerationParser:
                 m.enumerations[enumeration.uid] = enumeration
 
     def _parse_enumeration(self, node):
-        description = pdoc.parser.common.parse_description(node)
-        enumeration = pdoc.model.Enumeration(name=node.attrib.get("name"),
+        description = pando.parser.common.parse_description(node)
+        enumeration = pando.model.Enumeration(name=node.attrib.get("name"),
                                              uid=node.attrib.get("uid"),
                                              width=int(node.attrib.get("width")),
                                              description=description)
 
-        pdoc.parser.common.parse_short_name(enumeration, node)
+        pando.parser.common.parse_short_name(enumeration, node)
 
         for entry in node.iterfind("entry"):
             enumeration.appendEntry(self._parse_enumeration_entry(entry))
@@ -47,8 +47,8 @@ class EnumerationParser:
 
         enumeration.name = node.attrib.get("name", enumeration.name)
         enumeration.uid = node.attrib.get("uid")
-        enumeration.description = pdoc.parser.common.parse_description(node, enumeration.description)
-        pdoc.parser.common.parse_short_name(enumeration, node, enumeration.shortName)
+        enumeration.description = pando.parser.common.parse_description(node, enumeration.description)
+        pando.parser.common.parse_short_name(enumeration, node, enumeration.shortName)
 
         # FIXME overwrite existing parameters with the same value
         for entry in node.iterfind("entry"):
@@ -62,11 +62,11 @@ class EnumerationParser:
         except ValueError:
             value = node.attrib.get("value")
         
-        description = pdoc.parser.common.parse_description(node)
-        entry = pdoc.model.EnumerationEntry(node.attrib.get("name"),
+        description = pando.parser.common.parse_description(node)
+        entry = pando.model.EnumerationEntry(node.attrib.get("name"),
                                             value,
                                             description)
 
-        pdoc.parser.common.parse_short_name(entry, node)
+        pando.parser.common.parse_short_name(entry, node)
         return entry
 

@@ -4,8 +4,8 @@
 import copy
 import lxml
 
-import pdoc.model
-import pdoc.parser.common
+import pando.model
+import pando.parser.common
 
 from .common import ParserException
 from .parameter import ParameterParser
@@ -74,10 +74,10 @@ class PacketParser:
         Parse the severity field of an event definition.
         """
         severity = {
-            "progress": pdoc.model.Event.PROGRESS,
-            "low": pdoc.model.Event.LOW_SEVERITY,
-            "medium": pdoc.model.Event.MEDIUM_SEVERITY,
-            "high": pdoc.model.Event.HIGH_SEVERITY,
+            "progress": pando.model.Event.PROGRESS,
+            "low": pando.model.Event.LOW_SEVERITY,
+            "medium": pando.model.Event.MEDIUM_SEVERITY,
+            "high": pando.model.Event.HIGH_SEVERITY,
             # Only used for derived events
             "default": default,
         }[node.findtext("severity", "default")]
@@ -87,11 +87,11 @@ class PacketParser:
     def _parse_event(self, node, model, reference_parameters, enumerations):
         name = node.attrib["name"]
         uid = node.attrib["uid"]
-        description = pdoc.parser.common.parse_description(node)
+        description = pando.parser.common.parse_description(node)
 
-        event = pdoc.model.Event(name=name, uid=uid, description=description)
+        event = pando.model.Event(name=name, uid=uid, description=description)
 
-        pdoc.parser.common.parse_short_name(event, node)
+        pando.parser.common.parse_short_name(event, node)
 
         self._parse_additional_packet_fields(event, node)
 
@@ -101,12 +101,12 @@ class PacketParser:
         event.serviceType = 5
         event.serviceSubtype = int(event.severity)
 
-        event.packet_class = pdoc.parser.common.parse_packet_classes(node, None)
+        event.packet_class = pando.parser.common.parse_packet_classes(node, None)
 
         if event.packet_generation is None:
-            event.packet_generation = pdoc.model.EventPacketGeneration()
+            event.packet_generation = pando.model.EventPacketGeneration()
         else:
-            event.packet_generation = pdoc.parser.common.parse_packet_generation(node)
+            event.packet_generation = pando.parser.common.parse_packet_generation(node)
 
         ParameterParser().parse_parameters(event,
                                            node.find("parameters"),
@@ -125,7 +125,7 @@ class PacketParser:
         event.updateEventParameterDepth()
 
         identification_parameter = \
-            pdoc.model.TelemetryIdentificationParameter(parameter=report_id_parameter,
+            pando.model.TelemetryIdentificationParameter(parameter=report_id_parameter,
                                                         value=str(event.report_id))
         event.identificationParameter.append(identification_parameter)
         return event
@@ -136,10 +136,10 @@ class PacketParser:
 
         event.uid = node.attrib["uid"]
         event.name = node.attrib.get("name", event.name)
-        event.description = pdoc.parser.common.parse_description(node, event.description)
-        pdoc.parser.common.parse_short_name(event, node, event.shortName)
+        event.description = pando.parser.common.parse_description(node, event.description)
+        pando.parser.common.parse_short_name(event, node, event.shortName)
 
-        if event.packet_type != pdoc.model.Packet.EVENT:
+        if event.packet_type != pando.model.Packet.EVENT:
             raise ParserException("{} is not an event!".format(event.uid))
 
         event.report_id = int(node.findtext("reportId", event.report_id))
@@ -148,7 +148,7 @@ class PacketParser:
         event.serviceType = 5
         event.serviceSubtype = int(event.severity)
 
-        packet_generation = pdoc.parser.common.parse_packet_generation(node)
+        packet_generation = pando.parser.common.parse_packet_generation(node)
         if packet_generation is not None:
             event.packet_generation = packet_generation
 
@@ -172,13 +172,13 @@ class PacketParser:
     def _parse_base_packet(self, cls, node, model, reference_parameters, enumerations):
         packet = cls(name=node.attrib["name"],
                      uid=node.attrib["uid"],
-                     description=pdoc.parser.common.parse_description(node))
+                     description=pando.parser.common.parse_description(node))
 
-        pdoc.parser.common.parse_short_name(packet, node)
+        pando.parser.common.parse_short_name(packet, node)
         self._parse_designators(packet, node)
         self._parse_service_type(packet, node)
         self._parse_additional_packet_fields(packet, node)
-        packet.packet_class = pdoc.parser.common.parse_packet_classes(node, None)
+        packet.packet_class = pando.parser.common.parse_packet_classes(node, None)
 
         ParameterParser().parse_parameters(packet,
                                            node.find("parameters"),
@@ -188,20 +188,20 @@ class PacketParser:
         return packet
 
     def _parse_telemetry(self, node, model, reference_parameters, enumerations):
-        packet = self._parse_base_packet(pdoc.model.Telemetry,
+        packet = self._parse_base_packet(pando.model.Telemetry,
                                          node,
                                          model,
                                          reference_parameters,
                                          enumerations)
 
-        packet.packet_generation = pdoc.parser.common.parse_packet_generation(node)
+        packet.packet_generation = pando.parser.common.parse_packet_generation(node)
 
         parameters = packet.getParametersAsFlattenedList()
         self._parse_telemetry_identification_parameter(packet, node, parameters)
         return packet
 
     def _parse_telecommand(self, node, model, reference_parameters, enumerations, telemetries):
-        packet = self._parse_base_packet(pdoc.model.Telecommand,
+        packet = self._parse_base_packet(pando.model.Telecommand,
                                          node,
                                          model,
                                          reference_parameters,
@@ -210,7 +210,7 @@ class PacketParser:
         self._parse_parameter_values(packet, node, enumerations)
         self._parse_telecommand_verification(packet, node)
 
-        critical = pdoc.parser.common.parse_text(node, "critical", "No")
+        critical = pando.parser.common.parse_text(node, "critical", "No")
         packet.critical = {"Yes": True, "No": False}[critical]
 
         for telemetry_uid in node.iterfind("relevantTelemetry/telemetryRef"):
@@ -227,15 +227,15 @@ class PacketParser:
 
         packet.uid = node.attrib["uid"]
         packet.name = node.attrib.get("name", packet.name)
-        packet.description = pdoc.parser.common.parse_description(node, packet.description)
-        pdoc.parser.common.parse_short_name(packet, node, packet.shortName)
+        packet.description = pando.parser.common.parse_description(node, packet.description)
+        pando.parser.common.parse_short_name(packet, node, packet.shortName)
 
         self._parse_designators(packet, node)
         self._parse_service_type(packet, node,
                                  packet.serviceType,
                                  packet.serviceSubtype)
         self._parse_additional_packet_fields(packet, node)
-        packet.packet_class = pdoc.parser.common.parse_packet_classes(node, packet.packet_class)
+        packet.packet_class = pando.parser.common.parse_packet_classes(node, packet.packet_class)
 
         self._parse_override_parameters(packet,
                                         node.find("parameters"),
@@ -252,7 +252,7 @@ class PacketParser:
                                                  reference_parameters,
                                                  enumerations)
 
-        packet_generation = pdoc.parser.common.parse_packet_generation(node)
+        packet_generation = pando.parser.common.parse_packet_generation(node)
         if packet_generation:
             packet.packet_generation = packet_generation
 
@@ -271,7 +271,7 @@ class PacketParser:
         self._parse_parameter_values(packet, node, enumerations)
         self._parse_telecommand_verification(packet, node)
 
-        critical = pdoc.parser.common.parse_text(node, "critical", None)
+        critical = pando.parser.common.parse_text(node, "critical", None)
         if critical is not None:
             packet.critical = {"Yes": True, "No": False}[critical]
 
@@ -303,7 +303,7 @@ class PacketParser:
         if node is None:
             return
 
-        is_event = (packet.packet_type == pdoc.model.Packet.EVENT)
+        is_event = (packet.packet_type == pando.model.Packet.EVENT)
 
         for parameter_node in node:
             if parameter_node.tag == "overrideParameterRef":
@@ -366,7 +366,7 @@ class PacketParser:
                 # Find corresponding parameter and set value
                 for p in parameters:
                     if uid == p.uid:
-                        if p.type.identifier is pdoc.model.ParameterType.ENUMERATION:
+                        if p.type.identifier is pando.model.ParameterType.ENUMERATION:
                             enum = enumerations[p.type.enumeration]
                             entry = enum.getEntryByName(value)
                             if entry == None:
@@ -420,7 +420,7 @@ class PacketParser:
 
             for p in parameters:
                 if p.uid == uid:
-                    parameter = pdoc.model.TelemetryIdentificationParameter(parameter=p, value=value)
+                    parameter = pando.model.TelemetryIdentificationParameter(parameter=p, value=value)
                     break
             else:
                 raise ParserException("Identification parameter '%s' was not found in packet '%s'"
@@ -435,7 +435,7 @@ class PacketParser:
                                      ('recommendation', 'Recommendation'),
                                      ('note', 'Note'),
                                      ('seeAlso', 'See Also'), ]:
-            text = pdoc.parser.common.parse_text(node, key)
+            text = pando.parser.common.parse_text(node, key)
             if text is not None:
                 for index, _ in enumerate(packet.additional):
                     if packet.additional[index][0] == default_heading:

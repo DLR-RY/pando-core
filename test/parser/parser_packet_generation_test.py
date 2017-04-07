@@ -3,7 +3,7 @@ import os
 import datetime
 import unittest
 
-import pdoc
+import pando
 
 class ParserTest(unittest.TestCase):
 
@@ -12,7 +12,7 @@ class ParserTest(unittest.TestCase):
 
     def parse_file(self, filename):
         filepath = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", filename)
-        parser = pdoc.parser.Parser()
+        parser = pando.parser.Parser()
         model = parser.parse(filepath)
 
         self.assertIsNotNone(model)
@@ -48,11 +48,11 @@ class ParserTest(unittest.TestCase):
         tm2a = application.getTelemetryBySid("TM2A")
         tm2b = application.getTelemetryBySid("TM2B")
 
-        self.assertEqual(pdoc.model.PeriodicPacketGeneration(datetime.timedelta(seconds=2)),
+        self.assertEqual(pando.model.PeriodicPacketGeneration(datetime.timedelta(seconds=2)),
                          tm1a.packet_generation)
-        self.assertEqual(pdoc.model.ResponsePacketGeneration(),
+        self.assertEqual(pando.model.ResponsePacketGeneration(),
                          tm1b.packet_generation)
-        self.assertEqual(pdoc.model.EventPacketGeneration(response=True),
+        self.assertEqual(pando.model.EventPacketGeneration(response=True),
                          tm2a.packet_generation)
 
     def test_events_should_have_event_generation_type(self):
@@ -61,7 +61,7 @@ class ParserTest(unittest.TestCase):
 
         event = application.getTelemetryBySid("Event")
 
-        self.assertEqual(pdoc.model.EventPacketGeneration(),
+        self.assertEqual(pando.model.EventPacketGeneration(),
                          event.packet_generation)
 
 

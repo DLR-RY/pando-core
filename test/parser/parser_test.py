@@ -1,7 +1,7 @@
 
 import os
 import unittest
-import pdoc
+import pando
 
 class ParserTest(unittest.TestCase):
 
@@ -10,7 +10,7 @@ class ParserTest(unittest.TestCase):
 
     def parse_file(self, filename):
         filepath = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", filename)
-        parser = pdoc.parser.Parser()
+        parser = pando.parser.Parser()
         model = parser.parse(filepath)
 
         self.assertIsNotNone(model)
@@ -92,25 +92,25 @@ class ParserTest(unittest.TestCase):
 
         p = self.get_packet_parameter(tc, "P10")
         self.assertEqual(p.value, "20")
-        self.assertEqual(p.valueType, pdoc.model.Parameter.FIXED)
+        self.assertEqual(p.valueType, pando.model.Parameter.FIXED)
 
     def test_value_should_be_inherited(self):
         tm = self.model.telemetries["service_3_12"]
 
         p = self.get_packet_parameter(tm, "P7")
         self.assertEqual(p.value, "123456")
-        self.assertEqual(p.valueType, pdoc.model.Parameter.DEFAULT)
+        self.assertEqual(p.valueType, pando.model.Parameter.DEFAULT)
 
         p = self.get_packet_parameter(tm, "P21")
         self.assertEqual(p.value, "Unit1")
-        self.assertEqual(p.valueType, pdoc.model.Parameter.FIXED)
+        self.assertEqual(p.valueType, pando.model.Parameter.FIXED)
 
     def test_inherited_values_should_be_overwriteable(self):
         tc = self.model.telecommands["TEST02"]
 
         p = self.get_packet_parameter(tc, "P21")
         self.assertEqual(p.value, "Unit17")
-        self.assertEqual(p.valueType, pdoc.model.Parameter.DEFAULT)
+        self.assertEqual(p.valueType, pando.model.Parameter.DEFAULT)
 
     def test_should_support_units(self):
         p = self.model.parameters["P1"]

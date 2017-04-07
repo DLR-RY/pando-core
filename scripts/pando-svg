@@ -8,7 +8,7 @@ import sys
 rootpath = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..")
 sys.path.append(rootpath)
 
-import pdoc.builder.svg
+import pando.builder.svg
 
 arg = argparse.ArgumentParser(description='p.doc Packet Documentation Generator')
 arg.add_argument('-i', '--input', dest='input', required=True, help='XML packet description ')
@@ -19,16 +19,16 @@ arg.add_argument('--svg-align', dest='svgalign', default=False, action='store_tr
 
 args = arg.parse_args()
 
-parser = pdoc.parser.Parser()
+parser = pando.parser.Parser()
 
 try:
 	model = parser.parse(args.input)
 	
-	builder = pdoc.builder.svg.ImageBuilder(model,
+	builder = pando.builder.svg.ImageBuilder(model,
 	                                        args.svgtemplate,
 	                                        args.svgalign)
 	builder.generate(args.svgpath)
-except (pdoc.parser.ParserException, pdoc.model.ModelException) as e:
+except (pando.parser.ParserException, pando.model.ModelException) as e:
 	print(e)
 	exit(1)
 

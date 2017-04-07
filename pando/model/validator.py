@@ -6,7 +6,7 @@ Validation of the internal structure of the model.
 
 import itertools
 
-import pdoc.model
+import pando.model
 
 class ModelValidator:
 
@@ -114,13 +114,13 @@ class ModelValidator:
         for application in subsystem.applications.values():
             for tm in application.getTelemetries():
                 for p in tm.telemetry.getParametersAsFlattenedList():
-                    if p.type.identifier == pdoc.model.ParameterType.ENUMERATION:
+                    if p.type.identifier == pando.model.ParameterType.ENUMERATION:
                         uid = p.type.enumeration
                         telemetry_enumerations[uid] = self.model.enumerations[uid]
 
             for tc in application.getTelecommands():
                 for p in tc.telecommand.getParametersAsFlattenedList():
-                    if p.type.identifier == pdoc.model.ParameterType.ENUMERATION:
+                    if p.type.identifier == pando.model.ParameterType.ENUMERATION:
                         uid = p.type.enumeration
                         telecommand_enumerations[uid] = self.model.enumerations[uid]
 
@@ -237,7 +237,7 @@ class ModelValidator:
 
         # Remove all list parameters
         for parameter in self.model.parameters.values():
-            if isinstance(parameter, pdoc.model.List):
+            if isinstance(parameter, pando.model.List):
                 parameters.remove(parameter.uid)
 
         parameters.sort()

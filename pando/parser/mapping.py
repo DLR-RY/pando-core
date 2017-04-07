@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import pdoc.model
-import pdoc.parser.common
+import pando.model
+import pando.parser.common
 
 from .common import ParserException
 
@@ -16,35 +16,35 @@ class MappingParser:
             subsystem_name = mapping_node.attrib["name"]
             subsystem = model.getOrAddSubsystem(subsystem_id, subsystem_name)
 
-            subsystem.description = pdoc.parser.common.parse_text(mapping_node, "description", "")
+            subsystem.description = pando.parser.common.parse_text(mapping_node, "description", "")
 
             for node in mapping_node.iterfind('enumerations/telecommand/enumerationMapping'):
                 uid, sid = self._parse_mapping(node)
                 enumeration = model.enumerations[uid]
                 subsystem.telecommandEnumerations[uid] = \
-                    pdoc.model.EnumerationMapping(sid=sid, enumeration=enumeration, subsystem=subsystem)
+                    pando.model.EnumerationMapping(sid=sid, enumeration=enumeration, subsystem=subsystem)
             for node in mapping_node.iterfind('enumerations/telemetry/enumerationMapping'):
                 uid, sid = self._parse_mapping(node)
                 enumeration = model.enumerations[uid]
                 subsystem.telemetryEnumerations[uid] = \
-                    pdoc.model.EnumerationMapping(sid=sid, enumeration=enumeration, subsystem=subsystem)
+                    pando.model.EnumerationMapping(sid=sid, enumeration=enumeration, subsystem=subsystem)
 
             for node in mapping_node.iterfind('calibrations/telecommand/calibrationMapping'):
                 uid, sid = self._parse_mapping(node)
                 calibration = model.calibrations[uid]
                 subsystem.telecommandCalibrations[uid] = \
-                    pdoc.model.CalibrationMapping(sid=sid, calibration=calibration, subsystem=subsystem)
+                    pando.model.CalibrationMapping(sid=sid, calibration=calibration, subsystem=subsystem)
             for node in mapping_node.iterfind('calibrations/telemetry/calibrationMapping'):
                 uid, sid = self._parse_mapping(node)
                 calibration = model.calibrations[uid]
                 subsystem.telemetryCalibrations[uid] = \
-                    pdoc.model.CalibrationMapping(sid=sid, calibration=calibration, subsystem=subsystem)
+                    pando.model.CalibrationMapping(sid=sid, calibration=calibration, subsystem=subsystem)
 
             for node in mapping_node.iterfind('telecommandParameters/parameterMapping'):
                 uid, sid = self._parse_mapping(node)
                 parameter = model.parameters[uid]
                 subsystem.telecommandParameters[uid] = \
-                    pdoc.model.ParameterMapping(sid=sid, parameter=parameter)
+                    pando.model.ParameterMapping(sid=sid, parameter=parameter)
 
             for node in mapping_node.iterfind('application'):
                 application = self._parse_application_mapping(node, subsystem, model)
@@ -55,22 +55,22 @@ class MappingParser:
     def _parse_application_mapping(self, node, subsystem, model):
         """ Parse an application mapping.
 
-        Returns a pdoc.model.ApplicationMapping class.
+        Returns a pando.model.ApplicationMapping class.
         """
-        application = pdoc.model.ApplicationMapping(name=node.attrib.get("name"),
+        application = pando.model.ApplicationMapping(name=node.attrib.get("name"),
                                                     apid=int(node.attrib["apid"], 0),
-                                                    description=pdoc.parser.common.parse_description(node))
+                                                    description=pando.parser.common.parse_description(node))
 
         application.namePrefix = node.attrib.get("namePrefix", "")
         application.nameSuffix = node.attrib.get("nameSuffix", "")
 
         for telemetry_node in node.iterfind("events/event"):
-            telemetry_mapping = self._parse_telemetry_mapping(telemetry_node, pdoc.model.EventMapping, model)
+            telemetry_mapping = self._parse_telemetry_mapping(telemetry_node, pando.model.EventMapping, model)
             self._add_packet_classes(subsystem, telemetry_mapping)
             application.appendTelemetry(telemetry_mapping)
 
         for telemetry_node in node.iterfind("telemetries/telemetry"):
-            telemetry_mapping = self._parse_telemetry_mapping(telemetry_node, pdoc.model.TelemetryMapping, model)
+            telemetry_mapping = self._parse_telemetry_mapping(telemetry_node, pando.model.TelemetryMapping, model)
             self._add_packet_classes(subsystem, telemetry_mapping)
             application.appendTelemetry(telemetry_mapping)
 
@@ -98,20 +98,20 @@ class MappingParser:
         # FIXME check for Event mapping
         if telemetry_mapping.packet_type != telemetry.packet_type:
             packet_type = {
-                pdoc.model.Packet.TELEMETRY: "telemetry packet",
-                pdoc.model.Packet.EVENT: "event",
+                pando.model.Packet.TELEMETRY: "telemetry packet",
+                pando.model.Packet.EVENT: "event",
             }[telemetry.packet_type]
             raise ParserException("Mapping must be done as %s for '%s' (%s)!"
                                   % (packet_type, uid, sid))
 
-        packet_generation = pdoc.parser.common.parse_packet_generation(node)
+        packet_generation = pando.parser.common.parse_packet_generation(node)
         if packet_generation:
             telemetry_mapping.packet_generation = packet_generation
         else:
             telemetry_mapping.packet_generation = telemetry.packet_generation
 
         telemetry_mapping.packet_class = \
-            pdoc.parser.common.parse_packet_classes(node, telemetry.packet_class)
+            pando.parser.common.parse_packet_classes(node, telemetry.packet_class)
 
         for parameter_node in node.findall("parameterMapping"):
             uid, sid = self._parse_mapping(parameter_node)
@@ -121,7 +121,7 @@ class MappingParser:
                 raise ParserException("Parameter '%s' not found in mapping of '%s'!"
                                       % (uid, telemetry.uid))
             telemetry_mapping.appendParameter(
-                pdoc.model.ParameterMapping(sid=sid, parameter=parameter))
+                pando.model.ParameterMapping(sid=sid, parameter=parameter))
         return telemetry_mapping
 
     @staticmethod
@@ -132,9 +132,9 @@ class MappingParser:
         uid, sid = self._parse_mapping(node)
         telecommand = model.telecommands[uid]
 
-        telecommand_mapping = pdoc.model.TelecommandMapping(sid=sid, telecommand=telecommand)
+        telecommand_mapping = pando.model.TelecommandMapping(sid=sid, telecommand=telecommand)
         telecommand_mapping.packet_class = \
-            pdoc.parser.common.parse_packet_classes(node, telecommand.packet_class)
+            pando.parser.common.parse_packet_classes(node, telecommand.packet_class)
         return telecommand_mapping
 
     def _verify_calibrations(self, m):
@@ -156,12 +156,12 @@ class MappingParser:
 
     @staticmethod
     def _verify_telemetry_calibration(calibration, parameter):
-        if calibration.type == pdoc.model.Calibration.INTERPOLATION_TELECOMMAND:
+        if calibration.type == pando.model.Calibration.INTERPOLATION_TELECOMMAND:
             raise ParserException("Invalid calibration for parameter '%s' (%s). " \
                                   "'telecommandLinearInterpolation' is invalid for " \
                                   "telemetry parameter!"
                                   % (parameter.name, parameter.uid))
-        elif calibration.type == pdoc.model.Calibration.INTERPOLATION_TELEMETRY:
+        elif calibration.type == pando.model.Calibration.INTERPOLATION_TELEMETRY:
             inputType = calibration.typeFromParameterType(parameter.type)
             if calibration.inputType is None:
                 calibration.inputType = inputType
@@ -175,7 +175,7 @@ class MappingParser:
 
     @staticmethod
     def _verify_telecommand_calibration(calibration, parameter):
-        if calibration.type != pdoc.model.Calibration.INTERPOLATION_TELECOMMAND:
+        if calibration.type != pando.model.Calibration.INTERPOLATION_TELECOMMAND:
             raise ParserException("Invalid calibration for parameter '%s' (%s). " \
                                   "Only 'telecommandLinearInterpolation' is available " \
                                   "for telecommand parameter!"

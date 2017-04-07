@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-pdoc - Packet Documentation generator
+pando - Packet Documentation generator
 
 Creates a lot of different documentation form a XML packet description.
 """

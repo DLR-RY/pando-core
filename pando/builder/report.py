@@ -5,7 +5,7 @@ import math
 
 from . import builder
 
-import pdoc.model
+import pando.model
 
 class ReportBuilder(builder.Builder):
 
@@ -79,7 +79,7 @@ class ReportBuilder(builder.Builder):
         housekeeping_data_rate = 0
         housekeepings = sorted(self.model.get_packets_by_packet_class("Realtime"), key=lambda x: x.sid)
         for mapping in housekeepings:
-            if mapping.packet_type == pdoc.model.Packet.TELECOMMAND:
+            if mapping.packet_type == pando.model.Packet.TELECOMMAND:
                 print("Invalid packet '{}'".format(mapping.sid))
                 continue
             if mapping.packet_generation.periodic is False:
@@ -102,7 +102,7 @@ class ReportBuilder(builder.Builder):
         extended_housekeeping_size = 0
         housekeepings = sorted(self.model.get_packets_by_packet_class("Extended Housekeeping"), key=lambda x: x.sid)
         for mapping in housekeepings:
-            if mapping.packet_type == pdoc.model.Packet.TELECOMMAND:
+            if mapping.packet_type == pando.model.Packet.TELECOMMAND:
                 print("Invalid packet '{}'".format(mapping.sid))
                 continue
 

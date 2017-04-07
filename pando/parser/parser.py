@@ -20,8 +20,8 @@ from .parameter import ParameterParser
 from .packet import PacketParser
 from .mapping import MappingParser
 
-import pdoc.model
-import pdoc.parser.common
+import pando.model
+import pando.parser.common
 
 class Parser:
 
@@ -31,7 +31,7 @@ class Parser:
     def parse(self, filename, xsdfile=None):
         rootnode = self._validate_and_parse_xml(filename, xsdfile)
 
-        model = pdoc.model.Model()
+        model = pando.model.Model()
 
         enumeration = EnumerationParser()
         calibration = CalibrationParser()
@@ -60,7 +60,7 @@ class Parser:
             xmlroot.xinclude()
 
             if xsdfile is None:
-                xsdfile = pkg.get_filename('pdoc', 'resources/schema/pando.xsd')
+                xsdfile = pkg.get_filename('pando', 'resources/schema/pando.xsd')
 
             xmlschema = lxml.etree.parse(xsdfile, parser=parser)
 

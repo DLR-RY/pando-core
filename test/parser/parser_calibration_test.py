@@ -1,7 +1,7 @@
 
 import os
 import unittest
-import pdoc
+import pando
 
 class ParserCalibrationTest(unittest.TestCase):
 
@@ -10,7 +10,7 @@ class ParserCalibrationTest(unittest.TestCase):
 
     def parse_file(self, filename):
         filepath = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", filename)
-        parser = pdoc.parser.Parser()
+        parser = pando.parser.Parser()
         model = parser.parse(filepath)
 
         self.assertIsNotNone(model)
@@ -32,8 +32,8 @@ class ParserCalibrationTest(unittest.TestCase):
         self.assertEqual(0, packet.calibration.points[0].x)
         self.assertEqual(10, packet.calibration.points[0].y)
 
-        self.assertEqual(pdoc.model.Interpolation.UNSIGNED_INTEGER, packet.calibration.inputType)
-        self.assertEqual(pdoc.model.Interpolation.UNSIGNED_INTEGER, packet.calibration.outputType)
+        self.assertEqual(pando.model.Interpolation.UNSIGNED_INTEGER, packet.calibration.inputType)
+        self.assertEqual(pando.model.Interpolation.UNSIGNED_INTEGER, packet.calibration.outputType)
 
     def test_should_have_telemetry_parameter_calibration(self):
         packet = self.model.parameters["P100"]
@@ -44,8 +44,8 @@ class ParserCalibrationTest(unittest.TestCase):
         self.assertEqual(100.12, packet.calibration.points[0].x)
         self.assertEqual(-2, packet.calibration.points[0].y)
 
-        self.assertEqual(pdoc.model.Interpolation.REAL, packet.calibration.inputType)
-        self.assertEqual(pdoc.model.Interpolation.SIGNED_INTEGER, packet.calibration.outputType)
+        self.assertEqual(pando.model.Interpolation.REAL, packet.calibration.inputType)
+        self.assertEqual(pando.model.Interpolation.SIGNED_INTEGER, packet.calibration.outputType)
 
     def test_should_have_polynom_parameter_calibration(self):
         packet = self.model.parameters["P101"]
@@ -58,7 +58,7 @@ class ParserCalibrationTest(unittest.TestCase):
         self.assertEqual(100.1, packet.calibration.a4)
 
     def test_should_have_unmapped_calibrations(self):
-        validator = pdoc.model.validator.ModelValidator(self.model)
+        validator = pando.model.validator.ModelValidator(self.model)
         additional_tm, unresolved_tm, additional_tc, unresolved_tc = validator.getUnmappedCalibrations()
 
         self.assertEqual(0, len(additional_tc))

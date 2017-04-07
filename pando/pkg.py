@@ -47,6 +47,6 @@ def get_filename(package, resource):
 
     return resource_name
 
-CATALOGFILE = get_filename('pdoc', 'resources/catalog.xml')
+CATALOGFILE = get_filename('pando', 'resources/catalog.xml')
 os.environ['XML_CATALOG_FILES'] = \
     urllib.parse.urljoin('file:', urllib.request.pathname2url(CATALOGFILE))

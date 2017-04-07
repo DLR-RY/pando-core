@@ -5,15 +5,15 @@ import itertools
 
 from . import builder
 
-import pdoc
-import pdoc.model.validator
+import pando
+import pando.model.validator
 
 class Assistant(builder.Builder):
 
     def __init__(self, model, template_file=None):
         builder.Builder.__init__(self, model)
 
-        self.model_validator = pdoc.model.validator.ModelValidator(model)
+        self.model_validator = pando.model.validator.ModelValidator(model)
 
         if template_file is None:
             template_file = '#suggestions.tpl'
@@ -78,9 +78,9 @@ class Assistant(builder.Builder):
                         telemetries.append(suggestion)
 
         substitutions = {
-            "parameters": sorted(parameters, key=pdoc.naturalkey),
+            "parameters": sorted(parameters, key=pando.naturalkey),
             "events": [],
-            "telemetries": sorted(telemetries, key=lambda p: pdoc.naturalkey(p["uid"])),
+            "telemetries": sorted(telemetries, key=lambda p: pando.naturalkey(p["uid"])),
             "telecommands": [],
         }
 
@@ -97,7 +97,7 @@ class Assistant(builder.Builder):
             for uid in unused_telemetries:
                 packet = self.model.telemetries[uid]
                 
-                if packet.packet_type == pdoc.model.Packet.EVENT:
+                if packet.packet_type == pando.model.Packet.EVENT:
                     events.append(self._get_suggestion(packet))
                 else:
                     telemetries.append(self._get_suggestion(packet))
@@ -110,10 +110,10 @@ class Assistant(builder.Builder):
                 telecommands.append(self._get_suggestion(packet))
 
         substitutions = {
-            "parameters": sorted(parameters, key=pdoc.naturalkey),
-            "events": sorted(events, key=lambda p: pdoc.naturalkey(p["uid"])),
-            "telemetries": sorted(telemetries, key=lambda p: pdoc.naturalkey(p["uid"])),
-            "telecommands": sorted(telecommands, key=lambda p: pdoc.naturalkey(p["uid"])),
+            "parameters": sorted(parameters, key=pando.naturalkey),
+            "events": sorted(events, key=lambda p: pando.naturalkey(p["uid"])),
+            "telemetries": sorted(telemetries, key=lambda p: pando.naturalkey(p["uid"])),
+            "telecommands": sorted(telecommands, key=lambda p: pando.naturalkey(p["uid"])),
         }
 
         template = self._template(self.template_file)

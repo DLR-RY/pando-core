@@ -4,12 +4,12 @@
 from distutils.core import setup
 
 setup(
-    name='pdoc',
-    packages=['pdoc', 'pdoc.builder'],
-    package_dir={'pdoc': 'pdoc'},
-    package_data={'pdoc': ['resources/*']},
+    name='pando',
+    packages=['pando', 'pando.builder'],
+    package_dir={'pando': 'pando'},
+    package_data={'pando': ['resources/*']},
     requires=['lxml', 'jinja2', 'isodate'],
-    scripts=['scripts/pdoc'],
+    scripts=['scripts/pando'],
     version='0.1',
     description='Packet Documentation Generator',
     author='Fabian Greif',
