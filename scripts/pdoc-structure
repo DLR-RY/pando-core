@@ -23,7 +23,7 @@ parser = pdoc.parser.Parser()
 
 try:
 	model = parser.parse(args.input)
-	
+
 	try:
 		packet = model.telecommands[args.uid]
 	except KeyError:
@@ -31,15 +31,23 @@ try:
 			packet = model.telemetries[args.uid]
 		except KeyError:
 			raise pdoc.parser.ParserException("Packet '%s' not found!" % args.uid)
-	
-	print(packet.name)
+
+	print()
+	print("{} ({})".format(packet.name, packet.uid))
+	print()
+
+	print(" Byte |  Bit | Width | Short name           | Name")
+	print("------|------|-------|----------------------|----------------------------")
 	bitposition = 0
 	for parameter in packet.getParametersAsFlattenedList():
 		width = parameter.type.width
-		print(bitposition, width, parameter.name)
+
+		print(" {:4d} | {:4d} | {:5d} | {:20s} | {}".format(bitposition // 8, bitposition, width, parameter.shortName, parameter.name))
 		bitposition += width
-		if bitposition % 8 == 0:
-			print(int(bitposition / 8), '-----------------')
+
+		if (bitposition % 8 == 0):
+			print("------|------|-------|----------------------|----------------------------")
+
 except (pdoc.parser.ParserException, pdoc.model.ModelException) as e:
 	print("\nError: %s" % e)
 	exit(1)
