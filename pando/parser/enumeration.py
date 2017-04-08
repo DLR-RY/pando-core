@@ -1,10 +1,22 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+#
+# Copyright (c) 2016-2017, German Aerospace Center (DLR)
+#
+# This file is part of the development version of the pando library.
+#
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#
+# Authors:
+# - 2016-2017, Fabian Greif (DLR RY-AVS)
 
 import copy
 
 import pando.model
 import pando.parser.common
+
 
 class EnumerationParser:
 
@@ -35,7 +47,7 @@ class EnumerationParser:
     def _parse_derived_enumeration(self, node, enumerations):
         """
         Parse a enumeration based upon an existing enumeration.
-        
+
         The existing enumeration is copied and then extended with the values
         of the new enumeration. Values which already exist in the base
         enumeration are overwritten.
@@ -61,7 +73,7 @@ class EnumerationParser:
             value = str(int(node.attrib.get("value"), 0))
         except ValueError:
             value = node.attrib.get("value")
-        
+
         description = pando.parser.common.parse_description(node)
         entry = pando.model.EnumerationEntry(node.attrib.get("name"),
                                             value,

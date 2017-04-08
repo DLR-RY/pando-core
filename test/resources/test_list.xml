@@ -1,9 +1,21 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0"  encoding="UTF-8"?>
+<!--
+Copyright (c) 2015-2017, German Aerospace Center (DLR)
+
+This file is part of the development version of the pando library.
+
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+Authors:
+- 2015-2017, Fabian Greif (DLR RY-AVS)
+-->
 <pando
   version="1.2.0"
   xmlns:xi="http://www.w3.org/2001/XInclude"
   xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance"
-  xsd:noNamespaceSchemaLocation="https://svn.dlr.de/eucropis-ops/prod/MIB/trunk/tools/p.doc/pando/resources/schema/pando.xsd">
+  xsd:noNamespaceSchemaLocation="http://www.dlr.de/schema/pando/pando.xsd">
 
   <service>
     <parameters>

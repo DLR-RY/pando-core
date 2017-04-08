@@ -1,5 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+#
+# Copyright (c) 2015-2017, German Aerospace Center (DLR)
+#
+# This file is part of the development version of the pando library.
+#
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#
+# Authors:
+# - 2015-2017, Fabian Greif (DLR RY-AVS)
 
 import os
 import sys
@@ -49,8 +60,10 @@ class Builder:
         """
         def filter_wordwrap(value, width=79):
             return '\n\n'.join([textwrap.fill(str, width) for str in value.split('\n\n')])
+
         def filter_indent(value, level=0, prefix=""):
             return ('\n' + '\t' * level + prefix).join(value.split('\n'))
+
         def global_abort_helper(msg):
             raise BuilderException(msg)
 

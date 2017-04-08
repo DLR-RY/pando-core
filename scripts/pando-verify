@@ -1,5 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+#
+# Copyright (c) 2015-2017, German Aerospace Center (DLR)
+#
+# This file is part of the development version of the pando library.
+#
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#
+# Authors:
+# - 2015-2017, Fabian Greif (DLR RY-AVS)
 
 import os
 import sys
@@ -13,6 +24,7 @@ import pando
 import pando.model.validator
 
 logger = logging.getLogger('pando.verify')
+
 
 def _printUnmappedParameters(packet, unresolved, additional):
 	for parameter in unresolved:
@@ -32,27 +44,27 @@ parser = pando.parser.Parser()
 
 try:
 	modelValidator = pando.model.validator.ModelValidator(parser.parse(args.input))
-	
+
 	# Verify that all telecommands and telemetry packets in the
 	# mapping section define all the parameters defined in the structure.
 	success = True
-	
+
 	# Check telecommand parameters
 	for p in modelValidator.getUnmappedTelecommandParameters():
 		success = False
 		logger.error("Parameter '%s' not found in mapping" % (p.uid))
-	
+
 	# Find parameters that are used in TC parameter mapping but not
 	# referenced in any TC packet
 	for p in modelValidator.getMappedButUnreferencedTelecommandParameter():
 		success = False
 		logger.error("Parameter '%s' found in mapping but not in any TC packet" % (p.uid))
-	
+
 	# Check telemetry parameters
 	for p in modelValidator.getUnmappedTelemetryParameters():
 		success = False
 		_printUnmappedParameters(p[0], p[1], p[2])
-	
+
 	# Check that for all enumerations a corresponding mapping is available
 	# and that all mapped enumerations are defined somewhere in the XML file.
 	atm, utm, atc, utc = modelValidator.getUnmappedEnumerations()
@@ -88,15 +100,15 @@ try:
 	for packet in modelValidator.getAmbiguousTelemetryPackets():
 		logger.error("TM packet '%s' and '%s' are ambiguous" % (packet[0].uid, packet[1].uid))
 		success = False
-	
+
 	for packet in modelValidator.getAmbiguousPacketMappings():
 		logger.error("packet SID '%s' is used for '%s' and '%s'" % (packet[0], packet[1].uid, packet[2].uid))
 		success = False
-	
+
 	for parameter in modelValidator.getAmbiguousTelemetryParametersWithinMapping():
 		logger.error("Parameter SID '%s' is used multiple times in telemetry packet '%s'" % (parameter[1], parameter[0]))
 		success = False
-	
+
 	for t in modelValidator.getAmbiguousTelemetryServiceIdentifier():
 		logger.error("Telemetry packet SID '%s' (%d, %d) is ambiguous within " \
 					 "APID %d (0x%03X). Either use a different combination of "\
@@ -104,7 +116,7 @@ try:
 					 "parameter." %
 					(t["mapping"].sid, t["mapping"].telemetry.serviceType, t["mapping"].telemetry.serviceSubtype, t["apid"], t["apid"]))
 		success = False
-	
+
 	if not success:
 		raise pando.parser.ParserException("Incomplete mapping. Please add/remove the requested elements!")
 	else:
@@ -114,13 +126,13 @@ try:
 				print("\nUnused parameters:")
 				for parameter in parameters:
 					print("-", parameter)
-			
+
 			telemetries = modelValidator.getUnusedTelemetries()
 			if len(telemetries) > 0:
 				print("\nUnused telemetry packets:")
 				for telemetry in telemetries:
 					print("-", telemetry)
-			
+
 			telecommands = modelValidator.getUnusedTelecommands()
 			if len(telecommands) > 0:
 				print("\nUnused telecommand packets:")

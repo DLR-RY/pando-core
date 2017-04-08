@@ -1,5 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+#
+# Copyright (c) 2015-2017, German Aerospace Center (DLR)
+#
+# This file is part of the development version of the pando library.
+#
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#
+# Authors:
+# - 2015-2017, Fabian Greif (DLR RY-AVS)
+# - 2016, Jan Sommer (DLR SC-SRV)
 
 import os
 import re
@@ -7,6 +19,7 @@ import re
 from .. import model
 
 from . import builder
+
 
 def xstr(s):
     """ Converts None to an empty string """
@@ -44,7 +57,6 @@ class TableBuilder(builder.Builder):
 
     def __init__(self, model_, templateFile, imagePath):
         builder.Builder.__init__(self, model_)
-
 
         if templateFile is None:
             templateFile = '#latex_table.tpl'
@@ -101,7 +113,7 @@ class TableBuilder(builder.Builder):
 
             parameters.append({
                 'name': parameter.name,
-                'sid' : self._getParameterSid(packet, parameter),
+                'sid': self._getParameterSid(packet, parameter),
                 'description': parameter.description,
                 'shortName': parameter.shortName,
                 'type': str(parameter.type),
@@ -227,4 +239,3 @@ class EnumerationBuilder(builder.Builder):
         filename = os.path.join(outpath, "enumeration_%s.tex" % enumeration.uid)
         template = self._template(self.templateFile, alternateMarking=True)
         self._write(filename, template.render(substitutions) + "\n")
-

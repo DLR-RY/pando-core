@@ -1,3 +1,8 @@
 build
 *.pyc
 */__pycache__/*
+
+.coverage
+.project
+.pydevproject
+.settings

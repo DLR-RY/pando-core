@@ -1,5 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+#
+# Copyright (c) 2016-2017, German Aerospace Center (DLR)
+#
+# This file is part of the development version of the pando library.
+#
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#
+# Authors:
+# - 2016-2017, Fabian Greif (DLR RY-AVS)
+
 """
 pkgutil helper package.
 
@@ -15,6 +27,7 @@ import pkgutil
 import urllib.request
 import urllib.parse
 
+
 def naturalkey(key):
     """
     alist.sort(key=natural_keys) sorts in human order
@@ -27,6 +40,7 @@ def naturalkey(key):
             return text
 
     return [atoi(c) for c in re.split(r"([-]?\d+)", key)]
+
 
 def get_filename(package, resource):
     """Rewrite of pkgutil.get_data() that return the file path.

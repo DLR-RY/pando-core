@@ -1,12 +1,23 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+#
+# Copyright (c) 2015-2017, German Aerospace Center (DLR)
+#
+# This file is part of the development version of the pando library.
+#
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#
+# Authors:
+# - 2015-2017, Fabian Greif (DLR RY-AVS)
 
 import itertools
 
 from . import builder
 
-import pando
 import pando.model.validator
+
 
 class Assistant(builder.Builder):
 
@@ -89,14 +100,14 @@ class Assistant(builder.Builder):
 
     def print_suggestions_for_unused_packets(self):
         parameters = self.model_validator.getUnusedParameters()
-        
+
         events = []
         telemetries = []
         unused_telemetries = self.model_validator.getUnusedTelemetries()
         if len(unused_telemetries) > 0:
             for uid in unused_telemetries:
                 packet = self.model.telemetries[uid]
-                
+
                 if packet.packet_type == pando.model.Packet.EVENT:
                     events.append(self._get_suggestion(packet))
                 else:

@@ -12,6 +12,6 @@ License
 -------
 
 Unless otherwise noted the source code is licensed under the
-terms of the Mozilla Public License, v. 2.0 (see mpl-v2.0.txt).
+terms of the Mozilla Public License, v. 2.0 (see LICENSE file).
 
 [German Aerospace Center (DLR)]: http://www.dlr.de/irs/en/
