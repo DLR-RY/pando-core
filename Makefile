@@ -18,6 +18,9 @@ coverage:
 	@coverage report
 	@coverage html -d build/coverage
 
+coverage-view:
+	@xdg-open build/coverage/index.html
+
 test-verify:
 	@./scripts/pando-verify -i test/resources/test.xml
 
