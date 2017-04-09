@@ -26,36 +26,36 @@ class MappingParser:
         for mapping_node in rootnode.iterfind('mapping'):
             subsystem_id = int(mapping_node.attrib["subsystem"], 0)
             subsystem_name = mapping_node.attrib["name"]
-            subsystem = model.getOrAddSubsystem(subsystem_id, subsystem_name)
+            subsystem = model.get_or_add_subsystem(subsystem_id, subsystem_name)
 
             subsystem.description = pando.parser.common.parse_text(mapping_node, "description", "")
 
             for node in mapping_node.iterfind('enumerations/telecommand/enumerationMapping'):
                 uid, sid = self._parse_mapping(node)
                 enumeration = model.enumerations[uid]
-                subsystem.telecommandEnumerations[uid] = \
+                subsystem.telecommand_enumerations[uid] = \
                     pando.model.EnumerationMapping(sid=sid, enumeration=enumeration, subsystem=subsystem)
             for node in mapping_node.iterfind('enumerations/telemetry/enumerationMapping'):
                 uid, sid = self._parse_mapping(node)
                 enumeration = model.enumerations[uid]
-                subsystem.telemetryEnumerations[uid] = \
+                subsystem.telemetry_enumerations[uid] = \
                     pando.model.EnumerationMapping(sid=sid, enumeration=enumeration, subsystem=subsystem)
 
             for node in mapping_node.iterfind('calibrations/telecommand/calibrationMapping'):
                 uid, sid = self._parse_mapping(node)
                 calibration = model.calibrations[uid]
-                subsystem.telecommandCalibrations[uid] = \
+                subsystem.telecommand_calibrations[uid] = \
                     pando.model.CalibrationMapping(sid=sid, calibration=calibration, subsystem=subsystem)
             for node in mapping_node.iterfind('calibrations/telemetry/calibrationMapping'):
                 uid, sid = self._parse_mapping(node)
                 calibration = model.calibrations[uid]
-                subsystem.telemetryCalibrations[uid] = \
+                subsystem.telemetry_calibrations[uid] = \
                     pando.model.CalibrationMapping(sid=sid, calibration=calibration, subsystem=subsystem)
 
             for node in mapping_node.iterfind('telecommandParameters/parameterMapping'):
                 uid, sid = self._parse_mapping(node)
                 parameter = model.parameters[uid]
-                subsystem.telecommandParameters[uid] = \
+                subsystem.telecommand_parameters[uid] = \
                     pando.model.ParameterMapping(sid=sid, parameter=parameter)
 
             for node in mapping_node.iterfind('application'):
@@ -70,26 +70,26 @@ class MappingParser:
         Returns a pando.model.ApplicationMapping class.
         """
         application = pando.model.ApplicationMapping(name=node.attrib.get("name"),
-                                                    apid=int(node.attrib["apid"], 0),
-                                                    description=pando.parser.common.parse_description(node))
+                                                     apid=int(node.attrib["apid"], 0),
+                                                     description=pando.parser.common.parse_description(node))
 
-        application.namePrefix = node.attrib.get("namePrefix", "")
-        application.nameSuffix = node.attrib.get("nameSuffix", "")
+        application.name_prefix = node.attrib.get("namePrefix", "")
+        application.name_suffix = node.attrib.get("nameSuffix", "")
 
         for telemetry_node in node.iterfind("events/event"):
             telemetry_mapping = self._parse_telemetry_mapping(telemetry_node, pando.model.EventMapping, model)
             self._add_packet_classes(subsystem, telemetry_mapping)
-            application.appendTelemetry(telemetry_mapping)
+            application.append_telemetry(telemetry_mapping)
 
         for telemetry_node in node.iterfind("telemetries/telemetry"):
             telemetry_mapping = self._parse_telemetry_mapping(telemetry_node, pando.model.TelemetryMapping, model)
             self._add_packet_classes(subsystem, telemetry_mapping)
-            application.appendTelemetry(telemetry_mapping)
+            application.append_telemetry(telemetry_mapping)
 
         for telecommand_node in node.iterfind("telecommands/telecommandMappingRef"):
             telecommand_mapping = self._parse_telecommand_mapping(telecommand_node, model)
             self._add_packet_classes(subsystem, telecommand_mapping)
-            application.appendTelecommand(telecommand_mapping)
+            application.append_telecommand(telecommand_mapping)
 
         return application
 
@@ -132,7 +132,7 @@ class MappingParser:
             except KeyError:
                 raise ParserException("Parameter '%s' not found in mapping of '%s'!"
                                       % (uid, telemetry.uid))
-            telemetry_mapping.appendParameter(
+            telemetry_mapping.append_parameter(
                 pando.model.ParameterMapping(sid=sid, parameter=parameter))
         return telemetry_mapping
 
@@ -152,15 +152,15 @@ class MappingParser:
     def _verify_calibrations(self, m):
         for subsystem in m.subsystems.values():
             for application in subsystem.applications.values():
-                for tm in application.getTelemetries():
-                    for p in tm.telemetry.getParametersAsFlattenedList():
+                for tm in application.get_telemetries():
+                    for p in tm.telemetry.get_parameters_as_flattened_list():
                         calibration = p.calibration
                         if calibration is not None:
                             calibration = m.calibrations[calibration.uid]
                             self._verify_telemetry_calibration(calibration, p)
 
-                for tc in application.getTelecommands():
-                    for p in tc.telecommand.getParametersAsFlattenedList():
+                for tc in application.get_telecommands():
+                    for p in tc.telecommand.get_parameters_as_flattened_list():
                         calibration = p.calibration
                         if calibration is not None:
                             calibration = m.calibrations[calibration.uid]
@@ -175,15 +175,15 @@ class MappingParser:
                                   % (parameter.name, parameter.uid))
         elif calibration.type == pando.model.Calibration.INTERPOLATION_TELEMETRY:
             inputType = calibration.typeFromParameterType(parameter.type)
-            if calibration.inputType is None:
-                calibration.inputType = inputType
+            if calibration.input_type is None:
+                calibration.input_type = inputType
             else:
-                if calibration.inputType != inputType:
+                if calibration.input_type != inputType:
                     raise ParserException("Invalid input type for telemetry " \
                                           "interpolation '%s'. Parameter %s (%s) "\
                                           "requires '%s', previous definition is '%s'"
                                           % (calibration.uid, parameter.name, parameter.uid,
-                                             inputType, calibration.inputType))
+                                             inputType, calibration.input_type))
 
     @staticmethod
     def _verify_telecommand_calibration(calibration, parameter):
@@ -194,12 +194,12 @@ class MappingParser:
                                   % (parameter.name, parameter.uid))
         else:
             outputType = calibration.typeFromParameterType(parameter.type)
-            if calibration.outputType is None:
-                calibration.outputType = outputType
+            if calibration.output_type is None:
+                calibration.output_type = outputType
             else:
-                if calibration.outputType != outputType:
+                if calibration.output_type != outputType:
                     raise ParserException("Invalid output type for telecommand " \
                                           "interpolation '%s'. Parameter %s (%s) "\
                                           "requires '%s', previous definition is '%s'"
                                           % (calibration.uid, parameter.name, parameter.uid,
-                                             outputType, calibration.outputType))
+                                             outputType, calibration.output_type))

@@ -108,10 +108,10 @@ def parse_packet_generation(packet_node):
 
 
 def parse_short_name(packet, node, default=""):
-    packet.shortName = node.findtext("shortName", default)
+    packet.short_name = node.findtext("shortName", default)
 
-    if packet.shortName == "":
-        packet.shortName = packet.name
+    if packet.short_name == "":
+        packet.short_name = packet.name
 
 
 def parse_description(node, default=""):

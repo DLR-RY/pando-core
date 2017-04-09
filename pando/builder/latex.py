@@ -53,58 +53,58 @@ class TableBuilder(builder.Builder):
 
     class State:
         def __init__(self):
-            self.useMinMax = False
+            self.use_min_max = False
 
-    def __init__(self, model_, templateFile, imagePath):
+    def __init__(self, model_, template_file, image_path):
         builder.Builder.__init__(self, model_)
 
-        if templateFile is None:
-            templateFile = '#latex_table.tpl'
-        self.templateFile = templateFile
-        self.imagePath = imagePath
+        if template_file is None:
+            template_file = '#latex_table.tpl'
+        self.template_file = template_file
+        self.image_path = image_path
 
         self.state = None
 
     def generate(self, outpath):
         for packet in self.model.telemetries.values():
-            self._generatePacket(outpath, packet)
+            self._generate_packet(outpath, packet)
         for packet in self.model.telecommands.values():
-            self._generatePacket(outpath, packet)
+            self._generate_packet(outpath, packet)
 
-    def _generatePacket(self, outpath, packet):
+    def _generate_packet(self, outpath, packet):
         parameters = []
         self.state = self.State()
         for parameter in packet.parameters:
-            self._packetParameter(packet, parameter, parameters)
+            self._packet_parameter(packet, parameter, parameters)
 
-        if self.imagePath is None:
+        if self.image_path is None:
             image = None
         else:
-            image = os.path.join(self.imagePath, packet.uid)
+            image = os.path.join(self.image_path, packet.uid)
 
-        packet.sid = self._getPacketSid(packet)
+        packet.sid = self._get_packet_sid(packet)
         substitutions = {
             'identifier': packet.uid,
             'parameters': parameters,
             'packet': packet,
             'image': image,
-            'useMinMax': self.state.useMinMax,
+            'use_min_max': self.state.use_min_max,
         }
 
         filename = os.path.join(outpath, "%s.tex" % packet.uid)
 
-        template = self._template(self.templateFile, alternateMarking=True)
+        template = self._template(self.template_file, alternate_marking=True)
         self._write(filename, template.render(substitutions) + "\n")
 
-    def _packetParameter(self, packet, parameter, parameters):
+    def _packet_parameter(self, packet, parameter, parameters):
         if isinstance(parameter, model.List):
             # FIXME, missing parameter in function call!
-            self._packetParameter(parameter, parameters)
+            self._packet_parameter(parameter, parameters)
         else:
-            if parameter.valueType == model.Parameter.RANGE:
-                minimum = xstr(parameter.valueRange.min)
-                maximum = xstr(parameter.valueRange.max)
-            elif parameter.valueType == model.Parameter.FIXED:
+            if parameter.value_type == model.Parameter.RANGE:
+                minimum = xstr(parameter.value_range.min)
+                maximum = xstr(parameter.value_range.max)
+            elif parameter.value_type == model.Parameter.FIXED:
                 minimum = xstr(parameter.value)
                 maximum = xstr(parameter.value)
             else:
@@ -113,9 +113,9 @@ class TableBuilder(builder.Builder):
 
             parameters.append({
                 'name': parameter.name,
-                'sid': self._getParameterSid(packet, parameter),
+                'sid': self._get_parameter_sid(packet, parameter),
                 'description': parameter.description,
-                'shortName': parameter.shortName,
+                'short_name': parameter.short_name,
                 'type': str(parameter.type),
                 'width': parameter.type.width,
                 'unit': xstr(parameter.unit),
@@ -123,47 +123,47 @@ class TableBuilder(builder.Builder):
                 'max': maximum,
             })
 
-            if parameter.valueType == model.Parameter.RANGE or parameter.valueType == model.Parameter.FIXED:
-                self.state.useMinMax = True
+            if parameter.value_type == model.Parameter.RANGE or parameter.value_type == model.Parameter.FIXED:
+                self.state.use_min_max = True
 
             if isinstance(parameter, model.Repeater):
-                self._packetRepeater(packet, parameter, parameters)
+                self._packet_repeater(packet, parameter, parameters)
 
-    def _packetRepeater(self, packet, repeater, parameters):
+    def _packet_repeater(self, packet, repeater, parameters):
         for parameter in repeater.parameters:
-            self._packetParameter(packet, parameter, parameters)
+            self._packet_parameter(packet, parameter, parameters)
 
-    def _getPacketSid(self, packet):
+    def _get_packet_sid(self, packet):
         if type(packet) is model.Telemetry:
-            for sub in self.model.subsystems.values():
-                for app in sub.applications.values():
-                    for tm in app.getTelemetries():
-                        if tm.telemetry.uid == packet.uid:
-                            return tm.sid
+            for subsystem in self.model.subsystems.values():
+                for application in subsystem.applications.values():
+                    for telemetry in application.get_telemetries():
+                        if telemetry.telemetry.uid == packet.uid:
+                            return telemetry.sid
 
         elif type(packet) is model.Telecommand:
-            for sub in self.model.subsystems.values():
-                for app in sub.applications.values():
-                    for tc in app.getTelecommands():
-                        if tc.telecommand.uid == packet.uid:
-                            return tc.sid
+            for subsystem in self.model.subsystems.values():
+                for application in subsystem.applications.values():
+                    for telecommand in application.get_telecommands():
+                        if telecommand.telecommand.uid == packet.uid:
+                            return telecommand.sid
         else:
             return None
 
-    def _getParameterSid(self, packet, parameter):
+    def _get_parameter_sid(self, packet, parameter):
         if type(packet) is model.Telecommand:
-            for sub in self.model.subsystems.values():
-                for app in sub.applications.values():
-                    for tc in app.getTelecommands():
-                        if tc.telecommand.uid == packet.uid:
-                            return sub.telecommandParameters[parameter.uid].sid
+            for subsystem in self.model.subsystems.values():
+                for applicaton in subsystem.applications.values():
+                    for telecommand in applicaton.get_telecommands():
+                        if telecommand.telecommand.uid == packet.uid:
+                            return subsystem.telecommand_parameters[parameter.uid].sid
 
         elif type(packet) is model.Telemetry:
-            for sub in self.model.subsystems.values():
-                for app in sub.applications.values():
-                    for tm in app.getTelemetries():
-                        if tm.telemetry.uid == packet.uid:
-                            for param in tm.parameters:
+            for subsystem in self.model.subsystems.values():
+                for applicaton in subsystem.applications.values():
+                    for telemetry in applicaton.get_telemetries():
+                        if telemetry.telemetry.uid == packet.uid:
+                            for param in telemetry.parameters:
                                 if param.parameter.uid == parameter.uid:
                                     return param.sid
         else:
@@ -172,22 +172,22 @@ class TableBuilder(builder.Builder):
 
 class OverviewBuilder(builder.Builder):
 
-    def __init__(self, packets, templateFile):
+    def __init__(self, packets, template_file):
         builder.Builder.__init__(self, packets)
 
-        if templateFile is None:
-            templateFile = '#latex_overview.tpl'
-        self.templateFile = templateFile
+        if template_file is None:
+            template_file = '#latex_overview.tpl'
+        self.template_file = template_file
 
     def generate(self, outpath, target):
         if target is None or target == '':
             target = 'overview.tex'
 
         basename, ext = os.path.splitext(target)
-        self._generateOverview(os.path.join(outpath, basename + '_tm' + ext), list(self.model.telemetries.values()))
-        self._generateOverview(os.path.join(outpath, basename + '_tc' + ext), list(self.model.telecommands.values()))
+        self._generate_overview(os.path.join(outpath, basename + '_tm' + ext), list(self.model.telemetries.values()))
+        self._generate_overview(os.path.join(outpath, basename + '_tc' + ext), list(self.model.telecommands.values()))
 
-    def _generateOverview(self, filename, packets):
+    def _generate_overview(self, filename, packets):
         headings = []
         for packet in packets:
             for designator in packet.designators:
@@ -213,29 +213,29 @@ class OverviewBuilder(builder.Builder):
             'entries': sorted(entries),
         }
 
-        template = self._template(self.templateFile, alternateMarking=True)
+        template = self._template(self.template_file, alternate_marking=True)
         self._write(filename, template.render(substitutions) + "\n")
 
 
 class EnumerationBuilder(builder.Builder):
 
-    def __init__(self, enumerations, templateFile):
+    def __init__(self, enumerations, template_file):
         builder.Builder.__init__(self, None)
         self.enumerations = enumerations
 
-        if templateFile is None:
-            templateFile = '#latex_enumeration.tpl'
-        self.templateFile = templateFile
+        if template_file is None:
+            template_file = '#latex_enumeration.tpl'
+        self.template_file = template_file
 
     def generate(self, outpath):
         for enumeration in self.enumerations.values():
-            self._generateEnumeration(outpath, enumeration)
+            self._generate_enumeration(outpath, enumeration)
 
-    def _generateEnumeration(self, outpath, enumeration):
+    def _generate_enumeration(self, outpath, enumeration):
         substitutions = {
             'enumeration': enumeration,
         }
 
         filename = os.path.join(outpath, "enumeration_%s.tex" % enumeration.uid)
-        template = self._template(self.templateFile, alternateMarking=True)
+        template = self._template(self.template_file, alternate_marking=True)
         self._write(filename, template.render(substitutions) + "\n")

@@ -53,13 +53,13 @@ class Model:
             packets.extend(subsystem.get_packets_by_packet_class(packet_class))
         return packets
 
-    def appendTelemetryPacket(self, packet):
+    def append_telemetry_packet(self, packet):
         self.telemetries[packet.uid] = packet
 
-    def appendTelecommandPacket(self, packet):
+    def append_telecommand_packet(self, packet):
         self.telecommands[packet.uid] = packet
 
-    def getOrAddSubsystem(self, subsystemId, name):
+    def get_or_add_subsystem(self, subsystemId, name):
         try:
             subsystem = self.subsystems[subsystemId]
             if subsystem.name != name:
@@ -71,7 +71,7 @@ class Model:
             self.subsystems[subsystemId] = subsystem
         return subsystem
 
-    def getSubsystems(self):
+    def get_subsystems(self):
         return self.subsystems
 
 
@@ -94,7 +94,7 @@ class ParameterType:
         self.width = width
 
     @staticmethod
-    def typeToString(identifier):
+    def type_to_string(identifier):
         return {
             1: "Boolean",
             2: "Enumeration",
@@ -108,7 +108,7 @@ class ParameterType:
         }[identifier]
 
     def __str__(self):
-        return ParameterType.typeToString(self.identifier)
+        return ParameterType.type_to_string(self.identifier)
 
 
 class EnumerationType(ParameterType):
@@ -154,7 +154,7 @@ class Parameter:
         self.is_parameter = True
 
         # Name limited to 16 characters
-        self.shortName = ""
+        self.short_name = ""
 
         self.byte_order = ByteOrder.BIG_ENDIAN
 
@@ -162,9 +162,9 @@ class Parameter:
         self.type = parameter_type
 
         self.value = None
-        self.valueType = self.NONE
+        self.value_type = self.NONE
         # -> ParameterValueRange
-        self.valueRange = None
+        self.value_range = None
 
         # str[4]
         self.unit = ""
@@ -191,10 +191,10 @@ class ParameterCollection:
         self.parameters = []
         self.depth = 0
 
-    def appendParameter(self, parameter):
+    def append_parameter(self, parameter):
         self.parameters.append(parameter)
 
-    def getFlattenedMemberCount(self):
+    def get_flattened_member_count(self):
         """
         Get the number of parameters belonging to this repeater.
 
@@ -206,14 +206,14 @@ class ParameterCollection:
                 count += 1
 
             if parameter.is_collection:
-                count += parameter.getFlattenedMemberCount()
+                count += parameter.get_flattened_member_count()
         return count
 
-    def updateDepth(self):
+    def update_depth(self):
         self.depth = 1
         for parameter in self.parameters:
             if isinstance(parameter, Repeater):
-                parameter.updateDepth()
+                parameter.update_depth()
                 self.depth = max(self.depth, parameter.depth + 1)
 
 
@@ -310,10 +310,10 @@ class Packet:
         self.description = description
 
         # Name limited to 12 characters
-        self.shortName = ""
+        self.short_name = ""
 
-        self.serviceType = None
-        self.serviceSubtype = None
+        self.service_type = None
+        self.service_subtype = None
 
         # List of { 'name': ..., 'value': ... } pairs.
         self.designators = []
@@ -332,13 +332,13 @@ class Packet:
 
         self.ancillary_data = None
 
-    def appendParameter(self, parameter):
+    def append_parameter(self, parameter):
         self.parameters.append(parameter)
 
-    def getParameters(self):
+    def get_parameters(self):
         return self.parameters
 
-    def getParametersAsFlattenedList(self):
+    def get_parameters_as_flattened_list(self):
         """ Returns all parameters as a flat list.
 
         Removes the nesting of repeaters. Repeater parameters still contain their
@@ -362,11 +362,11 @@ class Packet:
 
         return parameters
 
-    def updateDepth(self):
+    def update_depth(self):
         self.depth = 1
         for parameter in self.parameters:
             if parameter.is_collection:
-                parameter.updateDepth()
+                parameter.update_depth()
                 self.depth = max(self.depth, parameter.depth + 1)
 
     def get_accumulated_parameter_length(self):
@@ -378,7 +378,7 @@ class Packet:
         parameters.
         """
         packet_size = 0
-        for parameter in self.getParametersAsFlattenedList():
+        for parameter in self.get_parameters_as_flattened_list():
             if parameter.is_collection or parameter.type.width == 0:
                 packet_size = None
                 break
@@ -412,7 +412,7 @@ class Telecommand(Packet):
 
         self.verification = Verification()
 
-        self.relevantTelemetry = []
+        self.relevant_telemetry = []
 
         # Flag identifying the command 'criticality'.
         #  True  - if the command is critical (also referred to as hazardous).
@@ -426,7 +426,7 @@ class Telemetry(Packet):
         Packet.__init__(self, name, uid, description, packet_type)
 
         # -> TelemetryIdentificationParameter
-        self.identificationParameter = []
+        self.identification_parameter = []
 
         # -> PacketGeneration
         self.packet_generation = None
@@ -459,13 +459,13 @@ class Event(Telemetry):
         self.event_parameters = []
         self.event_parameters_depth = []
 
-    def appendEventParameter(self, parameter):
+    def append_event_parameter(self, parameter):
         self.event_parameters.append(parameter)
 
-    def getEventParameters(self):
+    def get_event_parameters(self):
         return self.event_parameters
 
-    def getEventParametersAsFlattenedList(self):
+    def get_event_parameters_as_flattened_list(self):
         """ Returns all parameters as a flat list.
 
         Removes the nesting of repeaters. Repeater parameters still contain their
@@ -489,11 +489,11 @@ class Event(Telemetry):
 
         return parameters
 
-    def updateEventParameterDepth(self):
+    def update_event_parameter_depth(self):
         self.depth = 1
         for parameter in self.event_parameters:
             if parameter.is_collection:
-                parameter.updateDepth()
+                parameter.update_depth()
                 self.depth = max(self.depth, parameter.depth + 1)
 
     def __repr__(self):
@@ -508,15 +508,15 @@ class Enumeration:
         self.description = description
         self.width = width
 
-        self.shortName = None
+        self.short_name = None
 
         # -> EnumerationEntry
         self.entries = []
 
-    def appendEntry(self, entry):
+    def append_entry(self, entry):
         self.entries.append(entry)
 
-    def getEntryByName(self, name):
+    def get_entry_by_name(self, name):
         for entry in self.entries:
             if entry.name == name:
                 return entry
@@ -552,12 +552,12 @@ class Interpolation(Calibration):
     def __init__(self, type_, name, uid, description):
         Calibration.__init__(self, type_, name, uid, description)
 
-        self.inputType = None
-        self.outputType = None
+        self.input_type = None
+        self.output_type = None
         self.extrapolate = True
         self.points = []
 
-    def appendPoint(self, point):
+    def append_point(self, point):
         self.points.append(point)
 
     def typeFromParameterType(self, parameterType):
@@ -592,7 +592,7 @@ class EnumerationEntry:
         self.value = value
         self.description = description
 
-        self.shortName = None
+        self.short_name = None
 
 
 class Limits:
@@ -638,15 +638,15 @@ class Subsystem:
         self.applications = {}
 
         # uid -> EnumerationMapping
-        self.telecommandEnumerations = {}
-        self.telemetryEnumerations = {}
+        self.telecommand_enumerations = {}
+        self.telemetry_enumerations = {}
 
         # uid -> CalibrationMappping
-        self.telecommandCalibrations = {}
-        self.telemetryCalibrations = {}
+        self.telecommand_calibrations = {}
+        self.telemetry_calibrations = {}
 
         # uid -> ParameterMapping
-        self.telecommandParameters = {}
+        self.telecommand_parameters = {}
 
         # string -> Telecommand-/TelemetryMapping
         self.packets_by_packet_class = collections.defaultdict(list)
@@ -662,40 +662,40 @@ class ApplicationMapping:
         self.apid = apid
         self.description = description
 
-        self.namePrefix = ""
-        self.nameSuffix = ""
+        self.name_prefix = ""
+        self.name_suffix = ""
 
         # -> TelemetryMapping
         self._telemetry = []
         # -> TelecommandMapping
         self._telecommand = []
 
-    def appendTelemetry(self, telemetry):
+    def append_telemetry(self, telemetry):
         self._telemetry.append(telemetry)
 
-    def getTelemetries(self):
+    def get_telemetries(self):
         return self._telemetry
 
-    def getTelemetryByUid(self, uid):
+    def get_telemetry_by_uid(self, uid):
         for t in self._telemetry:
             if t.telemetry.uid == uid:
                 return t
         return None
 
-    def getTelemetryBySid(self, sid):
+    def get_telemetry_by_sid(self, sid):
         for t in self._telemetry:
             if t.sid == sid:
                 return t
         return None
 
-    def appendTelecommand(self, telecommand):
+    def append_telecommand(self, telecommand):
         self._telecommand.append(telecommand)
 
-    def getTelecommands(self):
+    def get_telecommands(self):
         return self._telecommand
 
     def wrap_name(self, name):
-        return self.namePrefix + name + self.nameSuffix
+        return self.name_prefix + name + self.name_suffix
 
     def __repr__(self):
         return str(self.apid)
@@ -730,7 +730,7 @@ class TelemetryMapping:
         # -> PacketGeneration
         self.packet_generation = None
 
-    def appendParameter(self, parameter):
+    def append_parameter(self, parameter):
         self.parameters.append(parameter)
 
 

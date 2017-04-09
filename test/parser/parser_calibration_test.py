@@ -34,8 +34,8 @@ class ParserCalibrationTest(unittest.TestCase):
         self.assertEqual(4, len(self.model.calibrations))
 
     def test_should_contain_calibration_mappings(self):
-        self.assertEqual(2, len(self.model.subsystems[0].telemetryCalibrations))
-        self.assertEqual(1, len(self.model.subsystems[0].telecommandCalibrations))
+        self.assertEqual(2, len(self.model.subsystems[0].telemetry_calibrations))
+        self.assertEqual(1, len(self.model.subsystems[0].telecommand_calibrations))
 
     def test_should_have_telecommand_parameter_calibration(self):
         packet = self.model.parameters["P7"]
@@ -46,8 +46,8 @@ class ParserCalibrationTest(unittest.TestCase):
         self.assertEqual(0, packet.calibration.points[0].x)
         self.assertEqual(10, packet.calibration.points[0].y)
 
-        self.assertEqual(pando.model.Interpolation.UNSIGNED_INTEGER, packet.calibration.inputType)
-        self.assertEqual(pando.model.Interpolation.UNSIGNED_INTEGER, packet.calibration.outputType)
+        self.assertEqual(pando.model.Interpolation.UNSIGNED_INTEGER, packet.calibration.input_type)
+        self.assertEqual(pando.model.Interpolation.UNSIGNED_INTEGER, packet.calibration.output_type)
 
     def test_should_have_telemetry_parameter_calibration(self):
         packet = self.model.parameters["P100"]
@@ -58,8 +58,8 @@ class ParserCalibrationTest(unittest.TestCase):
         self.assertEqual(100.12, packet.calibration.points[0].x)
         self.assertEqual(-2, packet.calibration.points[0].y)
 
-        self.assertEqual(pando.model.Interpolation.REAL, packet.calibration.inputType)
-        self.assertEqual(pando.model.Interpolation.SIGNED_INTEGER, packet.calibration.outputType)
+        self.assertEqual(pando.model.Interpolation.REAL, packet.calibration.input_type)
+        self.assertEqual(pando.model.Interpolation.SIGNED_INTEGER, packet.calibration.output_type)
 
     def test_should_have_polynom_parameter_calibration(self):
         packet = self.model.parameters["P101"]
@@ -73,7 +73,7 @@ class ParserCalibrationTest(unittest.TestCase):
 
     def test_should_have_unmapped_calibrations(self):
         validator = pando.model.validator.ModelValidator(self.model)
-        additional_tm, unresolved_tm, additional_tc, unresolved_tc = validator.getUnmappedCalibrations()
+        additional_tm, unresolved_tm, additional_tc, unresolved_tc = validator.get_unmapped_calibrations()
 
         self.assertEqual(0, len(additional_tc))
         self.assertEqual(0, len(unresolved_tc))

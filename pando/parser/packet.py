@@ -36,7 +36,7 @@ class PacketParser:
                                           model,
                                           model.parameters,
                                           model.enumerations)
-                model.appendTelemetryPacket(event)
+                model.append_telemetry_packet(event)
 
             for node in events_node.iterchildren('derivedEvent'):
                 event = self._parse_derived_event(node,
@@ -44,7 +44,7 @@ class PacketParser:
                                                   model.parameters,
                                                   model.enumerations,
                                                   model.telemetries)
-                model.appendTelemetryPacket(event)
+                model.append_telemetry_packet(event)
 
         for telemetries_node in service_node.iterfind('telemetries'):
             for node in telemetries_node.iterchildren('telemetry'):
@@ -52,7 +52,7 @@ class PacketParser:
                                            model,
                                            model.parameters,
                                            model.enumerations)
-                model.appendTelemetryPacket(tm)
+                model.append_telemetry_packet(tm)
 
             for node in telemetries_node.iterchildren('derivedTelemetry'):
                 tm = self._parse_derived_telemetry(node,
@@ -60,7 +60,7 @@ class PacketParser:
                                                    model.parameters,
                                                    model.enumerations,
                                                    model.telemetries)
-                model.appendTelemetryPacket(tm)
+                model.append_telemetry_packet(tm)
 
         for telecommands_node in service_node.iterfind('telecommands'):
             for node in telecommands_node.iterchildren('telecommand'):
@@ -69,7 +69,7 @@ class PacketParser:
                                              model.parameters,
                                              model.enumerations,
                                              model.telemetries)
-                model.appendTelecommandPacket(tc)
+                model.append_telecommand_packet(tc)
 
             for node in telecommands_node.iterchildren('derivedTelecommand'):
                 tc = self._parse_derived_telecommand(node,
@@ -78,7 +78,7 @@ class PacketParser:
                                                      model.enumerations,
                                                      model.telemetries,
                                                      model.telecommands)
-                model.appendTelecommandPacket(tc)
+                model.append_telecommand_packet(tc)
 
     @staticmethod
     def _parse_severity(node, default=None):
@@ -110,8 +110,8 @@ class PacketParser:
         event.report_id = int(node.findtext("reportId"))
         event.severity = self._parse_severity(node)
 
-        event.serviceType = 5
-        event.serviceSubtype = int(event.severity)
+        event.service_type = 5
+        event.service_subtype = int(event.severity)
 
         event.packet_class = pando.parser.common.parse_packet_classes(node, None)
 
@@ -126,20 +126,20 @@ class PacketParser:
                                            reference_parameters, enumerations)
 
         # Copy all parameters as event parameters
-        for parameter in event.getParameters():
-            event.appendEventParameter(parameter)
+        for parameter in event.get_parameters():
+            event.append_event_parameter(parameter)
 
         # Add the report identifier before the other parameters
         report_id_parameter = reference_parameters[self.EVENT_REPORT_ID_PARAMETER_UID]
-        event.getParameters().insert(0, report_id_parameter)
+        event.get_parameters().insert(0, report_id_parameter)
 
-        event.updateDepth()
-        event.updateEventParameterDepth()
+        event.update_depth()
+        event.update_event_parameter_depth()
 
         identification_parameter = \
             pando.model.TelemetryIdentificationParameter(parameter=report_id_parameter,
-                                                        value=str(event.report_id))
-        event.identificationParameter.append(identification_parameter)
+                                                         value=str(event.report_id))
+        event.identification_parameter.append(identification_parameter)
         return event
 
     def _parse_derived_event(self, node, model, reference_parameters, enumerations, telemetries):
@@ -149,7 +149,7 @@ class PacketParser:
         event.uid = node.attrib["uid"]
         event.name = node.attrib.get("name", event.name)
         event.description = pando.parser.common.parse_description(node, event.description)
-        pando.parser.common.parse_short_name(event, node, event.shortName)
+        pando.parser.common.parse_short_name(event, node, event.short_name)
 
         if event.packet_type != pando.model.Packet.EVENT:
             raise ParserException("{} is not an event!".format(event.uid))
@@ -157,8 +157,8 @@ class PacketParser:
         event.report_id = int(node.findtext("reportId", event.report_id))
         event.severity = self._parse_severity(node, event.severity)
 
-        event.serviceType = 5
-        event.serviceSubtype = int(event.severity)
+        event.service_type = 5
+        event.service_subtype = int(event.severity)
 
         packet_generation = pando.parser.common.parse_packet_generation(node)
         if packet_generation is not None:
@@ -171,11 +171,11 @@ class PacketParser:
                                         reference_parameters,
                                         enumerations)
 
-        event.updateDepth()
-        event.updateEventParameterDepth()
+        event.update_depth()
+        event.update_event_parameter_depth()
 
         # Update the telemetry identification parameter
-        for parameter in event.identificationParameter:
+        for parameter in event.identification_parameter:
             if parameter.parameter.uid == self.EVENT_REPORT_ID_PARAMETER_UID:
                 parameter.value = str(event.report_id)
 
@@ -196,7 +196,7 @@ class PacketParser:
                                            node.find("parameters"),
                                            model,
                                            reference_parameters, enumerations)
-        packet.updateDepth()
+        packet.update_depth()
         return packet
 
     def _parse_telemetry(self, node, model, reference_parameters, enumerations):
@@ -208,7 +208,7 @@ class PacketParser:
 
         packet.packet_generation = pando.parser.common.parse_packet_generation(node)
 
-        parameters = packet.getParametersAsFlattenedList()
+        parameters = packet.get_parameters_as_flattened_list()
         self._parse_telemetry_identification_parameter(packet, node, parameters)
         return packet
 
@@ -228,7 +228,7 @@ class PacketParser:
         for telemetry_uid in node.iterfind("relevantTelemetry/telemetryRef"):
             uid = telemetry_uid.attrib["uid"]
             telemetry = telemetries[uid]
-            packet.relevantTelemetry.append(telemetry)
+            packet.relevant_telemetry.append(telemetry)
 
         # TODO failureIdentification
         return packet
@@ -240,12 +240,12 @@ class PacketParser:
         packet.uid = node.attrib["uid"]
         packet.name = node.attrib.get("name", packet.name)
         packet.description = pando.parser.common.parse_description(node, packet.description)
-        pando.parser.common.parse_short_name(packet, node, packet.shortName)
+        pando.parser.common.parse_short_name(packet, node, packet.short_name)
 
         self._parse_designators(packet, node)
         self._parse_service_type(packet, node,
-                                 packet.serviceType,
-                                 packet.serviceSubtype)
+                                 packet.service_type,
+                                 packet.service_subtype)
         self._parse_additional_packet_fields(packet, node)
         packet.packet_class = pando.parser.common.parse_packet_classes(node, packet.packet_class)
 
@@ -254,7 +254,7 @@ class PacketParser:
                                         model,
                                         reference_parameters,
                                         enumerations)
-        packet.updateDepth()
+        packet.update_depth()
         return packet
 
     def _parse_derived_telemetry(self, node, model, reference_parameters, enumerations, telemetries):
@@ -268,7 +268,7 @@ class PacketParser:
         if packet_generation:
             packet.packet_generation = packet_generation
 
-        parameters = packet.getParametersAsFlattenedList()
+        parameters = packet.get_parameters_as_flattened_list()
         self._parse_telemetry_identification_parameter(packet, node, parameters)
 
         return packet
@@ -291,7 +291,7 @@ class PacketParser:
             uid = telemetry_uid.attrib["uid"]
             telemetry = telemetries[uid]
             # FIXME overwrite
-            packet.relevantTelemetry.append(telemetry)
+            packet.relevant_telemetry.append(telemetry)
 
         # TODO failureIdentification
         return packet
@@ -333,11 +333,11 @@ class PacketParser:
                                                                reference_parameters, enumerations)
                 if parameters is not None:
                     for parameter in parameters:
-                        packet.appendParameter(parameter)
+                        packet.append_parameter(parameter)
 
                         if is_event:
                             # Append to the event parameters as well.
-                            packet.appendEventParameter(parameter)
+                            packet.append_event_parameter(parameter)
 
     @staticmethod
     def _replace_parameter_in_packet(packet, override_uid, override_parameter, is_event):
@@ -368,7 +368,7 @@ class PacketParser:
 
     @staticmethod
     def _parse_parameter_values(packet, node, enumerations):
-        parameters = packet.getParametersAsFlattenedList()
+        parameters = packet.get_parameters_as_flattened_list()
 
         for parameter_node in node.iterfind("parameterValues/parameterValue"):
             uid = parameter_node.attrib.get("uid")
@@ -380,13 +380,13 @@ class PacketParser:
                     if uid == p.uid:
                         if p.type.identifier is pando.model.ParameterType.ENUMERATION:
                             enum = enumerations[p.type.enumeration]
-                            entry = enum.getEntryByName(value)
+                            entry = enum.get_entry_by_name(value)
                             if entry == None:
                                 raise ParserException("Value '%s' not found in enumeration '%s'."
                                                       % (value, uid))
                         p.value = value
-                        p.valueType = value_type
-                        p.valueRange = value_range
+                        p.value_type = value_type
+                        p.value_range = value_range
                         break
                 else:
                     # No matching parameter found
@@ -411,8 +411,8 @@ class PacketParser:
 
     @staticmethod
     def _parse_service_type(packet, node, default_type=None, default_subtype=None):
-        packet.serviceType = int(node.findtext("serviceType", str(default_type)))
-        packet.serviceSubtype = int(node.findtext("serviceSubtype", str(default_subtype)))
+        packet.service_type = int(node.findtext("serviceType", str(default_type)))
+        packet.service_subtype = int(node.findtext("serviceSubtype", str(default_subtype)))
 
     @staticmethod
     def _parse_telecommand_verification(packet, node):
@@ -438,7 +438,7 @@ class PacketParser:
                 raise ParserException("Identification parameter '%s' was not found in packet '%s'"
                                       % (uid, packet.uid))
 
-            packet.identificationParameter.append(parameter)
+            packet.identification_parameter.append(parameter)
 
     @staticmethod
     def _parse_additional_packet_fields(packet, node):

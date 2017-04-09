@@ -45,13 +45,13 @@ class ModelTest(unittest.TestCase):
         packet = pando.model.Packet(name="Test", uid="test", description="",
                                    packet_type=pando.model.Packet.TELECOMMAND)
 
-        packet.appendParameter(self._create_parameter("P1", model))
+        packet.append_parameter(self._create_parameter("P1", model))
 
         repeater = self._create_repeater("P2", model)
-        repeater.appendParameter(self._create_parameter("P3", model))
+        repeater.append_parameter(self._create_parameter("P3", model))
 
-        packet.appendParameter(repeater)
-        packet.appendParameter(self._create_parameter("P4", model))
+        packet.append_parameter(repeater)
+        packet.append_parameter(self._create_parameter("P4", model))
 
         model.telecommands[packet.uid] = packet
         return packet
@@ -60,18 +60,18 @@ class ModelTest(unittest.TestCase):
         packet = pando.model.Packet(name="Test", uid="test", description="",
                                    packet_type=pando.model.Packet.TELECOMMAND)
 
-        packet.appendParameter(self._create_parameter("P1", model))
+        packet.append_parameter(self._create_parameter("P1", model))
 
         repeater = self._create_repeater("G1", model)
-        repeater.appendParameter(self._create_parameter("P2", model))
+        repeater.append_parameter(self._create_parameter("P2", model))
 
         repeater2 = self._create_repeater("G2", model)
-        repeater2.appendParameter(self._create_parameter("P3", model))
-        repeater2.appendParameter(self._create_parameter("P4", model))
+        repeater2.append_parameter(self._create_parameter("P3", model))
+        repeater2.append_parameter(self._create_parameter("P4", model))
 
-        repeater.appendParameter(repeater2)
-        packet.appendParameter(repeater)
-        packet.appendParameter(self._create_parameter("P5", model))
+        repeater.append_parameter(repeater2)
+        packet.append_parameter(repeater)
+        packet.append_parameter(self._create_parameter("P5", model))
 
         model.telecommands[packet.uid] = packet
         return packet
@@ -80,7 +80,7 @@ class ModelTest(unittest.TestCase):
         m = pando.model.Model()
         packet = self._generate_packet(m)
 
-        parameters = packet.getParametersAsFlattenedList()
+        parameters = packet.get_parameters_as_flattened_list()
         self.assertIsNotNone(parameters)
 
         self.assertEqual(len(parameters), 4)
@@ -93,11 +93,11 @@ class ModelTest(unittest.TestCase):
         model = pando.model.Model()
         packet = self._generate_packet(model)
 
-        parameters = packet.getParametersAsFlattenedList()
-        self.assertEqual(parameters[1].getFlattenedMemberCount(), 1)
+        parameters = packet.get_parameters_as_flattened_list()
+        self.assertEqual(parameters[1].get_flattened_member_count(), 1)
 
         packet2 = self._generate_packet_with_nested_repeaters(model)
 
-        parameters2 = packet2.getParametersAsFlattenedList()
-        self.assertEqual(parameters2[1].getFlattenedMemberCount(), 4)
-        self.assertEqual(parameters2[3].getFlattenedMemberCount(), 2)
+        parameters2 = packet2.get_parameters_as_flattened_list()
+        self.assertEqual(parameters2[1].get_flattened_member_count(), 4)
+        self.assertEqual(parameters2[3].get_flattened_member_count(), 2)

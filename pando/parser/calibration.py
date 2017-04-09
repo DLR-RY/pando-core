@@ -44,31 +44,31 @@ class CalibrationParser:
     def _parse_calibration_interpolation_telemetry(self, node):
         description = pando.parser.common.parse_description(node)
         c = pando.model.Interpolation(pando.model.Calibration.INTERPOLATION_TELEMETRY,
-                                     name=node.attrib.get("name"),
-                                     uid=node.attrib.get("uid"),
-                                     description=description)
+                                      name=node.attrib.get("name"),
+                                      uid=node.attrib.get("uid"),
+                                      description=description)
 
         c.extrapolate = self._to_boolean(node.attrib.get("extrapolate", "true"))
-        c.outputType = self._to_interpolation_type(node.attrib.get("outputType"))
+        c.output_type = self._to_interpolation_type(node.attrib.get("outputType"))
         c.unit = node.attrib.get("unit", "")
 
         for point_node in node.iterfind("point"):
-            c.appendPoint(self._parse_calibration_interpolation_point(point_node))
+            c.append_point(self._parse_calibration_interpolation_point(point_node))
 
         return c
 
     def _parse_calibration_interpolation_telecommand(self, node):
         description = pando.parser.common.parse_description(node)
         c = pando.model.Interpolation(pando.model.Calibration.INTERPOLATION_TELECOMMAND,
-                                     name=node.attrib.get("name"),
-                                     uid=node.attrib.get("uid"),
-                                     description=description)
+                                      name=node.attrib.get("name"),
+                                      uid=node.attrib.get("uid"),
+                                      description=description)
 
         c.extrapolate = self._to_boolean(node.attrib.get("extrapolate", "true"))
-        c.inputType = self._to_interpolation_type(node.attrib.get("inputType"))
+        c.input_type = self._to_interpolation_type(node.attrib.get("inputType"))
 
         for point_node in node.iterfind("point"):
-            c.appendPoint(self._parse_calibration_interpolation_point(point_node))
+            c.append_point(self._parse_calibration_interpolation_point(point_node))
 
         return c
 
@@ -76,8 +76,8 @@ class CalibrationParser:
     def _parse_calibration_polynom(node):
         description = pando.parser.common.parse_description(node)
         c = pando.model.Polynom(name=node.attrib.get("name"),
-                               uid=node.attrib.get("uid"),
-                               description=description)
+                                uid=node.attrib.get("uid"),
+                                description=description)
 
         c.a0 = float(node.attrib.get("a0", "0"))
         c.a1 = float(node.attrib.get("a1", "0"))
@@ -102,5 +102,5 @@ class CalibrationParser:
     @staticmethod
     def _parse_calibration_interpolation_point(node):
         p = pando.model.Interpolation.Point(float(node.attrib.get("x")),
-                                           float(node.attrib.get("y")))
+                                            float(node.attrib.get("y")))
         return p

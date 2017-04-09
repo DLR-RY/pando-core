@@ -31,7 +31,7 @@ class ParserTest(unittest.TestCase):
         return model
 
     def get_packet_parameter(self, packet, uid):
-        for p in packet.getParametersAsFlattenedList():
+        for p in packet.get_parameters_as_flattened_list():
             if p.uid == uid:
                 return p
         else:
@@ -74,22 +74,22 @@ class ParserTest(unittest.TestCase):
 
     def test_should_contain_information_about_related_telemetry(self):
         tc = self.model.telecommands["TEST02"]
-        self.assertEqual(len(tc.relevantTelemetry), 1)
+        self.assertEqual(len(tc.relevant_telemetry), 1)
 
-        tm = tc.relevantTelemetry[0]
+        tm = tc.relevant_telemetry[0]
         self.assertEqual(tm.uid, "service_3_12")
         self.assertEqual(tm.name, "Diagnostic Parameter Report Definitions Report (3, 12)")
 
     def test_should_have_service_type_information(self):
         tm = self.model.telemetries["service_3_12"]
 
-        self.assertEqual(tm.serviceType, 3)
-        self.assertEqual(tm.serviceSubtype, 12)
+        self.assertEqual(tm.service_type, 3)
+        self.assertEqual(tm.service_subtype, 12)
 
         tc = self.model.telecommands["TEST03"]
 
-        self.assertEqual(tc.serviceType, 8)
-        self.assertEqual(tc.serviceSubtype, 100)
+        self.assertEqual(tc.service_type, 8)
+        self.assertEqual(tc.service_subtype, 100)
 
     def test_parameters_defined_in_a_packet_should_appear_as_reference_parameters(self):
         self.assertTrue("P10" in self.model.parameters)
@@ -106,25 +106,25 @@ class ParserTest(unittest.TestCase):
 
         p = self.get_packet_parameter(tc, "P10")
         self.assertEqual(p.value, "20")
-        self.assertEqual(p.valueType, pando.model.Parameter.FIXED)
+        self.assertEqual(p.value_type, pando.model.Parameter.FIXED)
 
     def test_value_should_be_inherited(self):
         tm = self.model.telemetries["service_3_12"]
 
         p = self.get_packet_parameter(tm, "P7")
         self.assertEqual(p.value, "123456")
-        self.assertEqual(p.valueType, pando.model.Parameter.DEFAULT)
+        self.assertEqual(p.value_type, pando.model.Parameter.DEFAULT)
 
         p = self.get_packet_parameter(tm, "P21")
         self.assertEqual(p.value, "Unit1")
-        self.assertEqual(p.valueType, pando.model.Parameter.FIXED)
+        self.assertEqual(p.value_type, pando.model.Parameter.FIXED)
 
     def test_inherited_values_should_be_overwriteable(self):
         tc = self.model.telecommands["TEST02"]
 
         p = self.get_packet_parameter(tc, "P21")
         self.assertEqual(p.value, "Unit17")
-        self.assertEqual(p.valueType, pando.model.Parameter.DEFAULT)
+        self.assertEqual(p.value_type, pando.model.Parameter.DEFAULT)
 
     def test_should_support_units(self):
         p = self.model.parameters["P1"]
@@ -159,7 +159,7 @@ class ParserTest(unittest.TestCase):
         model = self.parse_file("resources/test_list.xml")
 
         tc = model.telecommands["test"]
-        parameters = tc.getParametersAsFlattenedList()
+        parameters = tc.get_parameters_as_flattened_list()
         self.assertEqual(len(parameters), 3)
 
         self.assertEqual(parameters[0].uid, "p1")
@@ -174,7 +174,7 @@ class ParserTest(unittest.TestCase):
         model = self.parse_file("resources/test_list_list.xml")
 
         tc = model.telecommands["test"]
-        parameters = tc.getParametersAsFlattenedList()
+        parameters = tc.get_parameters_as_flattened_list()
         self.assertEqual(len(parameters), 5)
 
         self.assertEqual(parameters[0].uid, "p1")

@@ -28,7 +28,7 @@ class ReportBuilder(builder.Builder):
 
         if template_file is None:
             template_file = '#svg.tpl'
-        self.templateFile = template_file
+        self.template_file = template_file
 
     def generate(self, _):
         self.print_packet_statistics()
@@ -48,7 +48,7 @@ class ReportBuilder(builder.Builder):
 
                 tm_count = 0
                 tm_generation_count = 0
-                for telemetry_mapping in application.getTelemetries():
+                for telemetry_mapping in application.get_telemetries():
                     tm_count += 1
 
                     packet = telemetry_mapping
@@ -57,7 +57,7 @@ class ReportBuilder(builder.Builder):
                     else:
                         missing_packets.append(packet)
 
-                    for parameter in packet.telemetry.getParametersAsFlattenedList():
+                    for parameter in packet.telemetry.get_parameters_as_flattened_list():
                         total_tm_parameter += 1
 
                         if not parameter.uid.startswith("s1_") and not parameter.uid.startswith("s5_") \
@@ -75,7 +75,7 @@ class ReportBuilder(builder.Builder):
                 total_tm_generation_count += tm_generation_count
 
                 tc_count = 0
-                for _ in application.getTelecommands():
+                for _ in application.get_telecommands():
                     tc_count += 1
 
                 total_tc_count += tc_count

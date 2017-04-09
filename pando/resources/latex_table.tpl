@@ -64,11 +64,11 @@ Authors:
 ## endif
 <% endif %> \\
 
-## if packet.relevantTelemetry|length > 0
+## if packet.relevant_telemetry|length > 0
 \midrule
 \textbf{Expected Response:}\setlength{\parskip}{6pt}
 
-    ## for tm in packet.relevantTelemetry
+    ## for tm in packet.relevant_telemetry
 ~~~\llap{\textbullet}~~<< tm.name >> \\
     ## endfor
 ## endif

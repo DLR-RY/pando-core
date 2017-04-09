@@ -42,7 +42,7 @@ class ParameterParser:
                                               reference_parameters, enumerations)
             if parameters is not None:
                 for parameter in parameters:
-                    packet.appendParameter(parameter)
+                    packet.append_parameter(parameter)
 
     def parse_parameter(self, node, model, reference_parameters, enumerations):
         parameters = []
@@ -54,9 +54,9 @@ class ParameterParser:
             parameter_type = self._parse_type(node)
             if node.tag == "parameter":
                 parameter = pando.model.Parameter(name=name,
-                                                 uid=uid,
-                                                 description=description,
-                                                 parameter_type=parameter_type)
+                                                  uid=uid,
+                                                  description=description,
+                                                  parameter_type=parameter_type)
 
                 parameter.unit = node.attrib.get("unit")
 
@@ -75,9 +75,9 @@ class ParameterParser:
 
             elif node.tag == "repeater":
                 parameter = pando.model.Repeater(name=name,
-                                                uid=uid,
-                                                description=description,
-                                                parameter_type=parameter_type)
+                                                 uid=uid,
+                                                 description=description,
+                                                 parameter_type=parameter_type)
                 self.parse_parameters(parameter, node, model, reference_parameters, enumerations)
 
             pando.parser.common.parse_short_name(parameter, node)
@@ -86,21 +86,21 @@ class ParameterParser:
             value, value_type, value_range = self.parse_parameter_value(node)
             if value_type is not None:
                 parameter.value = value
-                parameter.valueType = value_type
-                parameter.valueRange = value_range
+                parameter.value_type = value_type
+                parameter.value_range = value_range
 
             reference_parameters[parameter.uid] = parameter
             parameters.append(parameter)
         elif node.tag == "enumerationParameter":
             name = node.attrib.get("name")
             description = pando.parser.common.parse_description(node)
-            enumName = node.attrib.get("enumeration")
+            enum_name = node.attrib.get("enumeration")
 
-            parameter_type = pando.model.EnumerationType(enumerations[enumName].width, enumName)
+            parameter_type = pando.model.EnumerationType(enumerations[enum_name].width, enum_name)
             parameter = pando.model.Parameter(name=name,
-                                             uid=uid,
-                                             description=description,
-                                             parameter_type=parameter_type)
+                                              uid=uid,
+                                              description=description,
+                                              parameter_type=parameter_type)
 
             pando.parser.common.parse_short_name(parameter, node)
             self._parse_and_update_byte_order(node, parameter)
@@ -111,15 +111,15 @@ class ParameterParser:
                     raise ParserException("Invalid value definition for enumeration '%s'. " \
                                           "Only 'fixed' or 'default' permitted" % uid)
 
-                enum = enumerations[enumName]
-                entry = enum.getEntryByName(value)
+                enum = enumerations[enum_name]
+                entry = enum.get_entry_by_name(value)
                 if entry == None:
                     raise ParserException("Value '%s' not found in enumeration '%s'."
                                           % (value, uid))
 
                 parameter.value = value
-                parameter.valueType = value_type
-                parameter.valueRange = value_range
+                parameter.value_type = value_type
+                parameter.value_range = value_range
 
             reference_parameters[parameter.uid] = parameter
             parameters.append(parameter)
@@ -210,15 +210,15 @@ class ParameterParser:
         if limits_node is not None:
             sample_count = int(limits_node.attrib["samples"], 0)
             if limits_node.attrib["input"] == "calibrated":
-                value_type = calibration.outputType
+                value_type = calibration.output_type
                 limits = pando.model.Limits(input_type=pando.model.Limits.INPUT_CALIBRATED,
-                                           value_type=value_type,
-                                           samples=sample_count)
+                                            value_type=value_type,
+                                            samples=sample_count)
             else:
-                value_type = parameter.valueType
+                value_type = parameter.value_type
                 limits = pando.model.Limits(input_type=pando.model.Limits.INPUT_RAW,
-                                           value_type=value_type,
-                                           samples=sample_count)
+                                            value_type=value_type,
+                                            samples=sample_count)
 
             for check_node in limits_node:
                 if check_node.tag == "warning":

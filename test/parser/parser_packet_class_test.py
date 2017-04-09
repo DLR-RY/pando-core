@@ -33,15 +33,15 @@ class ParserTest(unittest.TestCase):
 
     def test_should_have_packet_class_data(self):
         application = self.model.subsystems[0].applications[1]
-        telemetryMappings = application.getTelemetries()
+        telemetryMappings = application.get_telemetries()
 
         self.assertEqual(len(telemetryMappings), 5)
 
-        tm1a = application.getTelemetryBySid("TM1A")
-        tm1b = application.getTelemetryBySid("TM1B")
-        tm2a = application.getTelemetryBySid("TM2A")
-        tm2b = application.getTelemetryBySid("TM2B")
-        event = application.getTelemetryBySid("Event")
+        tm1a = application.get_telemetry_by_sid("TM1A")
+        tm1b = application.get_telemetry_by_sid("TM1B")
+        tm2a = application.get_telemetry_by_sid("TM2A")
+        tm2b = application.get_telemetry_by_sid("TM2B")
+        event = application.get_telemetry_by_sid("Event")
 
         self.assertIsNotNone(tm1a.telemetry.packet_class)
         self.assertIsNotNone(tm1b.telemetry.packet_class)
@@ -58,11 +58,11 @@ class ParserTest(unittest.TestCase):
     def test_should_have_correct_packet_class_data(self):
         application = self.model.subsystems[0].applications[1]
 
-        tm1a = application.getTelemetryBySid("TM1A")
-        tm1b = application.getTelemetryBySid("TM1B")
-        tm2a = application.getTelemetryBySid("TM2A")
-        tm2b = application.getTelemetryBySid("TM2B")
-        event = application.getTelemetryBySid("Event")
+        tm1a = application.get_telemetry_by_sid("TM1A")
+        tm1b = application.get_telemetry_by_sid("TM1B")
+        tm2a = application.get_telemetry_by_sid("TM2A")
+        tm2b = application.get_telemetry_by_sid("TM2B")
+        event = application.get_telemetry_by_sid("Event")
 
         self.assertEqual(["Housekeeping"], tm1a.packet_class)
         self.assertEqual(["Extended Housekeeping", "Realtime"], tm1b.packet_class)
@@ -75,8 +75,8 @@ class ParserTest(unittest.TestCase):
         self.assertEqual(2, len(housekeepings))
 
         application = self.model.subsystems[0].applications[1]
-        tm1b = application.getTelemetryBySid("TM1B")
-        tm2a = application.getTelemetryBySid("TM2A")
+        tm1b = application.get_telemetry_by_sid("TM1B")
+        tm2a = application.get_telemetry_by_sid("TM2A")
 
         self.assertIn(tm1b, housekeepings)
         self.assertIn(tm2a, housekeepings)

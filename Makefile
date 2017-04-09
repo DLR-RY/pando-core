@@ -35,6 +35,9 @@ test-latex:
 pylint-gui:
 	@cd pando; pylint-gui
 
+pylint-gui3:
+	@cd pando; pylint-gui3
+
 dist:
 	@python3 setup.py sdist --formats=zip
 

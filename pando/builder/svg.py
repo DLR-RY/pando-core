@@ -25,18 +25,18 @@ class ImageBuilder(builder.Builder):
     class DecodingState:
         def __init__(self):
             self.x = 0
-            self.elementCount = 0
+            self.element_count = 0
 
-    def __init__(self, model_, templateFile=None, align=False):
+    def __init__(self, model_, template_file=None, align=False):
         builder.Builder.__init__(self, model_)
 
-        self.boxWidth = 90
-        self.repeaterDelimiterWidth = 10
-        self.textHeight = 14
+        self.box_width = 90
+        self.repeater_delimiter_width = 10
+        self.text_height = 14
 
-        if templateFile is None:
-            templateFile = '#svg.tpl'
-        self.templateFile = templateFile
+        if template_file is None:
+            template_file = '#svg.tpl'
+        self.template_file = template_file
         self.align = align
 
         self.state = self.DecodingState()
@@ -44,45 +44,45 @@ class ImageBuilder(builder.Builder):
     def generate(self, outpath):
         for packet in self.model.telemetries.values():
             filename = os.path.join(outpath, "%s.svg" % packet.uid)
-            self._write(filename, self.generatePacket(packet) + "\n")
+            self._write(filename, self.generate_packet(packet) + "\n")
         for packet in self.model.telecommands.values():
             filename = os.path.join(outpath, "%s.svg" % packet.uid)
-            self._write(filename, self.generatePacket(packet) + "\n")
+            self._write(filename, self.generate_packet(packet) + "\n")
 
-    def generatePacket(self, packet):
+    def generate_packet(self, packet):
         self.state = self.DecodingState()
         elements = []
 
-        for parameter in packet.getParameters():
-            self._packetParameter(parameter, elements)
+        for parameter in packet.get_parameters():
+            self._packet_parameter(parameter, elements)
 
-        defaultWidth = 525
-        if (self.state.x + 20) > defaultWidth:
-            xOffset = 10
+        default_width = 525
+        if (self.state.x + 20) > default_width:
+            x_offset = 10
             width = self.state.x + 20
         else:
             if self.align:
-                xOffset = 10
+                x_offset = 10
             else:
-                xOffset = int((defaultWidth - (self.state.x)) / 2)
-            width = defaultWidth
+                x_offset = int((default_width - (self.state.x)) / 2)
+            width = default_width
         height = 85 + (packet.depth - 1) * 20 + 5
 
         substitutions = {
             'elements': elements,
-            'xOffset': xOffset,
+            'x_offset': x_offset,
             'yOffset': 5 + packet.depth * 5,
             'width': width,
             'height': height,
         }
 
-        template = self._template(self.templateFile)
+        template = self._template(self.template_file)
         return template.render(substitutions)
 
-    def _packetParameter(self, parameter, elements):
+    def _packet_parameter(self, parameter, elements):
         if isinstance(parameter, model.List):
             for p in parameter.parameters:
-                self._packetParameter(p, elements)
+                self._packet_parameter(p, elements)
         else:
             wrapper = textwrap.TextWrapper()
             wrapper.width = 14
@@ -90,9 +90,9 @@ class ImageBuilder(builder.Builder):
             text = wrapper.wrap(parameter.name)
 
             texts = []
-            offset = (40 - self.textHeight * len(text)) / 2 - 3
+            offset = (40 - self.text_height * len(text)) / 2 - 3
             for t in text:
-                offset += self.textHeight
+                offset += self.text_height
                 texts.append({
                     'text': t,
                     'y': offset,
@@ -104,39 +104,39 @@ class ImageBuilder(builder.Builder):
                 'parameterType': str(parameter.type),
                 'parameterWidth': parameter.type.width,
                 'x': self.state.x,
-                'width': self.boxWidth,
+                'width': self.box_width,
             })
-            self.state.x += self.boxWidth
-            self.state.elementCount += 1
+            self.state.x += self.box_width
+            self.state.element_count += 1
 
             if isinstance(parameter, model.Repeater):
-                self._packetRepeater(parameter, elements)
+                self._packet_repeater(parameter, elements)
 
-    def _packetRepeater(self, repeater, elements):
+    def _packet_repeater(self, repeater, elements):
         elements.append({
             'type': 'repeaterStart',
             'x': self.state.x,
-            'width': self.repeaterDelimiterWidth,
+            'width': self.repeater_delimiter_width,
             'depth': repeater.depth,
         })
-        self.state.x += self.repeaterDelimiterWidth
-        startPosition = self.state.x
-        startCount = self.state.elementCount
+        self.state.x += self.repeater_delimiter_width
+        start_position = self.state.x
+        startCount = self.state.element_count
 
         for parameter in repeater.parameters:
-            self._packetParameter(parameter, elements)
+            self._packet_parameter(parameter, elements)
 
         if elements[-1]["type"] == "repeaterEnd":
-            self.state.x -= int(self.repeaterDelimiterWidth / 2)
+            self.state.x -= int(self.repeater_delimiter_width / 2)
 
-        repeaterWidth = self.state.elementCount - startCount
+        repeater_width = self.state.element_count - startCount
         elements.append({
             'type': 'repeaterEnd',
             'x': self.state.x,
-            'width': self.repeaterDelimiterWidth,
+            'width': self.repeater_delimiter_width,
             'depth': repeater.depth,
-            'textposition': int(startPosition + (self.state.x - startPosition) / 2),
-            'repeaterRepeatText': ("repeated %s times" if (repeaterWidth > 1) else "rep. %s times") % repeater.name,
+            'textposition': int(start_position + (self.state.x - start_position) / 2),
+            'repeaterRepeatText': ("repeated %s times" if (repeater_width > 1) else "rep. %s times") % repeater.name,
         })
-        self.state.x += self.repeaterDelimiterWidth
+        self.state.x += self.repeater_delimiter_width
 

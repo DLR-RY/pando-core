@@ -25,7 +25,7 @@ class ModelValidator:
     def __init__(self, model):
         self.model = model
 
-    def getUnmappedTelecommandParameters(self):
+    def get_unmapped_telecommand_parameters(self):
         """
         Find the UID of all telecommand_mapping parameters that are referenced through
         a telecommand_mapping in an application but have no corresponding telecommand_mapping
@@ -36,9 +36,9 @@ class ModelValidator:
         unmapped_parameters = []
         for subsystem in self.model.subsystems.values():
             for application in subsystem.applications.values():
-                for telecommand_mapping in application.getTelecommands():
-                    for parameter in telecommand_mapping.telecommand.getParametersAsFlattenedList():
-                        if parameter.uid not in subsystem.telecommandParameters:
+                for telecommand_mapping in application.get_telecommands():
+                    for parameter in telecommand_mapping.telecommand.get_parameters_as_flattened_list():
+                        if parameter.uid not in subsystem.telecommand_parameters:
                             # Only add the parameter if it is not already
                             # in the list
                             for unmapped_parameter in unmapped_parameters:
@@ -48,7 +48,7 @@ class ModelValidator:
                                 unmapped_parameters.append(parameter)
         return unmapped_parameters
 
-    def getMappedButUnreferencedTelecommandParameter(self):
+    def get_mapped_but_unreferenced_telecommand_parameter(self):
         """
         Find parameter_mappings that are used in TC parameter mapping but not
         referenced in any TC packet.
@@ -58,15 +58,15 @@ class ModelValidator:
         unreferenced_parameters = []
         for subsystem in self.model.subsystems.values():
             # Store the list of all parameter_mappings in the subsystem.
-            # With the function getUnmappedTelecommandParameters() it is
+            # With the function get_unmapped_telecommand_parameters() it is
             # checked that this is complete.
-            parameter_mappings = subsystem.telecommandParameters.copy()
+            parameter_mappings = subsystem.telecommand_parameters.copy()
 
             # Remove all parameter_mappings which are used in any TC packet
             # of this subsystem
             for application in subsystem.applications.values():
-                for telecommand_mapping in application.getTelecommands():
-                    for parameter in telecommand_mapping.telecommand.getParametersAsFlattenedList():
+                for telecommand_mapping in application.get_telecommands():
+                    for parameter in telecommand_mapping.telecommand.get_parameters_as_flattened_list():
                         if parameter.uid in parameter_mappings:
                             del parameter_mappings[parameter.uid]
 
@@ -77,24 +77,24 @@ class ModelValidator:
 
         return unreferenced_parameters
 
-    def getUnmappedTelemetryParameters(self):
+    def get_unmapped_telemetry_parameters(self):
         """
         Returns a list of tuples of (Telemetry(), [uid], [uid], Application())
         """
         unmapped = []
         for subsystem in self.model.subsystems.values():
             for application in subsystem.applications.values():
-                for telemetry_mapping in application.getTelemetries():
+                for telemetry_mapping in application.get_telemetries():
                     telemetry = telemetry_mapping.telemetry
                     # Check that all parameters are available
-                    unresolved, additional = self.getUnmappedParameters(telemetry,
-                                                                        telemetry_mapping)
+                    unresolved, additional = self.get_unmapped_parameters(telemetry,
+                                                                          telemetry_mapping)
                     if len(unresolved) > 0 or len(additional) > 0:
                         unmapped.append((telemetry, unresolved, additional, application))
         return unmapped
 
     @staticmethod
-    def getUnmappedParameters(packet, packet_mapping):
+    def get_unmapped_parameters(packet, packet_mapping):
         """
         Get the UID of parameters that are unused or additionally mapped.
 
@@ -103,7 +103,7 @@ class ModelValidator:
         unresolved = []
         additional = []
 
-        packet_parameters = packet.getParametersAsFlattenedList()
+        packet_parameters = packet.get_parameters_as_flattened_list()
         position = 0
         for parameter, mapping in itertools.zip_longest(packet_parameters,
                                                         packet_mapping.parameters):
@@ -124,14 +124,14 @@ class ModelValidator:
         telemetry_enumerations = {}
         telecommand_enumerations = {}
         for application in subsystem.applications.values():
-            for tm in application.getTelemetries():
-                for p in tm.telemetry.getParametersAsFlattenedList():
+            for tm in application.get_telemetries():
+                for p in tm.telemetry.get_parameters_as_flattened_list():
                     if p.type.identifier == pando.model.ParameterType.ENUMERATION:
                         uid = p.type.enumeration
                         telemetry_enumerations[uid] = self.model.enumerations[uid]
 
-            for tc in application.getTelecommands():
-                for p in tc.telecommand.getParametersAsFlattenedList():
+            for tc in application.get_telecommands():
+                for p in tc.telecommand.get_parameters_as_flattened_list():
                     if p.type.identifier == pando.model.ParameterType.ENUMERATION:
                         uid = p.type.enumeration
                         telecommand_enumerations[uid] = self.model.enumerations[uid]
@@ -142,22 +142,22 @@ class ModelValidator:
         telemetry_calibrations = {}
         telecommand_calibrations = {}
         for application in subsystem.applications.values():
-            for telemetry_mapping in application.getTelemetries():
-                for parameter in telemetry_mapping.telemetry.getParametersAsFlattenedList():
+            for telemetry_mapping in application.get_telemetries():
+                for parameter in telemetry_mapping.telemetry.get_parameters_as_flattened_list():
                     calibration = parameter.calibration
                     if calibration is not None:
                         calibration = self.model.calibrations[calibration.uid]
                         telemetry_calibrations[calibration.uid] = calibration
 
-            for telecommand_mapping in application.getTelecommands():
-                for parameter in telecommand_mapping.telecommand.getParametersAsFlattenedList():
+            for telecommand_mapping in application.get_telecommands():
+                for parameter in telecommand_mapping.telecommand.get_parameters_as_flattened_list():
                     calibration = parameter.calibration
                     if calibration is not None:
                         calibration = self.model.calibrations[calibration.uid]
                         telecommand_calibrations[parameter.calibration.uid] = calibration
         return telemetry_calibrations, telecommand_calibrations
 
-    def getUnmappedEnumerations(self):
+    def get_unmapped_enumerations(self):
         unresolved_tm = []
         unresolved_tc = []
         additional_tm = []
@@ -170,7 +170,7 @@ class ModelValidator:
             unresolved_tms_subsystem = telemetry_enumerations.copy()
             unresolved_tcs_subsystem = telecommand_enumerations.copy()
 
-            for m in subsystem.telemetryEnumerations.values():
+            for m in subsystem.telemetry_enumerations.values():
                 uid = m.enumeration.uid
                 if uid not in telemetry_enumerations:
                     additional_tm.append(m)
@@ -178,7 +178,7 @@ class ModelValidator:
                 if uid in unresolved_tms_subsystem:
                     unresolved_tms_subsystem.pop(uid)
 
-            for m in subsystem.telecommandEnumerations.values():
+            for m in subsystem.telecommand_enumerations.values():
                 uid = m.enumeration.uid
                 if uid not in telecommand_enumerations:
                     additional_tc.append(m)
@@ -193,7 +193,7 @@ class ModelValidator:
 
         return (additional_tm, unresolved_tm, additional_tc, unresolved_tc)
 
-    def getUnmappedCalibrations(self):
+    def get_unmapped_calibrations(self):
         unresolved_tm = []
         unresolved_tc = []
         additional_tm = []
@@ -206,7 +206,7 @@ class ModelValidator:
             unresolved_tms_subsystem = telemetry_calibrations.copy()
             unresolved_tcs_subsystem = telecommand_calibrations.copy()
 
-            for m in subsystem.telemetryCalibrations.values():
+            for m in subsystem.telemetry_calibrations.values():
                 uid = m.calibration.uid
                 if uid not in telemetry_calibrations:
                     additional_tm.append(m)
@@ -214,7 +214,7 @@ class ModelValidator:
                 if uid in unresolved_tms_subsystem:
                     unresolved_tms_subsystem.pop(uid)
 
-            for m in subsystem.telecommandCalibrations.values():
+            for m in subsystem.telecommand_calibrations.values():
                 uid = m.calibration.uid
                 if uid not in telecommand_calibrations:
                     additional_tc.append(m)
@@ -229,7 +229,7 @@ class ModelValidator:
 
         return (additional_tm, unresolved_tm, additional_tc, unresolved_tc)
 
-    def getUnusedParameters(self):
+    def get_unused_parameters(self):
         """
         Get all parameters which are not used in an TM or TC packet referenced
         by an application.
@@ -237,13 +237,13 @@ class ModelValidator:
         parameters = list(self.model.parameters.keys())
         for subsystem in self.model.subsystems.values():
             for application in subsystem.applications.values():
-                for telemetry_mapping in application.getTelemetries():
+                for telemetry_mapping in application.get_telemetries():
                     for parameter_mapping in telemetry_mapping.parameters:
                         if parameter_mapping.parameter.uid in parameters:
                             parameters.remove(parameter_mapping.parameter.uid)
 
-                for telecommand_mapping in application.getTelecommands():
-                    for parameter in telecommand_mapping.telecommand.getParametersAsFlattenedList():
+                for telecommand_mapping in application.get_telecommands():
+                    for parameter in telecommand_mapping.telecommand.get_parameters_as_flattened_list():
                         if parameter.uid in parameters:
                             parameters.remove(parameter.uid)
 
@@ -255,33 +255,33 @@ class ModelValidator:
         parameters.sort()
         return parameters
 
-    def getUnusedTelecommands(self):
+    def get_unused_telecommands(self):
         """
         Get all telecommands which are not referenced by an application.
         """
         telecommands = list(self.model.telecommands.keys())
         for subsystem in self.model.subsystems.values():
             for application in subsystem.applications.values():
-                for telecommand_mapping in application.getTelecommands():
+                for telecommand_mapping in application.get_telecommands():
                     if telecommand_mapping.telecommand.uid in telecommands:
                         telecommands.remove(telecommand_mapping.telecommand.uid)
         telecommands.sort()
         return telecommands
 
-    def getUnusedTelemetries(self):
+    def get_unused_telemetries(self):
         """
         Get all telemetry packets which are not referenced by an application.
         """
         telemetries = list(self.model.telemetries.keys())
         for subsystem in self.model.subsystems.values():
             for application in subsystem.applications.values():
-                for telemetry_mapping in application.getTelemetries():
+                for telemetry_mapping in application.get_telemetries():
                     if telemetry_mapping.telemetry.uid in telemetries:
                         telemetries.remove(telemetry_mapping.telemetry.uid)
         telemetries.sort()
         return telemetries
 
-    def getAmbiguousTelemetryPackets(self):
+    def get_ambiguous_telemetry_packets(self):
         """
         Get all ambiguous telemetry packets.
 
@@ -296,16 +296,16 @@ class ModelValidator:
         tm = {}
         for subsystem in self.model.subsystems.values():
             for application in subsystem.applications.values():
-                for telemetry_mapping in application.getTelemetries():
+                for telemetry_mapping in application.get_telemetries():
                     telemetry = telemetry_mapping.telemetry
-                    identifier = (application.apid, telemetry.serviceType, telemetry.serviceSubtype)
+                    identifier = (application.apid, telemetry.service_type, telemetry.service_subtype)
 
                     others = tm.get(identifier, [])
                     for other in others:
-                        if len(other.identificationParameter) == \
-                           len(telemetry.identificationParameter):
-                            for i1, i2 in zip(other.identificationParameter,
-                                              telemetry.identificationParameter):
+                        if len(other.identification_parameter) == \
+                           len(telemetry.identification_parameter):
+                            for i1, i2 in zip(other.identification_parameter,
+                                              telemetry.identification_parameter):
                                 if i1.parameter.uid != i2.parameter.uid or i1.value == i2.value:
                                     break
                             else:
@@ -318,7 +318,7 @@ class ModelValidator:
                     tm[identifier] = others
         return ambiguous
 
-    def getAmbiguousPacketMappings(self):
+    def get_ambiguous_packet_mappings(self):
         """
         Get all packets (TM or TC) which use the same SID.
         """
@@ -327,7 +327,7 @@ class ModelValidator:
 
         for subsystem in self.model.subsystems.values():
             for application in subsystem.applications.values():
-                for mapping in application.getTelemetries():
+                for mapping in application.get_telemetries():
                     p = packets.get(mapping.sid)
                     if p is not None:
                         ambiguous.append((mapping.sid, p, mapping.telemetry))
@@ -343,7 +343,7 @@ class ModelValidator:
                         else:
                             packets[parameter_mapping.sid] = parameter_mapping.parameter
 
-                for mapping in application.getTelecommands():
+                for mapping in application.get_telecommands():
                     p = packets.get(mapping.sid)
                     if p is not None:
                         ambiguous.append((mapping.sid, p, mapping.telecommand))
@@ -352,7 +352,7 @@ class ModelValidator:
 
         return ambiguous
 
-    def getAmbiguousTelemetryParametersWithinMapping(self):
+    def get_ambiguous_telemetry_parameters_within_mapping(self):
         """
         Find all telemetry parameters within a packet that use the same
         identifier.
@@ -364,7 +364,7 @@ class ModelValidator:
 
         for subsystem in self.model.subsystems.values():
             for application in subsystem.applications.values():
-                for mapping in application.getTelemetries():
+                for mapping in application.get_telemetries():
                     parameters = {}
 
                     for parameter_mapping in mapping.parameters:
@@ -376,7 +376,7 @@ class ModelValidator:
 
         return ambiguous
 
-    def getAmbiguousTelemetryServiceIdentifier(self):
+    def get_ambiguous_telemetry_service_identifier(self):
         """
         Check that all telemetry generated from an application either
         have a unique combination of service and sub-service id or a parameter
@@ -387,13 +387,13 @@ class ModelValidator:
         for subsystem in self.model.subsystems.values():
             for application in subsystem.applications.values():
                 ids = {}
-                for mapping in application.getTelemetries():
+                for mapping in application.get_telemetries():
                     identification = {
-                        "__service_type": mapping.telemetry.serviceType,
-                        "__service_subtype": mapping.telemetry.serviceSubtype,
+                        "__service_type": mapping.telemetry.service_type,
+                        "__service_subtype": mapping.telemetry.service_subtype,
                     }
 
-                    for p in mapping.telemetry.identificationParameter:
+                    for p in mapping.telemetry.identification_parameter:
                         identification[p.parameter.uid] = p.value
 
                     entry = {

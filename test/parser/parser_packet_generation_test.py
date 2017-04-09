@@ -34,14 +34,14 @@ class ParserTest(unittest.TestCase):
 
     def test_should_have_packet_generation_data(self):
         application = self.model.subsystems[0].applications[1]
-        telemetryMappings = application.getTelemetries()
+        telemetryMappings = application.get_telemetries()
 
         self.assertEqual(len(telemetryMappings), 5)
 
-        tm1a = application.getTelemetryBySid("TM1A")
-        tm1b = application.getTelemetryBySid("TM1B")
-        tm2a = application.getTelemetryBySid("TM2A")
-        tm2b = application.getTelemetryBySid("TM2B")
+        tm1a = application.get_telemetry_by_sid("TM1A")
+        tm1b = application.get_telemetry_by_sid("TM1B")
+        tm2a = application.get_telemetry_by_sid("TM2A")
+        tm2b = application.get_telemetry_by_sid("TM2B")
 
         self.assertIsNotNone(tm1a.telemetry.packet_generation)
         self.assertIsNotNone(tm1b.telemetry.packet_generation)
@@ -55,12 +55,12 @@ class ParserTest(unittest.TestCase):
 
     def test_should_have_correct_packet_generation_data(self):
         application = self.model.subsystems[0].applications[1]
-        telemetryMappings = application.getTelemetries()
+        telemetryMappings = application.get_telemetries()
 
-        tm1a = application.getTelemetryBySid("TM1A")
-        tm1b = application.getTelemetryBySid("TM1B")
-        tm2a = application.getTelemetryBySid("TM2A")
-        tm2b = application.getTelemetryBySid("TM2B")
+        tm1a = application.get_telemetry_by_sid("TM1A")
+        tm1b = application.get_telemetry_by_sid("TM1B")
+        tm2a = application.get_telemetry_by_sid("TM2A")
+        tm2b = application.get_telemetry_by_sid("TM2B")
 
         self.assertEqual(pando.model.PeriodicPacketGeneration(datetime.timedelta(seconds=2)),
                          tm1a.packet_generation)
@@ -71,9 +71,9 @@ class ParserTest(unittest.TestCase):
 
     def test_events_should_have_event_generation_type(self):
         application = self.model.subsystems[0].applications[1]
-        telemetryMappings = application.getTelemetries()
+        telemetryMappings = application.get_telemetries()
 
-        event = application.getTelemetryBySid("Event")
+        event = application.get_telemetry_by_sid("Event")
 
         self.assertEqual(pando.model.EventPacketGeneration(),
                          event.packet_generation)

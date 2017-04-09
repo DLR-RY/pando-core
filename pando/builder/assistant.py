@@ -33,7 +33,7 @@ class Assistant(builder.Builder):
     @staticmethod
     def _get_suggestion(packet):
         parameters = []
-        for parameter in packet.getParametersAsFlattenedList():
+        for parameter in packet.get_parameters_as_flattened_list():
             parameters.append({
                 "uid": parameter.uid,
                 "sid": "",
@@ -46,11 +46,11 @@ class Assistant(builder.Builder):
         }
 
     def _get_partial_suggestion(self, packet, packet_mapping):
-        unresolved, additional = self.model_validator.getUnmappedParameters(packet, packet_mapping)
+        unresolved, additional = self.model_validator.get_unmapped_parameters(packet, packet_mapping)
         if len(unresolved) > 0 or len(additional) > 0:
             parameters = []
             last_sid = ""
-            for parameter, mapping in itertools.zip_longest(packet.getParametersAsFlattenedList(),
+            for parameter, mapping in itertools.zip_longest(packet.get_parameters_as_flattened_list(),
                                                             packet_mapping.parameters):
                 if parameter is not None:
                     if last_sid != "":
@@ -73,14 +73,14 @@ class Assistant(builder.Builder):
 
     def print_suggestions(self):
         # Find all telecommand parameters without a mapping
-        unmapped_parameters = self.model_validator.getUnmappedTelecommandParameters()
+        unmapped_parameters = self.model_validator.get_unmapped_telecommand_parameters()
         parameters = [x.uid for x in unmapped_parameters]
 
         # Find all telemetry packets with a partial mapping
         telemetries = []
         for subsystem in self.model.subsystems.values():
             for application in subsystem.applications.values():
-                for packet_mapping in application.getTelemetries():
+                for packet_mapping in application.get_telemetries():
                     packet = packet_mapping.telemetry
                     suggestion = self._get_partial_suggestion(packet, packet_mapping)
                     if suggestion:
@@ -99,11 +99,11 @@ class Assistant(builder.Builder):
         print(template.render(substitutions))
 
     def print_suggestions_for_unused_packets(self):
-        parameters = self.model_validator.getUnusedParameters()
+        parameters = self.model_validator.get_unused_parameters()
 
         events = []
         telemetries = []
-        unused_telemetries = self.model_validator.getUnusedTelemetries()
+        unused_telemetries = self.model_validator.get_unused_telemetries()
         if len(unused_telemetries) > 0:
             for uid in unused_telemetries:
                 packet = self.model.telemetries[uid]
@@ -114,7 +114,7 @@ class Assistant(builder.Builder):
                     telemetries.append(self._get_suggestion(packet))
 
         telecommands = []
-        unused_telecommands = self.model_validator.getUnusedTelecommands()
+        unused_telecommands = self.model_validator.get_unused_telecommands()
         if len(unused_telecommands) > 0:
             for uid in unused_telecommands:
                 packet = self.model.telecommands[uid]

@@ -15,13 +15,11 @@
 import os
 import sys
 import codecs
-
-import jinja2
-
 import time
 import datetime
 import textwrap
 
+import jinja2
 
 class BuilderException(Exception):
     pass
@@ -54,7 +52,7 @@ class Builder:
             print(error_message, file=sys.stderr)
             sys.exit(1)
 
-    def _template(self, filename, filters=None, alternateMarking=False):
+    def _template(self, filename, filters=None, alternate_marking=False):
         """ Open a template file
 
         """
@@ -78,7 +76,7 @@ class Builder:
             name = os.path.basename(filename)
             loader = jinja2.FileSystemLoader(path)
 
-        if alternateMarking:
+        if alternate_marking:
             environment = jinja2.Environment(
                 block_start_string='<%',
                 block_end_string='%>',

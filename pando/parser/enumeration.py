@@ -33,14 +33,14 @@ class EnumerationParser:
     def _parse_enumeration(self, node):
         description = pando.parser.common.parse_description(node)
         enumeration = pando.model.Enumeration(name=node.attrib.get("name"),
-                                             uid=node.attrib.get("uid"),
-                                             width=int(node.attrib.get("width")),
-                                             description=description)
+                                              uid=node.attrib.get("uid"),
+                                              width=int(node.attrib.get("width")),
+                                              description=description)
 
         pando.parser.common.parse_short_name(enumeration, node)
 
         for entry in node.iterfind("entry"):
-            enumeration.appendEntry(self._parse_enumeration_entry(entry))
+            enumeration.append_entry(self._parse_enumeration_entry(entry))
 
         return enumeration
 
@@ -60,11 +60,11 @@ class EnumerationParser:
         enumeration.name = node.attrib.get("name", enumeration.name)
         enumeration.uid = node.attrib.get("uid")
         enumeration.description = pando.parser.common.parse_description(node, enumeration.description)
-        pando.parser.common.parse_short_name(enumeration, node, enumeration.shortName)
+        pando.parser.common.parse_short_name(enumeration, node, enumeration.short_name)
 
         # FIXME overwrite existing parameters with the same value
         for entry in node.iterfind("entry"):
-            enumeration.appendEntry(self._parse_enumeration_entry(entry))
+            enumeration.append_entry(self._parse_enumeration_entry(entry))
 
         return enumeration
 
@@ -76,8 +76,8 @@ class EnumerationParser:
 
         description = pando.parser.common.parse_description(node)
         entry = pando.model.EnumerationEntry(node.attrib.get("name"),
-                                            value,
-                                            description)
+                                             value,
+                                             description)
 
         pando.parser.common.parse_short_name(entry, node)
         return entry
