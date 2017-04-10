@@ -14,9 +14,9 @@ test:
 	@python3 -m unittest discover -p *test.py
 
 coverage:
-	@coverage run --source=pando -m unittest discover -p *test.py
-	@coverage report
-	@coverage html -d build/coverage
+	@coverage3 run --source=pando -m unittest discover -p *test.py
+	@coverage3 report
+	@coverage3 html -d build/coverage
 
 coverage-view:
 	@xdg-open build/coverage/index.html
