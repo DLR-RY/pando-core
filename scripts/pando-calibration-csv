@@ -65,6 +65,8 @@ def xml2csv(input, output):
         calibration = {
            'name': calibrationNode.get('name'),
            'uid':  calibrationNode.get('uid'),
+           'direction': "TM",
+           'extrapolate': "extrapolate" if calibrationNode.get('extrapolate') == "true" else "",
            'unit': calibrationNode.get('unit'),
            'type': calibrationNode.get('outputType'),
            'values': values
@@ -72,9 +74,35 @@ def xml2csv(input, output):
 
         calibrations.append(calibration)
 
+    for calibrationNode in rootnode.iterfind('calibrations/telecommandLinearInterpolation'):
+        values = []
+        for pointNode in calibrationNode.iterfind('point'):
+            x = pointNode.get('x')
+            y = pointNode.get('y')
+
+            values.append(x)
+            values.append(y)
+
+        calibration = {
+           'name': calibrationNode.get('name'),
+           'uid':  calibrationNode.get('uid'),
+           'direction': "TC",
+           'extrapolate': "extrapolate" if calibrationNode.get('extrapolate') == "true" else "",
+           'unit': "",
+           'type': calibrationNode.get('inputType'),
+           'values': values
+        }
+
+        calibrations.append(calibration)
+
     with open(output, 'w') as file:
         for calibration in calibrations:
-            s = [calibration['name'], calibration['uid'], calibration['unit'], calibration['type']]
+            s = [calibration['name'],
+                 calibration['uid'],
+                 calibration['direction'],
+                 calibration['extrapolate'],
+                 calibration['unit'],
+                 calibration['type']]
             for value in calibration['values']:
                 s.append(value)
             file.write("\t".join(s) + "\n")
@@ -90,9 +118,12 @@ def csv2xml(input, output, service_name):
   </calibrations>
 </service>
 """
-    calibrationTemplate = """    <telemetryLinearInterpolation name="{name}" uid="{uid}" unit="{unit}" outputType="{type}" extrapolate="true">
+    telemetryCalibrationTemplate = """    <telemetryLinearInterpolation name="{name}" uid="{uid}" unit="{unit}" outputType="{type}" extrapolate="{extrapolate}">
 {points}
     </telemetryLinearInterpolation>"""
+    telecommandCalibrationTemplate = """    <telecommandLinearInterpolation name="{name}" uid="{uid}" inputType="{type}" extrapolate="{extrapolate}">
+{points}
+    </telecommandLinearInterpolation>"""
     pointTemplate = """      <point x="{x}" y="{y}"/>"""
 
     calibrations = []
@@ -101,13 +132,20 @@ def csv2xml(input, output, service_name):
             line = line.rstrip('\n\r')
             t = line.split('\t')
 
+            # If the file is not tab separated, try comma separated.
+            if (len(t) == 1):
+                t = line.split(',')
+
             calibration = {
                'name': t[0],
                'uid':  t[1],
-               'unit': t[2],
-               'type': t[3],
+               'direction': t[2],
+               'extrapolate': "true" if t[3] == "extrapolate" else "false",
+               'unit': t[4],
+               'type': t[5],
             }
-            values = t[4:]
+
+            values = t[6:]
             if len(values) % 2 == 1:
                 print("Invalid number of calibration points")
                 sys.exit(1)
@@ -132,8 +170,15 @@ def csv2xml(input, output, service_name):
         for value in calibration['values']:
             points.append(str.format(pointTemplate, **value))
 
-        c.append(calibrationTemplate.format(points="\n".join(points),
-                                            **calibration))
+        if calibration['direction'] == 'TM':
+            c.append(telemetryCalibrationTemplate.format(points="\n".join(points),
+                                                         **calibration))
+        elif calibration['direction'] == 'TC':
+            c.append(telecommandCalibrationTemplate.format(points="\n".join(points),
+                                                           **calibration))
+        else:
+            print("Invalid direction '{}'".format(calibration['direction']))
+            sys.exit(1)
 
     with open(output, 'w') as file:
         file.write(fileTemplate.format(calibration="\n\n".join(c),
