@@ -16,7 +16,7 @@ import argparse
 
 import pando.builder.svg
 
-def main():
+def main(argv):
 	arg = argparse.ArgumentParser(description='pando Packet Documentation Generator')
 	arg.add_argument('-i', '--input', dest='input', required=True, help='XML packet description ')
 
@@ -24,17 +24,12 @@ def main():
 	arg.add_argument('--svg-template', dest='svgtemplate', help='SVG image template')
 	arg.add_argument('--svg-align', dest='svgalign', default=False, action='store_true', help='Left align the SVG images within the default width of 150mm.')
 
-	args = arg.parse_args()
+	args = arg.parse_args(argv)
 
 	parser = pando.parser.Parser()
+	model = parser.parse(args.input)
 
-	try:
-		model = parser.parse(args.input)
-
-		builder = pando.builder.svg.ImageBuilder(model,
-		                                        args.svgtemplate,
-		                                        args.svgalign)
-		builder.generate(args.svgpath)
-	except (pando.parser.ParserException, pando.model.ModelException) as e:
-		print(e)
-		exit(1)
+	builder = pando.builder.svg.ImageBuilder(model,
+	                                        args.svgtemplate,
+	                                        args.svgalign)
+	builder.generate(args.svgpath)

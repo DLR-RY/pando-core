@@ -13,11 +13,10 @@
 # - 2015-2017, Fabian Greif (DLR RY-AVS)
 
 import re
-import sys
 
 
 def main(argv):
-    filename = sys.argv[1]
+    filename = argv[0]
     pattern = '(description|purpose|recommendation)'
 
     with open(filename) as file:

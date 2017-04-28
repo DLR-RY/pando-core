@@ -180,13 +180,13 @@ def csv2xml(input_filename, output_filename, service_name):
         file.write(fileTemplate.format(calibration="\n\n".join(c),
                                        service=service_name))
 
-def main():
+def main(argv):
     arg = argparse.ArgumentParser(description='pando Convert a CSV calibration to XML and back.')
     arg.add_argument('-i', '--input', dest='input', required=True, help='Input table. Can be XML or CSV.')
     arg.add_argument('-o', '--output', dest='output', required=True, help='Output table. Can be XML or CSV.')
     arg.add_argument('-s', '--service', dest='service_name', required=True, help='Name of the service.')
 
-    args = arg.parse_args()
+    args = arg.parse_args(argv)
 
     if args.input.endswith('.xml') and args.output.endswith('.csv'):
         xml2csv(args.input, args.output)

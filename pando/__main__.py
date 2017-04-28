@@ -21,12 +21,6 @@ def main():
     arg = argparse.ArgumentParser(prog='pando',
                                   description='pando tool suite')
 
-    def print_usage(argv):
-        """ Print a help message if no command has been selected. """
-        arg.print_help()
-
-    arg.set_defaults(function=print_usage)
-
     subparsers = arg.add_subparsers()
 
     parser_assistant = subparsers.add_parser('assistant')
@@ -51,4 +45,13 @@ def main():
     parser_verify.set_defaults(function=pando.scripts.verify.main)
 
     args, remaining_args = arg.parse_known_args()
-    args.function(remaining_args)
+
+    if "function" not in args:
+        # Print a help message if no command has been selected.
+        arg.print_help()
+    else:
+        try:
+            args.function(remaining_args)
+        except (pando.parser.ParserException, pando.model.ModelException) as error:
+            print("\nError: {}".format(error))
+            exit(1)

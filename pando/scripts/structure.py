@@ -20,42 +20,36 @@ import pando
 
 logger = logging.getLogger('pando.model')
 
-def main():
+def main(argv):
 	arg = argparse.ArgumentParser(description='pando Mapping Verification')
 	arg.add_argument('-i', '--input', dest='input', required=True, help='XML packet description ')
 	arg.add_argument('-u', '--uid', dest='uid', required=True, help='Packet UID to be analyzed')
 
-	args = arg.parse_args()
+	args = arg.parse_args(argv)
 
 	parser = pando.parser.Parser()
+	model = parser.parse(args.input)
 
 	try:
-		model = parser.parse(args.input)
-
+		packet = model.telecommands[args.uid]
+	except KeyError:
 		try:
-			packet = model.telecommands[args.uid]
+			packet = model.telemetries[args.uid]
 		except KeyError:
-			try:
-				packet = model.telemetries[args.uid]
-			except KeyError:
-				raise pando.parser.ParserException("Packet '%s' not found!" % args.uid)
+			raise pando.parser.ParserException("Packet '%s' not found!" % args.uid)
 
-		print()
-		print("{} ({})".format(packet.name, packet.uid))
-		print()
+	print()
+	print("{} ({})".format(packet.name, packet.uid))
+	print()
 
-		print(" Byte |  Bit | Width | Short name           | Name")
-		print("------|------|-------|----------------------|----------------------------")
-		bitposition = 0
-		for parameter in packet.getParametersAsFlattenedList():
-			width = parameter.type.width
+	print(" Byte |  Bit | Width | Short name           | Name")
+	print("------|------|-------|----------------------|----------------------------")
+	bitposition = 0
+	for parameter in packet.getParametersAsFlattenedList():
+		width = parameter.type.width
 
-			print(" {:4d} | {:4d} | {:5d} | {:20s} | {}".format(bitposition // 8, bitposition, width, parameter.shortName, parameter.name))
-			bitposition += width
+		print(" {:4d} | {:4d} | {:5d} | {:20s} | {}".format(bitposition // 8, bitposition, width, parameter.shortName, parameter.name))
+		bitposition += width
 
-			if (bitposition % 8 == 0):
-				print("------|------|-------|----------------------|----------------------------")
-
-	except (pando.parser.ParserException, pando.model.ModelException) as e:
-		print("\nError: %s" % e)
-		exit(1)
+		if (bitposition % 8 == 0):
+			print("------|------|-------|----------------------|----------------------------")

@@ -17,7 +17,7 @@ import argparse
 import pando.builder.latex
 
 
-def main():
+def main(argv):
 	arg = argparse.ArgumentParser(description='pando Packet Documentation Generator')
 	arg.add_argument('-i', '--input', dest='input', required=True, help='XML packet description ')
 
@@ -30,29 +30,24 @@ def main():
 	arg.add_argument('--latex-overview-template', dest='latex_overview_template', help='Template for the LaTex packet overview')
 	arg.add_argument('--latex-overview-target', dest='latex_overview_target', help='Output file for the LaTex overview')
 
-	args = arg.parse_args()
+	args = arg.parse_args(argv)
 
 	parser = pando.parser.Parser()
+	model = parser.parse(args.input)
 
-	try:
-		model = parser.parse(args.input)
+	# Build LaTex tables
+	builder = pando.builder.latex.TableBuilder(model,
+	                                          args.latex_table_template,
+	                                          args.latex_imgpath)
+	builder.generate(args.latexpath)
 
-		# Build LaTex tables
-		builder = pando.builder.latex.TableBuilder(model,
-		                                          args.latex_table_template,
-		                                          args.latex_imgpath)
+	if len(model.enumerations) > 0:
+		# Build enumeration definitions
+		builder = pando.builder.latex.EnumerationBuilder(model.enumerations,
+			                                            args.latex_enumeration_template)
 		builder.generate(args.latexpath)
 
-		if len(model.enumerations) > 0:
-			# Build enumeration definitions
-			builder = pando.builder.latex.EnumerationBuilder(model.enumerations,
-				                                            args.latex_enumeration_template)
-			builder.generate(args.latexpath)
-
-		if args.latex_overview_target is not None:
-			builder = pando.builder.latex.OverviewBuilder(model,
-				                                         args.latex_overview_template)
-			builder.generate(args.latexpath, args.latex_overview_target)
-	except (pando.parser.ParserException, pando.model.ModelException) as e:
-		print(e)
-		exit(1)
+	if args.latex_overview_target is not None:
+		builder = pando.builder.latex.OverviewBuilder(model,
+			                                         args.latex_overview_template)
+		builder.generate(args.latexpath, args.latex_overview_target)

@@ -26,14 +26,9 @@ def main(argv):
 	args = arg.parse_args(argv)
 
 	parser = pando.parser.Parser()
+	model = parser.parse(args.input)
 
-	try:
-		model = parser.parse(args.input)
-
-		assistant = pando.builder.assistant.Assistant(model)
-		assistant.print_suggestions()
-		if args.detailed:
-			assistant.print_suggestions_for_unused_packets()
-	except (pando.parser.ParserException, pando.model.ModelException) as e:
-		print("\nError: %s" % e)
-		exit(1)
+	assistant = pando.builder.assistant.Assistant(model)
+	assistant.print_suggestions()
+	if args.detailed:
+		assistant.print_suggestions_for_unused_packets()
