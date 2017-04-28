@@ -179,16 +179,16 @@ class MappingParser:
                                   "telemetry parameter!"
                                   % (parameter.name, parameter.uid))
         elif calibration.type == pando.model.Calibration.INTERPOLATION_TELEMETRY:
-            inputType = calibration.typeFromParameterType(parameter.type)
+            input_type = calibration.typeFromParameterType(parameter.type)
             if calibration.input_type is None:
-                calibration.input_type = inputType
+                calibration.input_type = input_type
             else:
-                if calibration.input_type != inputType:
+                if calibration.input_type != input_type:
                     raise ParserException("Invalid input type for telemetry " \
                                           "interpolation '%s'. Parameter %s (%s) "\
                                           "requires '%s', previous definition is '%s'"
                                           % (calibration.uid, parameter.name, parameter.uid,
-                                             inputType, calibration.input_type))
+                                             input_type, calibration.input_type))
 
     @staticmethod
     def _verify_telecommand_calibration(calibration, parameter):
@@ -198,13 +198,13 @@ class MappingParser:
                                   "for telecommand parameter!"
                                   % (parameter.name, parameter.uid))
         else:
-            outputType = calibration.typeFromParameterType(parameter.type)
+            output_type = calibration.typeFromParameterType(parameter.type)
             if calibration.output_type is None:
-                calibration.output_type = outputType
+                calibration.output_type = output_type
             else:
-                if calibration.output_type != outputType:
+                if calibration.output_type != output_type:
                     raise ParserException("Invalid output type for telecommand " \
                                           "interpolation '%s'. Parameter %s (%s) "\
                                           "requires '%s', previous definition is '%s'"
                                           % (calibration.uid, parameter.name, parameter.uid,
-                                             outputType, calibration.output_type))
+                                             output_type, calibration.output_type))
