@@ -22,6 +22,7 @@ from . import model
 from . import pkg
 from . import parser
 from . import builder
+from . import __main__
 
 from .pkg import naturalkey
 
@@ -31,7 +32,7 @@ __author__ = "Fabian Greif"
 __copyright__ = "Copyright (c), German Aerospace Center (DLR)"
 __credits__ = ["Fabian Greif"]
 __license__ = "Mozilla Public License v.2.0"
-__version__ = "0.1"
+__version__ = "0.1.0"
 __maintainer__ = "Fabian Greif"
 __email__ = "fabian.greif@dlr.de"
 __status__ = "Pre-Alpha"

@@ -12,51 +12,47 @@
 # Authors:
 # - 2015-2017, Fabian Greif (DLR RY-AVS)
 
-import os
 import argparse
-import sys
-
-rootpath = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..")
-sys.path.append(rootpath)
 
 import pando.builder.latex
 
-arg = argparse.ArgumentParser(description='p.doc Packet Documentation Generator')
-arg.add_argument('-i', '--input', dest='input', required=True, help='XML packet description ')
 
-arg.add_argument('--latex-path', dest='latexpath', required=True, help='Output path for LaTex tables.')
-arg.add_argument('--latex-table-template', dest='latex_table_template', help='LaTex table template')
-arg.add_argument('--latex-image-path', dest='latex_imgpath', help='Path to the generated SVG images')
+def main():
+	arg = argparse.ArgumentParser(description='pando Packet Documentation Generator')
+	arg.add_argument('-i', '--input', dest='input', required=True, help='XML packet description ')
 
-arg.add_argument('--latex-enumeration-template', dest='latex_enumeration_template', help='LaTex enumeration template')
+	arg.add_argument('--latex-path', dest='latexpath', required=True, help='Output path for LaTex tables.')
+	arg.add_argument('--latex-table-template', dest='latex_table_template', help='LaTex table template')
+	arg.add_argument('--latex-image-path', dest='latex_imgpath', help='Path to the generated SVG images')
 
-arg.add_argument('--latex-overview-template', dest='latex_overview_template', help='Template for the LaTex packet overview')
-arg.add_argument('--latex-overview-target', dest='latex_overview_target', help='Output file for the LaTex overview')
+	arg.add_argument('--latex-enumeration-template', dest='latex_enumeration_template', help='LaTex enumeration template')
 
-args = arg.parse_args()
+	arg.add_argument('--latex-overview-template', dest='latex_overview_template', help='Template for the LaTex packet overview')
+	arg.add_argument('--latex-overview-target', dest='latex_overview_target', help='Output file for the LaTex overview')
 
-parser = pando.parser.Parser()
+	args = arg.parse_args()
 
-try:
-	model = parser.parse(args.input)
+	parser = pando.parser.Parser()
 
-	# Build LaTex tables
-	builder = pando.builder.latex.TableBuilder(model,
-	                                          args.latex_table_template,
-	                                          args.latex_imgpath)
-	builder.generate(args.latexpath)
+	try:
+		model = parser.parse(args.input)
 
-	if len(model.enumerations) > 0:
-		# Build enumeration definitions
-		builder = pando.builder.latex.EnumerationBuilder(model.enumerations,
-			                                            args.latex_enumeration_template)
+		# Build LaTex tables
+		builder = pando.builder.latex.TableBuilder(model,
+		                                          args.latex_table_template,
+		                                          args.latex_imgpath)
 		builder.generate(args.latexpath)
 
-	if args.latex_overview_target is not None:
-		builder = pando.builder.latex.OverviewBuilder(model,
-			                                         args.latex_overview_template)
-		builder.generate(args.latexpath, args.latex_overview_target)
-except (pando.parser.ParserException, pando.model.ModelException) as e:
-	print(e)
-	exit(1)
+		if len(model.enumerations) > 0:
+			# Build enumeration definitions
+			builder = pando.builder.latex.EnumerationBuilder(model.enumerations,
+				                                            args.latex_enumeration_template)
+			builder.generate(args.latexpath)
 
+		if args.latex_overview_target is not None:
+			builder = pando.builder.latex.OverviewBuilder(model,
+				                                         args.latex_overview_template)
+			builder.generate(args.latexpath, args.latex_overview_target)
+	except (pando.parser.ParserException, pando.model.ModelException) as e:
+		print(e)
+		exit(1)

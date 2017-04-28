@@ -12,32 +12,28 @@
 # Authors:
 # - 2015-2017, Fabian Greif (DLR RY-AVS)
 
-import os
 import argparse
-import sys
-
-rootpath = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..")
-sys.path.append(rootpath)
 
 import pando.builder.assistant
 
-arg = argparse.ArgumentParser(description='p.doc Mapping suggestions based on missing packets and parameters')
-arg.add_argument('-i', '--input', dest='input', required=True, help='XML packet description ')
-arg.add_argument('-d', '--detailed',
-				dest='detailed',
-				default=False, action='store_true', required=False,
-				help='Detailed analysis about all unused (without mapping) TM/TC packets and parameters.')
-args = arg.parse_args()
+def main(argv):
+	arg = argparse.ArgumentParser(description='pando Mapping suggestions based on missing packets and parameters')
+	arg.add_argument('-i', '--input', dest='input', required=True, help='XML packet description ')
+	arg.add_argument('-d', '--detailed',
+					dest='detailed',
+					default=False, action='store_true', required=False,
+					help='Detailed analysis about all unused (without mapping) TM/TC packets and parameters.')
+	args = arg.parse_args(argv)
 
-parser = pando.parser.Parser()
+	parser = pando.parser.Parser()
 
-try:
-	model = parser.parse(args.input)
+	try:
+		model = parser.parse(args.input)
 
-	assistant = pando.builder.assistant.Assistant(model)
-	assistant.print_suggestions()
-	if args.detailed:
-		assistant.print_suggestions_for_unused_packets()
-except (pando.parser.ParserException, pando.model.ModelException) as e:
-	print("\nError: %s" % e)
-	exit(1)
+		assistant = pando.builder.assistant.Assistant(model)
+		assistant.print_suggestions()
+		if args.detailed:
+			assistant.print_suggestions_for_unused_packets()
+	except (pando.parser.ParserException, pando.model.ModelException) as e:
+		print("\nError: %s" % e)
+		exit(1)

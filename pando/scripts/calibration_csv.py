@@ -12,15 +12,11 @@
 # Authors:
 # - 2016-2017, Fabian Greif (DLR RY-AVS)
 
-import os
 import argparse
 import sys
 
-rootpath = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..")
-sys.path.append(rootpath)
-
-import pando
 import pando.pkg
+from pando.parser.common import ParserException
 
 import lxml.etree
 
@@ -49,8 +45,8 @@ def parse_xml(filename, xsdfile=None):
 
     return rootnode
 
-def xml2csv(input, output):
-    rootnode = parse_xml(input)
+def xml2csv(input_filename, output_filename):
+    rootnode = parse_xml(input_filename)
 
     calibrations = []
     for calibrationNode in rootnode.iterfind('calibrations/telemetryLinearInterpolation'):
@@ -95,7 +91,7 @@ def xml2csv(input, output):
 
         calibrations.append(calibration)
 
-    with open(output, 'w') as file:
+    with open(output_filename, 'w') as file:
         for calibration in calibrations:
             s = [calibration['name'],
                  calibration['uid'],
@@ -107,7 +103,7 @@ def xml2csv(input, output):
                 s.append(value)
             file.write("\t".join(s) + "\n")
 
-def csv2xml(input, output, service_name):
+def csv2xml(input_filename, output_filename, service_name):
     fileTemplate = """<?xml version="1.0" encoding="UTF-8"?>
 <service name="{service}"
          xmlns:xi="http://www.w3.org/2001/XInclude"
@@ -127,7 +123,7 @@ def csv2xml(input, output, service_name):
     pointTemplate = """      <point x="{x}" y="{y}"/>"""
 
     calibrations = []
-    with open(input, 'r') as file:
+    with open(input_filename, 'r') as file:
         for line in file.readlines():
             line = line.rstrip('\n\r')
             t = line.split('\t')
@@ -180,22 +176,22 @@ def csv2xml(input, output, service_name):
             print("Invalid direction '{}'".format(calibration['direction']))
             sys.exit(1)
 
-    with open(output, 'w') as file:
+    with open(output_filename, 'w') as file:
         file.write(fileTemplate.format(calibration="\n\n".join(c),
                                        service=service_name))
 
+def main():
+    arg = argparse.ArgumentParser(description='pando Convert a CSV calibration to XML and back.')
+    arg.add_argument('-i', '--input', dest='input', required=True, help='Input table. Can be XML or CSV.')
+    arg.add_argument('-o', '--output', dest='output', required=True, help='Output table. Can be XML or CSV.')
+    arg.add_argument('-s', '--service', dest='service_name', required=True, help='Name of the service.')
 
-arg = argparse.ArgumentParser(description='p.doc Convert a CSV calibration to XML and back.')
-arg.add_argument('-i', '--input', dest='input', required=True, help='Input table. Can be XML or CSV.')
-arg.add_argument('-o', '--output', dest='output', required=True, help='Output table. Can be XML or CSV.')
-arg.add_argument('-s', '--service', dest='service_name', required=True, help='Name of the service.')
+    args = arg.parse_args()
 
-args = arg.parse_args()
-
-if args.input.endswith('.xml') and args.output.endswith('.csv'):
-    xml2csv(args.input, args.output)
-elif args.input.endswith('.csv') and args.output.endswith('.xml'):
-    csv2xml(args.input, args.output, args.service_name)
-else:
-    print("Invalid input and/or output formats")
-    sys.exit(1)
+    if args.input.endswith('.xml') and args.output.endswith('.csv'):
+        xml2csv(args.input, args.output)
+    elif args.input.endswith('.csv') and args.output.endswith('.xml'):
+        csv2xml(args.input, args.output, args.service_name)
+    else:
+        print("Invalid input and/or output formats")
+        sys.exit(1)

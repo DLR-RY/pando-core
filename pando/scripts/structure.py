@@ -12,54 +12,50 @@
 # Authors:
 # - 2015, 2017, Fabian Greif (DLR RY-AVS)
 
-import os
-import sys
 import logging
 import argparse
 
-rootpath = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..")
-sys.path.append(rootpath)
-
 import pando
+
 
 logger = logging.getLogger('pando.model')
 
-arg = argparse.ArgumentParser(description='p.doc Mapping Verification')
-arg.add_argument('-i', '--input', dest='input', required=True, help='XML packet description ')
-arg.add_argument('-u', '--uid', dest='uid', required=True, help='Packet UID to be analyzed')
+def main():
+	arg = argparse.ArgumentParser(description='pando Mapping Verification')
+	arg.add_argument('-i', '--input', dest='input', required=True, help='XML packet description ')
+	arg.add_argument('-u', '--uid', dest='uid', required=True, help='Packet UID to be analyzed')
 
-args = arg.parse_args()
+	args = arg.parse_args()
 
-parser = pando.parser.Parser()
-
-try:
-	model = parser.parse(args.input)
+	parser = pando.parser.Parser()
 
 	try:
-		packet = model.telecommands[args.uid]
-	except KeyError:
+		model = parser.parse(args.input)
+
 		try:
-			packet = model.telemetries[args.uid]
+			packet = model.telecommands[args.uid]
 		except KeyError:
-			raise pando.parser.ParserException("Packet '%s' not found!" % args.uid)
+			try:
+				packet = model.telemetries[args.uid]
+			except KeyError:
+				raise pando.parser.ParserException("Packet '%s' not found!" % args.uid)
 
-	print()
-	print("{} ({})".format(packet.name, packet.uid))
-	print()
+		print()
+		print("{} ({})".format(packet.name, packet.uid))
+		print()
 
-	print(" Byte |  Bit | Width | Short name           | Name")
-	print("------|------|-------|----------------------|----------------------------")
-	bitposition = 0
-	for parameter in packet.getParametersAsFlattenedList():
-		width = parameter.type.width
+		print(" Byte |  Bit | Width | Short name           | Name")
+		print("------|------|-------|----------------------|----------------------------")
+		bitposition = 0
+		for parameter in packet.getParametersAsFlattenedList():
+			width = parameter.type.width
 
-		print(" {:4d} | {:4d} | {:5d} | {:20s} | {}".format(bitposition // 8, bitposition, width, parameter.shortName, parameter.name))
-		bitposition += width
+			print(" {:4d} | {:4d} | {:5d} | {:20s} | {}".format(bitposition // 8, bitposition, width, parameter.shortName, parameter.name))
+			bitposition += width
 
-		if (bitposition % 8 == 0):
-			print("------|------|-------|----------------------|----------------------------")
+			if (bitposition % 8 == 0):
+				print("------|------|-------|----------------------|----------------------------")
 
-except (pando.parser.ParserException, pando.model.ModelException) as e:
-	print("\nError: %s" % e)
-	exit(1)
-
+	except (pando.parser.ParserException, pando.model.ModelException) as e:
+		print("\nError: %s" % e)
+		exit(1)

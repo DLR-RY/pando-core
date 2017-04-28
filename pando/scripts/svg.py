@@ -12,34 +12,29 @@
 # Authors:
 # - 2015-2017, Fabian Greif (DLR RY-AVS)
 
-import os
 import argparse
-import sys
-
-rootpath = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..")
-sys.path.append(rootpath)
 
 import pando.builder.svg
 
-arg = argparse.ArgumentParser(description='p.doc Packet Documentation Generator')
-arg.add_argument('-i', '--input', dest='input', required=True, help='XML packet description ')
+def main():
+	arg = argparse.ArgumentParser(description='pando Packet Documentation Generator')
+	arg.add_argument('-i', '--input', dest='input', required=True, help='XML packet description ')
 
-arg.add_argument('--svg-path', dest='svgpath', required=True, help='Output path for SVG images.')
-arg.add_argument('--svg-template', dest='svgtemplate', help='SVG image template')
-arg.add_argument('--svg-align', dest='svgalign', default=False, action='store_true', help='Left align the SVG images within the default width of 150mm.')
+	arg.add_argument('--svg-path', dest='svgpath', required=True, help='Output path for SVG images.')
+	arg.add_argument('--svg-template', dest='svgtemplate', help='SVG image template')
+	arg.add_argument('--svg-align', dest='svgalign', default=False, action='store_true', help='Left align the SVG images within the default width of 150mm.')
 
-args = arg.parse_args()
+	args = arg.parse_args()
 
-parser = pando.parser.Parser()
+	parser = pando.parser.Parser()
 
-try:
-	model = parser.parse(args.input)
+	try:
+		model = parser.parse(args.input)
 
-	builder = pando.builder.svg.ImageBuilder(model,
-	                                        args.svgtemplate,
-	                                        args.svgalign)
-	builder.generate(args.svgpath)
-except (pando.parser.ParserException, pando.model.ModelException) as e:
-	print(e)
-	exit(1)
-
+		builder = pando.builder.svg.ImageBuilder(model,
+		                                        args.svgtemplate,
+		                                        args.svgalign)
+		builder.generate(args.svgpath)
+	except (pando.parser.ParserException, pando.model.ModelException) as e:
+		print(e)
+		exit(1)
