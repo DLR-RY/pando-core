@@ -117,6 +117,11 @@ try:
 					(t["mapping"].sid, t["mapping"].telemetry.serviceType, t["mapping"].telemetry.serviceSubtype, t["apid"], t["apid"]))
 		success = False
 
+	for enumeration in model_validator.get_enumeration_with_non_unqiue_values():
+		logger.error("Enumeration '{}' ({}) has non unique entries!"
+					 .format(enumeration.name, enumeration.uid))
+		success = False
+
 	if not success:
 		raise pando.parser.ParserException("Incomplete mapping. Please add/remove the requested elements!")
 	else:

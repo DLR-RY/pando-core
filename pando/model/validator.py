@@ -412,3 +412,21 @@ class ModelValidator:
                         ambiguous.append(entry)
 
         return ambiguous
+
+    def get_enumeration_with_non_unqiue_values(self):
+        """
+        Find enumerations with multiple entries that map to the same value.
+
+        Returns:
+            List of enumerations with non unique values.
+        """
+        enumerations = []
+        for enumeration in self.model.enumerations.values():
+            values = {}
+            for entry in enumeration.entries:
+                if entry.value in values:
+                    enumerations.append(enumeration)
+                    break
+                else:
+                    values[entry.value] = entry
+        return enumerations

@@ -124,3 +124,22 @@ class ModelTest(unittest.TestCase):
 
         validator = pando.model.validator.ModelValidator(model)
         self.assertEqual(len(validator.get_unmapped_telecommand_parameters()), 0)
+
+    def test_should_detect_enumerations_with_non_unique_entries(self):
+        model = pando.model.Model()
+
+        enumeration1 = pando.model.Enumeration("Test", "test", 8, "")
+        enumeration1.append_entry(pando.model.EnumerationEntry("entry1", 1, ""))
+        enumeration1.append_entry(pando.model.EnumerationEntry("entry2", 1, ""))
+        model.enumerations[enumeration1.uid] = enumeration1
+
+        enumeration2 = pando.model.Enumeration("Test2", "test2", 8, "")
+        enumeration2.append_entry(pando.model.EnumerationEntry("entry1", 1, ""))
+        enumeration2.append_entry(pando.model.EnumerationEntry("entry2", 2, ""))
+        model.enumerations[enumeration2.uid] = enumeration2
+
+        validator = pando.model.validator.ModelValidator(model)
+
+        enumerations = validator.get_enumeration_with_non_unqiue_values()
+        self.assertEqual(len(enumerations), 1)
+        self.assertIn(enumeration1, enumerations)
