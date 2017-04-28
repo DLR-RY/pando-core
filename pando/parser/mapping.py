@@ -55,8 +55,13 @@ class MappingParser:
             for node in mapping_node.iterfind('telecommandParameters/parameterMapping'):
                 uid, sid = self._parse_mapping(node)
                 parameter = model.parameters[uid]
-                subsystem.telecommand_parameters[uid] = \
-                    pando.model.ParameterMapping(sid=sid, parameter=parameter)
+
+                if uid in subsystem.telecommand_parameters:
+                    raise ParserException("Mappings for uid '{}' found in '{}' and '{}'."
+                                          .format(uid, sid, subsystem.telecommand_parameters[uid].sid))
+                else:
+                    subsystem.telecommand_parameters[uid] = \
+                        pando.model.ParameterMapping(sid=sid, parameter=parameter)
 
             for node in mapping_node.iterfind('application'):
                 application = self._parse_application_mapping(node, subsystem, model)
