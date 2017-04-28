@@ -38,7 +38,7 @@ import pando.model
 class Parser:
 
     ROOTNODE = "pando"
-    DATA_STRUCTURE_VERSION = "1.2.0"
+    DATA_STRUCTURE_VERSION = "1.3.0"
 
     def parse(self, filename, xsdfile=None):
         rootnode = self._validate_and_parse_xml(filename, xsdfile)

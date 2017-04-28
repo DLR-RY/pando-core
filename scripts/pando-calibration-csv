@@ -88,7 +88,7 @@ def xml2csv(input, output):
            'uid':  calibrationNode.get('uid'),
            'direction': "TC",
            'extrapolate': "extrapolate" if calibrationNode.get('extrapolate') == "true" else "",
-           'unit': "",
+           'unit': calibrationNode.get('unit'),
            'type': calibrationNode.get('inputType'),
            'values': values
         }
@@ -121,7 +121,7 @@ def csv2xml(input, output, service_name):
     telemetryCalibrationTemplate = """    <telemetryLinearInterpolation name="{name}" uid="{uid}" unit="{unit}" outputType="{type}" extrapolate="{extrapolate}">
 {points}
     </telemetryLinearInterpolation>"""
-    telecommandCalibrationTemplate = """    <telecommandLinearInterpolation name="{name}" uid="{uid}" inputType="{type}" extrapolate="{extrapolate}">
+    telecommandCalibrationTemplate = """    <telecommandLinearInterpolation name="{name}" uid="{uid}" unit="{unit}" inputType="{type}" extrapolate="{extrapolate}">
 {points}
     </telecommandLinearInterpolation>"""
     pointTemplate = """      <point x="{x}" y="{y}"/>"""

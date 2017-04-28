@@ -66,6 +66,7 @@ class CalibrationParser:
 
         c.extrapolate = self._to_boolean(node.attrib.get("extrapolate", "true"))
         c.input_type = self._to_interpolation_type(node.attrib.get("inputType"))
+        c.unit = node.attrib.get("unit", "")
 
         for point_node in node.iterfind("point"):
             c.append_point(self._parse_calibration_interpolation_point(point_node))
@@ -78,6 +79,8 @@ class CalibrationParser:
         c = pando.model.Polynom(name=node.attrib.get("name"),
                                 uid=node.attrib.get("uid"),
                                 description=description)
+
+        c.unit = node.attrib.get("unit", "")
 
         c.a0 = float(node.attrib.get("a0", "0"))
         c.a1 = float(node.attrib.get("a1", "0"))

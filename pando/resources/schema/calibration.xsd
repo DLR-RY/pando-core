@@ -83,8 +83,7 @@ Invalid input types are rejected in the external verification step.
         <xsd:attribute name="unit" use="optional" default="">
           <xsd:annotation>
             <xsd:documentation>
-Unit of the output type. Available for consistency checking against the
-parameter unit. Must be the same as the parameter unit!
+              Unit of the output type.
             </xsd:documentation>
           </xsd:annotation>
           <xsd:simpleType>
@@ -111,6 +110,19 @@ Invalid output types are rejected in the external verification step.
     <xsd:complexContent>
       <xsd:extension base="InterpolationType">
         <xsd:attribute name="inputType" use="required" type="InterpolationInOutType" />
+        <xsd:attribute name="unit" use="optional" default="">
+          <xsd:annotation>
+            <xsd:documentation>
+              Unit of the input type.
+            </xsd:documentation>
+          </xsd:annotation>
+          <xsd:simpleType>
+            <xsd:restriction base="xsd:string">
+              <xsd:minLength value="0" />
+              <xsd:maxLength value="4" />
+            </xsd:restriction>
+          </xsd:simpleType>
+        </xsd:attribute>
       </xsd:extension>
     </xsd:complexContent>
   </xsd:complexType>
@@ -160,6 +172,20 @@ parameter.
     
     <xsd:attribute name="uid" use="required" type="xsd:string" />
     
+    <xsd:attribute name="unit" use="optional" default="">
+      <xsd:annotation>
+        <xsd:documentation>
+          Unit of the output type.
+        </xsd:documentation>
+      </xsd:annotation>
+      <xsd:simpleType>
+        <xsd:restriction base="xsd:string">
+          <xsd:minLength value="0" />
+          <xsd:maxLength value="4" />
+        </xsd:restriction>
+      </xsd:simpleType>
+    </xsd:attribute>
+    
     <xsd:attribute name="a0" default="0.0" use="optional" type="xsd:double" />
     <xsd:attribute name="a1" default="0.0" use="optional" type="xsd:double" />
     <xsd:attribute name="a2" default="0.0" use="optional" type="xsd:double" />
@@ -171,4 +197,3 @@ parameter.
     <xsd:attribute name="uid" type="xsd:string" use="required" />
   </xsd:complexType>
 </xsd:schema>
-  
