@@ -47,6 +47,7 @@ FULLNAME = $(BASENAME)-$(VERSION)
 
 zip:
 	zip -r $(FULLNAME).zip pando __main__.py
+	mkdir -p dist
 	echo '#!/usr/bin/env python3' | cat - $(FULLNAME).zip > dist/$(FULLNAME).pyz
 	chmod +x dist/$(FULLNAME).pyz
 	$(RM) $(FULLNAME).zip
