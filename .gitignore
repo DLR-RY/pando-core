@@ -1,5 +1,7 @@
 build
+dist
 *.pyc
+*.pyz
 */__pycache__/*
 
 .coverage

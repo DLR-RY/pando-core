@@ -22,7 +22,6 @@ from . import model
 from . import pkg
 from . import parser
 from . import builder
-from . import __main__
 
 from .pkg import naturalkey
 

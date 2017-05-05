@@ -15,7 +15,7 @@
 import argparse
 
 import pando.scripts
-from subprocess import SubprocessError
+
 
 def main():
     arg = argparse.ArgumentParser(prog='pando',
@@ -55,3 +55,6 @@ def main():
         except (pando.parser.ParserException, pando.model.ModelException) as error:
             print("\nError: {}".format(error))
             exit(1)
+
+if __name__ == "__main__":
+    main()

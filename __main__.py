@@ -12,13 +12,8 @@
 # Authors:
 # - 2017, Fabian Greif (DLR RY-AVS)
 
-import os
-import sys
-
-rootpath = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..")
-sys.path.append(rootpath)
-
 import pando.main
+
 
 if __name__ == '__main__':
     pando.main.main()

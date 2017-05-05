@@ -41,6 +41,16 @@ pylint-gui3:
 dist:
 	@python3 setup.py sdist --formats=zip
 
+BASENAME = pando
+VERSION ?= ${shell cat latest_version.txt}-dev
+FULLNAME = $(BASENAME)-$(VERSION)
+
+zip:
+	zip -r $(FULLNAME).zip pando __main__.py
+	echo '#!/usr/bin/env python3' | cat - $(FULLNAME).zip > dist/$(FULLNAME).pyz
+	chmod +x dist/$(FULLNAME).pyz
+	$(RM) $(FULLNAME).zip
+
 install:
 	@python3 setup.py install --record uninstall.txt
 
