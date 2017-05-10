@@ -89,7 +89,6 @@ class Builder:
                 line_comment_prefix='###',
 
                 trim_blocks=True,
-                lstrip_blocks=True,
 
                 loader=loader,
                 undefined=jinja2.StrictUndefined,
@@ -97,7 +96,6 @@ class Builder:
         else:
             environment = jinja2.Environment(
                 trim_blocks=True,
-                lstrip_blocks=True,
 
                 line_statement_prefix='##',
                 line_comment_prefix='###',
