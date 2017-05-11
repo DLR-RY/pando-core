@@ -1,3 +1,5 @@
+properties([gitLabConnection('AVS GitLab')])
+
 node('x86_64')
 {
     stage('checkout')
