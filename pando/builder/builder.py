@@ -17,9 +17,14 @@ import sys
 import codecs
 import time
 import datetime
+import logging
 import textwrap
 
 import jinja2
+
+
+LOGGER = logging.getLogger("pando.builder")
+
 
 class BuilderException(Exception):
     pass
@@ -46,7 +51,7 @@ class Builder:
             with codecs.open(filename, 'w', 'utf8') as file:
                 file.write(data)
 
-            print("Generate '%s'" % filename)
+            LOGGER.info("Generate '%s'", filename)
         except OSError as e:
             error_message = "Could not write to file '%s': %s" % (filename, e)
             print(error_message, file=sys.stderr)
@@ -88,15 +93,11 @@ class Builder:
                 line_statement_prefix='##',
                 line_comment_prefix='###',
 
-                trim_blocks=True,
-
                 loader=loader,
                 undefined=jinja2.StrictUndefined,
                 extensions=["jinja2.ext.loopcontrols"])
         else:
             environment = jinja2.Environment(
-                trim_blocks=True,
-
                 line_statement_prefix='##',
                 line_comment_prefix='###',
 
