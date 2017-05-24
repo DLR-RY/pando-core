@@ -143,3 +143,23 @@ class ModelTest(unittest.TestCase):
         enumerations = validator.get_enumeration_with_non_unqiue_values()
         self.assertEqual(len(enumerations), 1)
         self.assertIn(enumeration1, enumerations)
+
+    def test_should_detect_not_aligned_packets(self):
+        model = pando.model.Model()
+
+        parameter_type = pando.model.ParameterType(pando.model.ParameterType.UNSIGNED_INTEGER, 3)
+        param = pando.model.Parameter(name="p1", uid="p1", description=None,
+                                      parameter_type=parameter_type)
+        model.parameters[param.uid] = param
+
+        packet = pando.model.Packet(name="Test", uid="test", description="",
+                                    packet_type=pando.model.Packet.TELECOMMAND)
+        packet.append_parameter(param)
+        model.telecommands[packet.uid] = packet
+
+        validator = pando.model.validator.ModelValidator(model)
+        unaligned = validator.get_packets_with_unaligned_length()
+
+        self.assertEqual(len(unaligned), 1)
+        self.assertEqual("test", unaligned[0].uid)
+

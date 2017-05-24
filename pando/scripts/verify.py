@@ -111,6 +111,17 @@ def main(argv):
                     (t["mapping"].sid, t["mapping"].telemetry.serviceType, t["mapping"].telemetry.serviceSubtype, t["apid"], t["apid"]))
         success = False
 
+    for packet in model_validator.get_packets_with_unaligned_length():
+        length = packet.get_accumulated_parameter_length()
+        bits_per_byte = 8
+
+        missing = bits_per_byte - (length % bits_per_byte)
+
+        logger.error("Length of packet uid '{}' is not byte aligned "
+                     "(total length {} bit -> add {} bit)"
+                     .format(packet.uid, length, missing))
+        success = False
+
     for enumeration in model_validator.get_enumeration_with_non_unqiue_values():
         logger.error("Enumeration '{}' ({}) has non unique entries!"
                      .format(enumeration.name, enumeration.uid))

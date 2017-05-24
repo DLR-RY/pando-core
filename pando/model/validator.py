@@ -48,6 +48,21 @@ class ModelValidator:
                                 unmapped_parameters.append(parameter)
         return unmapped_parameters
 
+    def get_packets_with_unaligned_length(self):
+        """
+        Check for packets which have a length that is not byte aligned.
+        """
+        unaligend_packets = []
+        for packet in itertools.chain(self.model.telecommands.values(),
+                                      self.model.telemetries.values()):
+            length = packet.get_accumulated_parameter_length()
+            if length is not None and length % 8 != 0:
+                unaligend_packets.append(packet)
+            # print(packet.uid)
+
+        return unaligend_packets
+
+
     def get_mapped_but_unreferenced_telecommand_parameter(self):
         """
         Find parameter_mappings that are used in TC parameter mapping but not
