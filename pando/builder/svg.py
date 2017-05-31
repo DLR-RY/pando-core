@@ -70,7 +70,7 @@ class ImageBuilder(builder.Builder):
 
         substitutions = {
             'elements': elements,
-            'x_offset': x_offset,
+            'xOffset': x_offset,
             'yOffset': 5 + packet.depth * 5,
             'width': width,
             'height': height,
